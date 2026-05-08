@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// --- Енумерації ---
+
+enum OrderStatus {
+  PENDING
+  IN_WORK
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+// --- Користувачі (Система авторизації) ---
+
+model User {
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  password    String
+  firstName   String?
+  lastName    String?
+  name        String?
+  role        String    @default("USER")
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt @default(now())
+}
+
+// --- Клієнти та Авто ---
+
+model Customer {
+  id                   Int                    @id @default(autoincrement())
+  name                 String
+  phone                String                 @unique
+  source               String
+  isArchived           Boolean                @default(false)
+  createdAt            DateTime               @default(now())
+  communicationHistory CommunicationHistory[]
+  orders               Order[]
+  cars                 Car[]
+  Note                 Note[]
+}
+
+model Car {
+  id         Int      @id @default(autoincrement())
+  brand      String
+  model      String
+  plate      String   @unique
+  vin        String?
+  customerId Int
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model Note {
+  id         Int      @id @default(autoincrement())
+  text       String
+  date       DateTime @default(now())
+  customerId Int
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model CommunicationHistory {
+  id         Int      @id @default(autoincrement())
+  date       DateTime @default(now())
+  text       String
+  customerId Int
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+// --- Персонал ---
+
+model StaffCategory {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  staff Staff[]
+}
+
+model Staff {
+  id              Int            @id @default(autoincrement())
+  name            String
+  role            String
+  exp             Int            @default(0)
+  staffCategoryId Int?
+  staffCategory   StaffCategory? @relation(fields: [staffCategoryId], references: [id], onDelete: SetNull)
+  status          String         @default("Вільний")
+  earnings        Float          @default(0.0)
+  currentCar      String?        @default("")
+  isDeleted       Boolean        @default(false)
+  orders          Order[]
+  logs            StaffLog[]
+}
+
+model StaffLog {
+  id        Int      @id @default(autoincrement())
+  staffId   Int
+  staff     Staff    @relation(fields: [staffId], references: [id])
+  action    String
+  createdAt DateTime @default(now())
+}
+
+// --- Замовлення та Послуги ---
+
+model Order {
+  id            Int         @id @default(autoincrement())
+  createdAt     DateTime    @default(now())
+  completedAt   DateTime?
+  status        OrderStatus @default(PENDING)
+  carDetails    String
+  totalPrice    Float
+  paymentMethod String      @default("Готівка")
+  isUrgent      Boolean     @default(false)
+  deadline      DateTime?
+  notes         String?
+  customerId    Int
+  customer      Customer    @relation(fields: [customerId], references: [id])
+  masterId      Int?
+  master        Staff?      @relation(fields: [masterId], references: [id])
+  services      Service[]   @relation("OrderToService")
+}
+
+model PriceCategory {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  services Service[]
+}
+
+model Service {
+  id              Int            @id @default(autoincrement())
+  name            String
+  price           Float
+  oldPrice        Float?
+  recommendations String?
+  time            Int            @default(0)
+  serviceParts    ServicePart[]
+  orders          Order[]        @relation("OrderToService")
+  categoryId      Int?
+  priceCategory   PriceCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  categoryName    String         @default("Загальне")
+}
+
+model ServicePart {
+  id          Int       @id @default(autoincrement())
+  serviceId   Int
+  service     Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  inventoryId Int
+  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  quantity    Int       @default(1)
+}
+
+// --- Склад (Inventory) ---
+
+model Category {
+  id        Int         @id @default(autoincrement())
+  name      String      @unique
+  inventory Inventory[]
+}
+
+model Inventory {
+  id               Int             @id @default(autoincrement())
+  name             String
+  stockKeepingUnit String          @default("")
+  current          Int             @default(0)
+  minimum          Int             @default(0)
+  price            Float           @default(0)
+  categoryId       Int?
+  category         Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  supplier         String?         @default("")
+  imageSource      String?
+  compatibility    String?
+  technicalData    TechnicalSpec[]
+  logs             InventoryLog[]
+  usedInServices   ServicePart[]
+}
+
+model TechnicalSpec {
+  id          Int       @id @default(autoincrement())
+  parameter   String
+  value       String
+  inventoryId Int
+  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+}
+
+model InventoryLog {
+  id      Int       @id @default(autoincrement())
+  itemId  Int
+  item    Inventory @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  amount  Int
+  note    String?
+  date    DateTime  @default(now())
+}
+
+// --- Довідники Авто ---
+
+model CarBrand {
+  id     Int        @id @default(autoincrement())
+  name   String     @unique
+  models CarModel[]
+}
+
+model CarModel {
+  id      Int      @id @default(autoincrement())
+  name    String
+  brandId Int
+  brand   CarBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+}
+
+// --- Закупівлі ---
+
+model PurchaseOrder {
+  id         Int         @id @default(autoincrement())
+  totalPrice Float
+  status     String      @default("Pending")
+  createdAt  DateTime    @default(now())
+  orderItems OrderItem[]
+  items      String?
+}
+
+model OrderItem {
+  id       Int           @id @default(autoincrement())
+  orderId  Int
+  order    PurchaseOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  itemName String
+  quantity Int
+  price    Float
+}
+
+// --- СИСТЕМА СПОВІЩЕНЬ ТА ЗАМІТОК ---
+
+model Notification {
+  id          String   @id @default(uuid())
+  type        String   // 'inventory', 'service', 'delay', 'manual'
+  priority    String   // 'high', 'medium', 'low'
+  title       String
+  message     String
+  isRead      Boolean  @default(false)
+  isDismissed Boolean  @default(false) // Щоб сповіщення зникало після натискання "Видалити"
+  inventoryId Int?     // Зв'язок з конкретним товаром (опціонально)
+  createdAt   DateTime @default(now())
+}

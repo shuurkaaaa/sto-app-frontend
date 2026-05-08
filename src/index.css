@@ -11,3 +11,17 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+@media print {
+  body * {
+    visibility: hidden; /* Ховаємо все */
+  }
+  .print-section, .print-section * {
+    visibility: visible; /* Показуємо тільки блок з накладною */
+  }
+  .print-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}
