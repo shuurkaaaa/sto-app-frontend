@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { ForgotPasswordModal } from '../Components/AuthComponents/ForgotPasswordModal';
 
 const Login = ({ setAuth }) => {
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -8,6 +9,7 @@ const Login = ({ setAuth }) => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -140,7 +142,19 @@ const Login = ({ setAuth }) => {
         >
           {isLoginMode ? 'Немає акаунту? Створити' : 'Вже є акаунт? Увійти'}
         </p>
+
+        {isLoginMode && (
+          <p
+            className="sto-text-dim small mt-1"
+            style={{ cursor: 'pointer' }}
+            onClick={() => !loading && setForgotOpen(true)}
+          >
+            Забули пароль?
+          </p>
+        )}
       </form>
+
+      <ForgotPasswordModal isOpen={forgotOpen} onClose={() => setForgotOpen(false)} />
     </div>
   );
 };

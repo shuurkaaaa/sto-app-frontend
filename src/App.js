@@ -12,6 +12,7 @@ import Services from './Pages/Services';
 import Notifications from './Pages/Notifications';
 import Customers from './Pages/Customers';
 import Login from './Pages/Login';
+import ResetPassword from './Pages/ResetPassword';
 
 const Sidebar = ({ onLogout }) => (
   <div className="sto-sidebar">
@@ -71,6 +72,7 @@ export default function App() {
           <div className={`sto-main ${isAuth ? 'sto-main--auth' : 'sto-main--guest'}`}>
             <Routes>
               <Route path="/" element={!isAuth ? <Login setAuth={setIsAuth} /> : <Navigate to="/analytics" />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
               <Route path="/analytics" element={isAuth ? <Analytics /> : <Navigate to="/" />} />
               <Route path="/dashboard" element={isAuth ? <Dashboard /> : <Navigate to="/" />} />
               <Route path="/customers" element={isAuth ? <Customers /> : <Navigate to="/" />} />
