@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 import { useWorkers } from './WorkersContext'; 
+import { useInventoryContext } from './InventoryContext';
 
 const OrdersContext = createContext({});
 
@@ -14,7 +16,8 @@ const api = axios.create({
 
 export const OrdersProvider = ({ children }) => {
   const [orders, setOrders] = useState([]);
-  const { fetchWorkers } = useWorkers(); 
+  const { fetchWorkers } = useWorkers();
+  const { fetchInventory } = useInventoryContext() || {};
 
   const fetchOrders = useCallback(async function() {
     try {
@@ -75,10 +78,20 @@ export const OrdersProvider = ({ children }) => {
       if (fetchWorkers) {
         await fetchWorkers(); 
       }
-      
+
+      // Якщо замовлення завершене — список запчастин на складі змінився
+      const newStatus = String(payload?.status || '').toUpperCase();
+      if ((newStatus === 'COMPLETED' || newStatus === 'ВИКОНАНО') && fetchInventory) {
+        await fetchInventory();
+      }
+
       return response.data;
     } catch (error) {
       console.error("Помилка оновлення статусу:", error);
+      const data = error?.response?.data;
+      const userMsg = data?.message || data?.error || "Не вдалося оновити статус замовлення";
+      toast.error(userMsg, { duration: 4000 });
+      return null;
     }
   };
 

@@ -171,14 +171,58 @@ const orderController = {
 
       if (isReadyOrDone && currentOrder.status !== status) {
         if (['COMPLETED', 'ВИКОНАНО'].includes(normStatus)) {
+          // 1. Сумуємо потребу по кожній запчастині (одна деталь може бути у кількох послугах)
+          const requiredByItem = new Map(); // inventoryId -> { qty, name? }
           for (const service of currentOrder.services) {
             for (const sPart of service.serviceParts) {
-              await prisma.inventory.update({
-                where: { id: sPart.inventoryId },
-                data: { current: { decrement: sPart.quantity } }
+              const prev = requiredByItem.get(sPart.inventoryId) || 0;
+              requiredByItem.set(sPart.inventoryId, prev + sPart.quantity);
+            }
+          }
+
+          // 2. Перевіряємо, чи вистачає на складі — інакше відмова без жодних змін
+          if (requiredByItem.size > 0) {
+            const inventoryRecords = await prisma.inventory.findMany({
+              where: { id: { in: [...requiredByItem.keys()] } },
+              select: { id: true, name: true, current: true }
+            });
+            const inventoryMap = new Map(inventoryRecords.map(i => [i.id, i]));
+
+            const shortages = [];
+            for (const [invId, needed] of requiredByItem.entries()) {
+              const item = inventoryMap.get(invId);
+              const available = item?.current ?? 0;
+              if (available < needed) {
+                shortages.push({
+                  id: invId,
+                  name: item?.name || `#${invId}`,
+                  available,
+                  needed
+                });
+              }
+            }
+
+            if (shortages.length > 0) {
+              const msg = shortages
+                .map(s => `${s.name}: потрібно ${s.needed}, на складі ${s.available}`)
+                .join('; ');
+              return res.status(400).json({
+                error: "Недостатньо запчастин на складі",
+                message: `Не вдалося завершити замовлення. ${msg}`,
+                shortages
               });
             }
           }
+
+          // 3. Списання у транзакції — або все, або нічого
+          await prisma.$transaction(
+            [...requiredByItem.entries()].map(([invId, qty]) =>
+              prisma.inventory.update({
+                where: { id: invId },
+                data: { current: { decrement: qty } }
+              })
+            )
+          );
         }
 
         const activeMasterId = masterId !== undefined ? (masterId ? parseInt(masterId) : null) : currentOrder.masterId;

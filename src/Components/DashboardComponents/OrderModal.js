@@ -29,11 +29,14 @@ export const OrderModal = ({ isOpen, onClose, onSave, masters, initialData }) =>
 
   useEffect(() => {
     if (initialData && isOpen) {
+      const plateFromDetails = initialData.carDetails
+        ? (initialData.carDetails.match(/\(([^)]+)\)\s*$/)?.[1] || '')
+        : '';
       setFormData({
         client: initialData.customer?.name || initialData.client || '',
         phone: initialData.customer?.phone || initialData.phone || '',
-        car: initialData.car || (initialData.carDetails ? initialData.carDetails.split(' (')[0] : ''),
-        plate: initialData.plate || '',
+        car: initialData.car || (initialData.carDetails ? initialData.carDetails.replace(/\s*\([^)]+\)\s*$/, '') : ''),
+        plate: initialData.plate || plateFromDetails || '',
         masterId: initialData.masterId ? String(initialData.masterId) : '',
         status: initialData.status || 'PENDING',
         payment: initialData.paymentMethod || 'Готівка',

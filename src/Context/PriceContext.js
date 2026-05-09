@@ -3,10 +3,8 @@ import axios from 'axios';
 
 const PriceContext = createContext();
 
-// Змінено порт на 5000 та адресу на 127.0.0.1 для стабільної роботи
 const API_BASE_URL = 'http://localhost:5000/api';
 
-// Створюємо екземпляр axios із налаштуваннями для передачі cookies/сесій
 const api = axios.create({
   withCredentials: true
 });
@@ -14,14 +12,26 @@ const api = axios.create({
 export const PriceProvider = ({ children }) => {
   const [services, setServices] = useState([]);
   const [categories, setCategories] = useState([]);
+  
+  const normalizeService = (s) => {
+    if (!s) return s;
+    const parts = (s.serviceParts || []).map(sp => ({
+      inventoryId: sp.inventoryId,
+      itemId: sp.inventoryId,
+      quantity: sp.quantity,
+      name: sp.inventory?.name || sp.name || '—',
+    }));
+    return { ...s, parts, linkedParts: parts };
+  };
 
   // Функція для повного оновлення даних прайсу з сервера
   const fetchPriceData = useCallback(async function() {
     try {
       const servicesResponse = await api.get(`${API_BASE_URL}/services`);
       const categoriesResponse = await api.get(`${API_BASE_URL}/price-categories`);
-      
-      setServices(servicesResponse.data || []);
+
+      const list = Array.isArray(servicesResponse.data) ? servicesResponse.data : [];
+      setServices(list.map(normalizeService));
       setCategories(categoriesResponse.data || []);
     } catch (error) {
       console.error("Помилка завантаження даних прайсу:", error);
@@ -116,18 +126,21 @@ export const PriceProvider = ({ children }) => {
       const foundCat = categories.find(function(cat) {
         return (cat.name || cat) === serviceData.category;
       });
-      
+
       const payload = {
         name: serviceData.name,
         price: serviceData.price,
+        oldPrice: serviceData.oldPrice || null,
         recommendations: serviceData.recommendations,
         time: serviceData.time,
-        categoryId: foundCat ? foundCat.id : null
+        category: serviceData.category,
+        categoryId: foundCat ? foundCat.id : null,
+        linkedParts: serviceData.linkedParts || [],
       };
 
       const response = await api.post(`${API_BASE_URL}/services/add`, payload);
       setServices(function(prev) {
-        return [response.data, ...prev];
+        return [normalizeService(response.data), ...prev];
       });
       return response.data;
     } catch (error) {
@@ -146,15 +159,18 @@ export const PriceProvider = ({ children }) => {
       const payload = {
         name: serviceData.name,
         price: serviceData.price,
+        oldPrice: serviceData.oldPrice || null,
         recommendations: serviceData.recommendations,
         time: serviceData.time,
-        categoryId: foundCat ? foundCat.id : null
+        category: serviceData.category,
+        categoryId: foundCat ? foundCat.id : null,
+        linkedParts: serviceData.linkedParts || [],
       };
 
       const response = await api.put(`${API_BASE_URL}/services/${id}`, payload);
       setServices(function(prev) {
         return prev.map(function(s) {
-          return s.id === id ? response.data : s;
+          return s.id === id ? normalizeService(response.data) : s;
         });
       });
       return response.data;
