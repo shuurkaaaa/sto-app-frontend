@@ -75,7 +75,7 @@ export const CustomerDetailsModal = ({
           <div>
             <MaintenanceAlert lastVisit={customer.lastVisit} />
             <CustomerStats customer={customer} onUpdateNotes={onUpdateNotes} />
-            <QuickBookingAction customerName={customer.name} customerPhone={customer.phone} />
+            <QuickBookingAction customer={customer} />
           </div>
         </div>
       </div>

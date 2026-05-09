@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { QuickBookingModal } from './QuickBookingModal';
 
-export const QuickBookingAction = ({ customerName, customerPhone }) => {
+export const QuickBookingAction = ({ customer }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -13,8 +13,7 @@ export const QuickBookingAction = ({ customerName, customerPhone }) => {
       <QuickBookingModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        customerName={customerName}
-        customerPhone={customerPhone}
+        customer={customer}
       />
     </>
   );
