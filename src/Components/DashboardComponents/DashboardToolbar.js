@@ -1,60 +1,32 @@
 import React from 'react';
 
 export const DashboardToolbar = ({ filter, onFilterChange, onAdd, showArchive, onToggleArchive }) => {
-  
-  const buttonBaseStyle = {
-    padding: '10px 20px',
-    borderRadius: '12px',
-    fontSize: '14px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    border: 'none',
-    transition: 'all 0.2s ease'
-  };
-
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-        <select 
-          value={filter} 
-          onChange={(e) => onFilterChange(e.target.value)}
-          style={{
-            padding: '10px 15px',
-            borderRadius: '12px',
-            border: '1px solid #334155',
-            background: '#1E293B',
-            color: '#F1F5F9',
-            fontSize: '14px',
-            outline: 'none',
-            cursor: 'pointer'
-          }}
-        >
-          <option value="Всі">Всі статуси</option>
-          <option value="Очікує">Очікує</option>
-          <option value="В роботі">В роботі</option>
-          <option value="Готово">Готово</option>
-        </select>
+    <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex gap-2 align-items-center">
+        {!showArchive && (
+          <select
+            value={filter}
+            onChange={(e) => onFilterChange(e.target.value)}
+            className="sto-select"
+            style={{ width: 'auto' }}
+          >
+            <option value="Всі">Всі статуси</option>
+            <option value="PENDING">Очікує</option>
+            <option value="IN_WORK">В роботі</option>
+            <option value="READY">Готово</option>
+          </select>
+        )}
 
-        <button 
+        <button
           onClick={() => onToggleArchive(!showArchive)}
-          style={{
-            ...buttonBaseStyle,
-            background: showArchive ? '#818CF8' : '#334155',
-            color: '#F1F5F9',
-          }}
+          className={`sto-btn ${showArchive ? 'sto-btn-primary' : 'sto-btn-secondary'}`}
         >
           {showArchive ? 'Активні замовлення' : 'Архів'}
         </button>
       </div>
 
-      <button 
-        onClick={onAdd}
-        style={{
-          ...buttonBaseStyle,
-          background: '#818CF8',
-          color: '#FFFFFF',
-        }}
-      >
+      <button onClick={onAdd} className="sto-btn sto-btn-primary">
         + Новий заїзд
       </button>
     </div>

@@ -3,25 +3,23 @@ import { useWorkers } from '../../Context/WorkersContext';
 
 export const StaffModal = ({ isOpen, onClose, onSave, worker }) => {
   const { categories } = useWorkers();
-  const [formData, setFormData] = useState({ name: '', role: '', exp: '', category: '' });
+  const [formData, setFormData] = useState({ name: '', role: '', exp: '', category: '', commissionPercent: 10 });
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (isOpen) {
       if (worker) {
-        // Отримуємо назву категорії з об'єкта staffCategory (результат include у Prisma)
         const workerCatName = worker.staffCategory?.name || '';
-          
         setFormData({
           name: worker.name || '',
           role: worker.role || '',
           exp: worker.exp || '',
-          category: workerCatName
+          category: workerCatName,
+          commissionPercent: worker.commissionPercent ?? 10,
         });
       } else {
-        // Для нового працівника ставимо першу доступну категорію за замовчуванням
         const defaultCategory = categories.length > 0 ? categories[0].name : '';
-        setFormData({ name: '', role: '', exp: '', category: defaultCategory });
+        setFormData({ name: '', role: '', exp: '', category: defaultCategory, commissionPercent: 10 });
       }
       setErrors({});
     }
@@ -31,9 +29,11 @@ export const StaffModal = ({ isOpen, onClose, onSave, worker }) => {
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = "Введіть ПІБ майстра";
-    if (!formData.role.trim()) newErrors.role = "Вкажіть посаду (напр. Моторист)";
-    if (!formData.category) newErrors.category = "Оберіть спеціалізацію";
+    if (!formData.name.trim()) newErrors.name = 'Введіть ПІБ майстра';
+    if (!formData.role.trim()) newErrors.role = 'Вкажіть посаду (напр. Моторист)';
+    if (!formData.category) newErrors.category = 'Оберіть спеціалізацію';
+    const cp = Number(formData.commissionPercent);
+    if (Number.isNaN(cp) || cp < 0 || cp > 100) newErrors.commissionPercent = 'Відсоток від 0 до 100';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -41,169 +41,102 @@ export const StaffModal = ({ isOpen, onClose, onSave, worker }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
-    
-    // Знаходимо об'єкт обраної категорії, щоб отримати її ID для зв'язку в БД
     const selectedCat = categories.find(c => c.name === formData.category);
-    
     onSave({
-      id: worker ? worker.id : null, 
+      id: worker ? worker.id : null,
       name: formData.name.trim(),
       role: formData.role.trim(),
       exp: parseInt(formData.exp, 10) || 0,
-      // Використовуємо staffCategoryId для коректного зв'язку з Prisma
-      staffCategoryId: selectedCat ? selectedCat.id : null
+      staffCategoryId: selectedCat ? selectedCat.id : null,
+      commissionPercent: Number(formData.commissionPercent),
     });
   };
 
-  const inputStyle = (hasError) => ({
-    width: '100%', 
-    padding: '12px', 
-    boxSizing: 'border-box', 
-    borderRadius: '12px',
-    border: `1px solid ${hasError ? '#ef4444' : '#334155'}`,
-    outline: 'none', 
-    fontSize: '14px', 
-    color: '#F1F5F9', 
-    backgroundColor: '#0F172A', 
-    transition: 'border-color 0.2s',
-    marginTop: '5px'
-  });
-
   return (
-    <div style={modalStyles.overlay}>
-      <div style={modalStyles.modal}>
-        <h2 style={{ marginTop: 0, marginBottom: '20px', fontSize: '22px', color: '#F1F5F9' }}>
+    <div className="sto-modal-overlay" style={{ zIndex: 5000 }}>
+      <div className="sto-modal" style={{ maxWidth: '440px' }}>
+        <h2 className="mt-0 mb-3 text-light" style={{ fontSize: '22px' }}>
           {worker ? 'Редагувати майстра' : ' Новий працівник'}
         </h2>
-        
+
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={modalStyles.label}>ПІБ майстра *</label>
-            <input 
-              style={inputStyle(errors.name)} 
-              placeholder="Прізвище та Ім'я" 
-              value={formData.name} 
-              onChange={e => setFormData({...formData, name: e.target.value})} 
+          <div className="mb-3">
+            <label className="sto-label">ПІБ майстра *</label>
+            <input
+              className={`sto-input ${errors.name ? 'sto-input--error' : ''}`}
+              placeholder="Прізвище та Ім'я"
+              value={formData.name}
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
             />
-            {errors.name && <span style={modalStyles.errorText}>{errors.name}</span>}
+            {errors.name && <span className="sto-text-danger small d-block mt-1">{errors.name}</span>}
           </div>
 
-          <div style={{ marginBottom: '15px' }}>
-            <label style={modalStyles.label}>Посада *</label>
-            <input 
-              style={inputStyle(errors.role)} 
-              placeholder="Наприклад: Моторист" 
-              value={formData.role} 
-              onChange={e => setFormData({...formData, role: e.target.value})} 
+          <div className="mb-3">
+            <label className="sto-label">Посада *</label>
+            <input
+              className={`sto-input ${errors.role ? 'sto-input--error' : ''}`}
+              placeholder="Наприклад: Моторист"
+              value={formData.role}
+              onChange={e => setFormData({ ...formData, role: e.target.value })}
             />
-            {errors.role && <span style={modalStyles.errorText}>{errors.role}</span>}
+            {errors.role && <span className="sto-text-danger small d-block mt-1">{errors.role}</span>}
           </div>
 
-          <div style={{ marginBottom: '15px' }}>
-            <label style={modalStyles.label}>Досвід роботи (повних років)</label>
-            <input 
-              type="number" 
+          <div className="mb-3">
+            <label className="sto-label">Досвід роботи (повних років)</label>
+            <input
+              type="number"
               min="0"
-              style={inputStyle(false)} 
+              className="sto-input"
               placeholder="0"
-              value={formData.exp} 
-              onChange={e => setFormData({...formData, exp: e.target.value})} 
+              value={formData.exp}
+              onChange={e => setFormData({ ...formData, exp: e.target.value })}
             />
           </div>
 
-          <div style={{ marginBottom: '25px' }}>
-            <label style={modalStyles.label}>Спеціалізація (Категорія)</label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
+          <div className="mb-3">
+            <label className="sto-label">Відсоток від ціни замовлення (%)</label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              step="0.5"
+              className={`sto-input ${errors.commissionPercent ? 'sto-input--error' : ''}`}
+              placeholder="10"
+              value={formData.commissionPercent}
+              onChange={e => setFormData({ ...formData, commissionPercent: e.target.value })}
+            />
+            {errors.commissionPercent && <span className="sto-text-danger small d-block mt-1">{errors.commissionPercent}</span>}
+            <span className="sto-text-dim small d-block mt-1">Відсоток, який майстер отримує від виконаного замовлення</span>
+          </div>
+
+          <div className="mb-4">
+            <label className="sto-label">Спеціалізація (Категорія)</label>
+            <div className="d-flex flex-wrap gap-2 mt-2">
               {categories.map(cat => (
-                <button 
-                  key={cat.id} 
-                  type="button" 
-                  onClick={() => setFormData({...formData, category: cat.name})}
-                  style={{
-                    padding: '10px 16px', 
-                    borderRadius: '10px', 
-                    border: 'none', 
-                    cursor: 'pointer', 
-                    fontSize: '13px', 
-                    fontWeight: '600',
-                    transition: '0.2s',
-                    backgroundColor: formData.category === cat.name ? '#818CF8' : '#334155',
-                    color: formData.category === cat.name ? '#FFFFFF' : '#94A3B8'
-                  }}
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, category: cat.name })}
+                  className={`px-3 py-2 rounded-3 border-0 fw-semibold small ${formData.category === cat.name ? 'text-white' : 'sto-text-muted'}`}
+                  style={{ backgroundColor: formData.category === cat.name ? 'var(--sto-accent)' : 'var(--sto-border)', cursor: 'pointer' }}
                 >
                   {cat.name}
                 </button>
               ))}
               {categories.length === 0 && (
-                <span style={{ color: '#64748b', fontSize: '12px' }}>Спочатку додайте категорії в заголовку</span>
+                <span className="sto-text-dim small">Спочатку додайте категорії в заголовку</span>
               )}
             </div>
-            {errors.category && <span style={modalStyles.errorText}>{errors.category}</span>}
+            {errors.category && <span className="sto-text-danger small d-block mt-1">{errors.category}</span>}
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '10px' }}>
-            <button type="button" onClick={onClose} style={modalStyles.btnCancel}>Скасувати</button>
-            <button type="submit" style={modalStyles.btnSave}>Зберегти</button>
+          <div className="d-flex justify-content-end gap-3 mt-2">
+            <button type="button" onClick={onClose} className="sto-btn sto-btn-ghost">Скасувати</button>
+            <button type="submit" className="sto-btn sto-btn-primary">Зберегти</button>
           </div>
         </form>
       </div>
     </div>
   );
-};
-
-const modalStyles = {
-  overlay: { 
-    position: 'fixed', 
-    inset: 0, 
-    backgroundColor: 'rgba(15, 23, 42, 0.9)', 
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    zIndex: 5000, 
-    backdropFilter: 'blur(8px)' 
-  },
-  modal: { 
-    background: '#1E293B', 
-    padding: '32px', 
-    borderRadius: '24px', 
-    width: '440px', 
-    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', 
-    border: '1px solid #334155' 
-  },
-  label: { 
-    display: 'block', 
-    fontSize: '11px', 
-    fontWeight: '800', 
-    color: '#94A3B8', 
-    marginBottom: '4px', 
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px'
-  },
-  errorText: {
-    color: '#ef4444',
-    fontSize: '11px',
-    marginTop: '4px',
-    display: 'block'
-  },
-  btnCancel: { 
-    padding: '12px 20px', 
-    borderRadius: '12px', 
-    border: '1px solid #334155', 
-    cursor: 'pointer', 
-    background: 'transparent', 
-    color: '#94A3B8', 
-    fontWeight: '600',
-    transition: '0.2s'
-  },
-  btnSave: { 
-    padding: '12px 28px', 
-    borderRadius: '12px', 
-    border: 'none', 
-    background: '#818CF8', 
-    color: 'white', 
-    cursor: 'pointer', 
-    fontWeight: 'bold',
-    transition: '0.2s',
-    boxShadow: '0 4px 6px -1px rgba(129, 140, 248, 0.4)'
-  }
 };

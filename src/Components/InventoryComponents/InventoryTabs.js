@@ -1,16 +1,15 @@
 import React from 'react';
-import { inventoryStyles } from './InventoryStyles';
 
 export const InventoryTabs = ({ activeTab, onTabChange, deficitCount }) => (
-  <div style={{ marginBottom: '20px', display: 'flex' }}>
-    <button 
-      style={inventoryStyles.tab(activeTab === 'all')} 
+  <div className="mb-3 d-flex gap-2">
+    <button
+      className={`sto-tab ${activeTab === 'all' ? 'active' : ''}`}
       onClick={() => onTabChange('all')}
     >
       Усі товари
     </button>
-    <button 
-      style={inventoryStyles.tab(activeTab === 'deficit')} 
+    <button
+      className={`sto-tab ${activeTab === 'deficit' ? 'active' : ''}`}
       onClick={() => onTabChange('deficit')}
     >
       Дефіцит ({deficitCount})

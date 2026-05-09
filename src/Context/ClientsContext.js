@@ -65,10 +65,12 @@ export const ClientsProvider = ({ children }) => {
 
   const toggleArchive = async (id, isArchived) => {
     try {
-      const res = await fetch(`${API_BASE}/${id}`, fetchOptions('PATCH', { isArchived }));
+      const res = await fetch(`${API_BASE}/${id}/archive`, fetchOptions('PATCH', { isArchived }));
       if (res.ok) {
         const updated = await res.json();
         setClients((prev) => prev.map((c) => c.id === id ? updated : c));
+      } else {
+        console.error('Toggle archive failed:', res.status);
       }
     } catch (err) {
       console.error("Error toggling archive:", err);

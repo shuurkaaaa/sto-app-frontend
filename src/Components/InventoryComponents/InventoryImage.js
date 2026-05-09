@@ -1,64 +1,43 @@
 import React, { useState } from 'react';
-import { inventoryStyles } from './InventoryStyles';
 
-export const InventoryImage = ({ src, name }) => {
+export const InventoryImage = ({ source, src, itemName, name }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [hasError, setHasError] = useState(false);
-  
-  // Використовуємо 127.0.0.1 замість localhost для уникнення проблем з SSL у Safari
-  const SERVER_URL = "http://127.0.0.1:5000";
+  const SERVER_URL = 'http://127.0.0.1:5000';
+  const path = source || src;
+  const label = itemName || name;
 
-  const getImageUrl = (path) => {
-    // Замінено на placehold.co, щоб уникнути помилок SSL (45, line 0)
-    if (!path) return "https://placehold.co/45x45/1e293b/94a3b8?text=📦";
-    
-    // Якщо це base64
-    if (path.startsWith('data:image')) {
-      return path;
-    }
-    
-    // Якщо це відносний шлях з бази (наприклад, uploads/file.jpg)
-    const formattedPath = path.startsWith('/') ? path : `/${path}`;
+  const getImageUrl = (p) => {
+    if (!p) return 'https://placehold.co/45x45/1e293b/94a3b8?text=📦';
+    if (p.startsWith('data:image')) return p;
+    const formattedPath = p.startsWith('/') ? p : `/${p}`;
     return `${SERVER_URL}${formattedPath}`;
   };
 
-  // Заглушка на випадок помилки завантаження
-  const finalSrc = hasError ? "https://placehold.co/45x45/1e293b/ef4444?text=ERR" : getImageUrl(src);
+  const finalSrc = hasError ? 'https://placehold.co/45x45/1e293b/ef4444?text=ERR' : getImageUrl(path);
 
   return (
-    <div 
-      style={{ position: 'relative', display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+    <div
+      className="position-relative d-flex align-items-center"
+      style={{ cursor: 'pointer' }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <img 
-        src={finalSrc} 
-        alt={name} 
-        style={inventoryStyles.imageThumbnail} 
-        onError={() => setHasError(true)}
-      />
-      
-      {isHovered && src && !hasError && (
-        <div style={{
-          position: 'absolute',
-          left: '55px',
-          top: '-20px',
-          zIndex: 9999,
-          boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
-          borderRadius: '12px',
-          overflow: 'hidden',
-          backgroundColor: '#1E293B',
-          border: '1px solid #334155'
-        }}>
-          <img 
-            src={finalSrc} 
-            alt="Preview" 
-            style={{ 
-              maxWidth: '300px', 
-              maxHeight: '300px', 
-              display: 'block',
-              objectFit: 'contain'
-            }} 
+      <img src={finalSrc} alt={label} className="sto-img-thumb" onError={() => setHasError(true)} />
+
+      {isHovered && path && !hasError && (
+        <div
+          className="position-absolute rounded-3 overflow-hidden border"
+          style={{
+            left: '55px', top: '-20px', zIndex: 9999,
+            background: 'var(--sto-bg-2)', borderColor: 'var(--sto-border)',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+          }}
+        >
+          <img
+            src={finalSrc}
+            alt="Preview"
+            style={{ maxWidth: '300px', maxHeight: '300px', display: 'block', objectFit: 'contain' }}
           />
         </div>
       )}

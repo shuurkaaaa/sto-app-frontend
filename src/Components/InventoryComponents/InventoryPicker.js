@@ -4,44 +4,48 @@ import { useInventoryContext } from '../../Context/InventoryContext';
 export const InventoryPicker = ({ selectedParts, onAddPart, onRemovePart }) => {
   const { inventoryItems } = useInventoryContext();
 
-  const inventoryPickerStyles = {
-    label: { display: 'block', fontSize: '11px', fontWeight: '800', color: '#94A3B8', marginBottom: '8px', textTransform: 'uppercase' },
-    select: { width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #334155', marginBottom: '15px', outline: 'none', backgroundColor: '#1E293B', color: '#F1F5F9' },
-    list: { background: '#0F172A', padding: '12px', borderRadius: '12px', border: '1px solid #334155', minHeight: '100px' },
-    empty: { color: '#94A3B8', fontSize: '12px', textAlign: 'center', marginTop: '35px' },
-    item: { display: 'flex', justifyContent: 'space-between', padding: '10px', background: '#1E293B', borderRadius: '8px', marginBottom: '6px', fontSize: '13px', border: '1px solid #334155', color: '#F1F5F9' },
-    remove: { background: '#450a0a', color: '#F87171', border: 'none', borderRadius: '5px', width: '22px', height: '22px', cursor: 'pointer' }
-  };
-
   return (
     <div>
-      <label style={inventoryPickerStyles.label}>СКЛАД ЗАПЧАСТИН</label>
-      <select 
-        style={inventoryPickerStyles.select} 
-        onChange={(event) => {
-          if(event.target.value) {
-            onAddPart(Number(event.target.value));
-          }
-          event.target.value = "";
+      <label className="sto-label">СКЛАД ЗАПЧАСТИН</label>
+      <select
+        className="sto-select mb-3"
+        onChange={(e) => {
+          if (e.target.value) onAddPart(Number(e.target.value));
+          e.target.value = '';
         }}
         defaultValue=""
       >
         <option value="" disabled>+ Додати товар зі складу...</option>
-        {inventoryItems.map(inventoryItem => (
-          <option key={inventoryItem.id} value={inventoryItem.id} disabled={inventoryItem.current <= 0}>
-            {inventoryItem.name} ({inventoryItem.current} шт) — {inventoryItem.price} грн
+        {inventoryItems.map(item => (
+          <option key={item.id} value={item.id} disabled={item.current <= 0}>
+            {item.name} ({item.current} шт) — {item.price} грн
           </option>
         ))}
       </select>
 
-      <div style={inventoryPickerStyles.list}>
-        {selectedParts.length === 0 && <p style={inventoryPickerStyles.empty}>Нічого не вибрано</p>}
-        {selectedParts.map((part, index) => (
-          <div key={index} style={inventoryPickerStyles.item}>
+      <div
+        className="rounded-3 p-3 border"
+        style={{ background: 'var(--sto-bg)', borderColor: 'var(--sto-border)', minHeight: '100px' }}
+      >
+        {selectedParts.length === 0 && (
+          <p className="sto-text-muted small text-center mt-4">Нічого не вибрано</p>
+        )}
+        {selectedParts.map((part, idx) => (
+          <div
+            key={idx}
+            className="d-flex justify-content-between p-2 mb-1 rounded-2 border text-light small"
+            style={{ background: 'var(--sto-bg-2)', borderColor: 'var(--sto-border)' }}
+          >
             <span>{part.name}</span>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              <span style={{ fontWeight: 'bold' }}>{part.price} грн</span>
-              <button onClick={() => onRemovePart(index)} style={inventoryPickerStyles.remove}>×</button>
+            <div className="d-flex gap-2 align-items-center">
+              <span className="fw-bold">{part.price} грн</span>
+              <button
+                onClick={() => onRemovePart(idx)}
+                className="border-0 rounded-2"
+                style={{ background: '#450a0a', color: '#F87171', width: '22px', height: '22px', cursor: 'pointer' }}
+              >
+                ×
+              </button>
             </div>
           </div>
         ))}

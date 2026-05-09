@@ -1,51 +1,37 @@
 import React from 'react';
-import { serviceStyles } from './ServiceStyles';
 
-export const ServiceToolbar = ({ 
-  searchTerm, 
-  onSearchChange, 
-  categories, 
-  selectedCategory, 
+export const ServiceToolbar = ({
+  searchTerm,
+  onSearchChange,
+  categories,
+  selectedCategory,
   onCategoryChange,
-  onOpenAddModal 
+  onOpenAddModal,
 }) => (
-  <div style={serviceStyles.toolbar}>
-    <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-      <div style={{ flex: 1 }}>
-        <input
-          type="text"
-          placeholder="Пошук послуги..."
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-          style={serviceStyles.searchInput}
-        />
-      </div>
-
-      <button 
-        onClick={onOpenAddModal}
-        style={{
-          ...serviceStyles.catButton,
-          backgroundColor: '#818CF8',
-          color: '#F1F5F9',
-          padding: '12px 25px',
-          border: 'none',
-          whiteSpace: 'nowrap'
-        }}
-      >
+  <div className="d-flex flex-column gap-3 mb-4">
+    <div className="d-flex gap-3 align-items-center">
+      <input
+        type="text"
+        placeholder="Пошук послуги..."
+        value={searchTerm}
+        onChange={(e) => onSearchChange(e.target.value)}
+        className="sto-input flex-grow-1"
+      />
+      <button onClick={onOpenAddModal} className="sto-btn sto-btn-primary text-nowrap">
         Додати послугу
       </button>
     </div>
-    
-    <div style={serviceStyles.categoryBar}>
+
+    <div className="d-flex flex-wrap gap-2">
       {categories.map(cat => (
         <button
           key={cat}
           onClick={() => onCategoryChange(cat)}
+          className={`px-3 py-2 rounded-3 fw-semibold small border ${selectedCategory === cat ? 'text-white' : 'sto-text-muted'}`}
           style={{
-            ...serviceStyles.catButton,
-            backgroundColor: selectedCategory === cat ? '#818CF8' : '#1E293B',
-            color: selectedCategory === cat ? '#F1F5F9' : '#94A3B8',
-            borderColor: selectedCategory === cat ? '#818CF8' : '#334155',
+            background: selectedCategory === cat ? 'var(--sto-accent)' : 'var(--sto-bg-2)',
+            borderColor: selectedCategory === cat ? 'var(--sto-accent)' : 'var(--sto-border)',
+            cursor: 'pointer',
           }}
         >
           {cat}

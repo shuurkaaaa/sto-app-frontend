@@ -11,36 +11,86 @@ const getNotifications = async (req, res) => {
     // МЕХАНІЗМ АРХІВУ: Замітки старіші за 24 години автоматично не завантажуються
     const archiveThreshold = new Date(today.getTime() - (24 * 60 * 60 * 1000));
 
-    // Отримуємо всі ID сповіщень, які користувач уже приховав (isDismissed: true)
-    const dismissedLogs = await prisma.notification.findMany({
-      where: { isDismissed: true },
-      select: { id: true }
+    // Отримуємо всі збережені системні записи (для dismissed-стану та стабільного часу)
+    const storedRecords = await prisma.notification.findMany({
+      where: { type: { in: ['inventory', 'service', 'delay'] } },
+      select: { id: true, isDismissed: true, createdAt: true }
     });
-    const dismissedIds = new Set(dismissedLogs.map(log => String(log.id)));
+    const storedMap = new Map(storedRecords.map(r => [String(r.id), r]));
+    const dismissedIds = new Set(
+      storedRecords.filter(r => r.isDismissed).map(r => String(r.id))
+    );
+
+    // Допоміжна функція: повертає стабільний createdAt для системного сповіщення.
+    // Якщо запис ще не існує в БД — створюємо (firstSeen = now), інакше беремо збережений.
+    const ensureSystemTimestamp = async (systemId, type, title, message, priority) => {
+      const existing = storedMap.get(systemId);
+      if (existing) return existing.createdAt;
+      try {
+        const created = await prisma.notification.create({
+          data: {
+            id: systemId,
+            type,
+            title,
+            message,
+            priority,
+            isDismissed: false,
+            createdAt: today,
+          }
+        });
+        storedMap.set(systemId, { id: systemId, isDismissed: false, createdAt: created.createdAt });
+        return created.createdAt;
+      } catch (e) {
+        return today;
+      }
+    };
 
     // 1. ПЕРЕВІРКА СКЛАДУ (Inventory)
     try {
       const allItems = await prisma.inventory.findMany();
+      const deficitItemIds = new Set(
+        allItems.filter(item => item.current <= item.minimum).map(item => item.id)
+      );
+
+      // АВТО-СКИДАННЯ: видаляємо старі inventory-записи для товарів, де дефіциту вже немає.
+      // Це гарантує, що при повторному падінні запасу нижче мінімуму сповіщення з'явиться знову,
+      // навіть якщо користувач його колись приховав.
+      const stalePrefixed = [...storedMap.keys()].filter(k => {
+        if (!k.startsWith('inventory-')) return false;
+        const itemId = parseInt(k.slice('inventory-'.length), 10);
+        return !Number.isNaN(itemId) && !deficitItemIds.has(itemId);
+      });
+      if (stalePrefixed.length > 0) {
+        await prisma.notification.deleteMany({ where: { id: { in: stalePrefixed } } });
+        stalePrefixed.forEach(id => {
+          storedMap.delete(id);
+          dismissedIds.delete(id);
+        });
+      }
+
       const deficitItems = allItems.filter(item => item.current <= item.minimum);
 
-      deficitItems.forEach(item => {
+      for (const item of deficitItems) {
         const systemId = `inventory-${item.id}`;
-        
+
         // Додаємо, тільки якщо не приховано користувачем
         if (!dismissedIds.has(systemId)) {
+          const title = 'Дефіцит на складі';
+          const message = `Запчастина "${item.name}" закінчується. Залишок: ${item.current} шт.`;
+          const createdAt = await ensureSystemTimestamp(systemId, 'inventory', title, message, 'high');
           notifications.push({
-            id: systemId, 
+            id: systemId,
             type: 'inventory',
             priority: 'high',
-            title: 'Дефіцит на складі',
-            message: `Запчастина "${item.name}" закінчується. Залишок: ${item.current} шт.`,
-            date: today.toLocaleString('uk-UA'),
+            title,
+            message,
+            date: new Date(createdAt).toLocaleString('uk-UA'),
             current: item.current,
             minimum: item.minimum,
             itemName: item.name
           });
         }
-      });
+      }
     } catch (e) {
       console.error("⚠️ Помилка Inventory:", e.message);
     }

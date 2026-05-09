@@ -1,10 +1,8 @@
 import React from 'react';
 
 export const InventoryHeader = () => (
-  <div style={{ marginBottom: '20px' }}>
-    <h2 style={{ margin: 0, color: '#F1F5F9' }}>Склад запчастин та розхідників</h2>
-    <p style={{ margin: '5px 0 0 0', color: '#94A3B8', fontSize: '14px' }}>
-      Управління залишками та сумісністю деталей
-    </p>
+  <div className="mb-3">
+    <h2 className="m-0 text-light">Склад запчастин та розхідників</h2>
+    <p className="m-0 mt-1 sto-text-muted small">Управління залишками та сумісністю деталей</p>
   </div>
 );

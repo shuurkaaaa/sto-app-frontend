@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { customerStyles } from './CustomerStyles';
 import { QuickBookingModal } from './QuickBookingModal';
 
 export const QuickBookingAction = ({ customerName, customerPhone }) => {
@@ -7,14 +6,14 @@ export const QuickBookingAction = ({ customerName, customerPhone }) => {
 
   return (
     <>
-      <button style={customerStyles.bookingBtn} onClick={() => setIsOpen(true)}>
+      <button className="sto-btn sto-btn-primary w-100 mt-3" onClick={() => setIsOpen(true)}>
         Записати на сервіс
       </button>
 
-      <QuickBookingModal 
-        isOpen={isOpen} 
-        onClose={() => setIsOpen(false)} 
-        customerName={customerName} 
+      <QuickBookingModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        customerName={customerName}
         customerPhone={customerPhone}
       />
     </>

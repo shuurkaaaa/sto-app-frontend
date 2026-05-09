@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { usePrice } from '../../Context/PriceContext';
-import { serviceStyles } from './ServiceStyles';
 
 export const CategoryManager = () => {
   const { categories, addCategory, deleteCategory, updateCategory } = usePrice();
@@ -10,110 +9,79 @@ export const CategoryManager = () => {
   const [editValue, setEditValue] = useState('');
 
   const handleAdd = () => {
-    if (newCat.trim()) {
-      addCategory(newCat.trim());
-      setNewCat('');
-    }
+    if (newCat.trim()) { addCategory(newCat.trim()); setNewCat(''); }
   };
-
-  const startEditing = (cat) => {
-    setEditingId(cat.id);
-    setEditValue(cat.name);
-  };
-
+  const startEditing = (cat) => { setEditingId(cat.id); setEditValue(cat.name); };
   const saveEdit = (id) => {
-    if (editValue.trim()) {
-      updateCategory(id, editValue.trim());
-      setEditingId(null);
-    }
+    if (editValue.trim()) { updateCategory(id, editValue.trim()); setEditingId(null); }
   };
-
   const handleDeleteClick = (catName) => {
-    const isConfirmed = window.confirm(`Ви дійсно хочете видалити категорію "${catName}"?`);
-    if (isConfirmed) {
-      deleteCategory(catName);
-    }
+    if (window.confirm(`Ви дійсно хочете видалити категорію "${catName}"?`)) deleteCategory(catName);
   };
 
   return (
-    <div style={{ marginBottom: '20px', padding: '15px', background: '#1E293B', borderRadius: '12px', border: '1px solid #334155' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h4 style={{ color: '#94A3B8', margin: 0, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+    <div className="sto-card-sm sto-card mb-3 p-3">
+      <div className="d-flex justify-content-between align-items-center">
+        <h4 className="sto-text-muted m-0 small fw-bold text-uppercase" style={{ letterSpacing: '0.5px' }}>
           Налаштування категорій прайсу
         </h4>
-        <button 
+        <button
           onClick={() => setIsPanelOpen(!isPanelOpen)}
-          style={{ background: 'none', border: 'none', color: '#818CF8', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
+          className="btn btn-sm sto-text-accent fw-semibold"
+          style={{ background: 'none', border: 'none' }}
         >
           {isPanelOpen ? '✕ Закрити' : '+ Керувати'}
         </button>
       </div>
 
       {isPanelOpen && (
-        <div style={{ marginTop: '15px', borderTop: '1px solid #334155', paddingTop: '15px' }}>
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-            <input 
+        <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--sto-border)' }}>
+          <div className="d-flex gap-2 mb-3">
+            <input
               value={newCat}
               onChange={(e) => setNewCat(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
               placeholder="Додати нову категорію..."
-              style={{ ...serviceStyles.searchInput, flex: 1, marginBottom: 0, height: '38px' }}
+              className="sto-input flex-grow-1"
             />
-            <button 
-              onClick={handleAdd}
-              style={{ 
-                padding: '0 20px', 
-                borderRadius: '8px', 
-                border: 'none', 
-                backgroundColor: '#818CF8', 
-                color: 'white', 
-                cursor: 'pointer',
-                fontWeight: '600'
-              }}
-            >
-              Додати
-            </button>
+            <button onClick={handleAdd} className="sto-btn sto-btn-primary flex-shrink-0">Додати</button>
           </div>
-          
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+
+          <div className="d-flex flex-wrap gap-2">
             {categories.length > 0 ? (
               categories.map((cat) => {
                 const catName = typeof cat === 'object' ? cat.name : cat;
                 if (catName === 'Всі') return null;
-                
                 return (
-                  <div key={cat.id} style={{ 
-                    display: 'flex', alignItems: 'center', gap: '8px', 
-                    background: '#0F172A', padding: '6px 12px', borderRadius: '20px',
-                    border: '1px solid #334155'
-                  }}>
+                  <div
+                    key={cat.id}
+                    className="d-flex align-items-center gap-2 px-3 py-1 rounded-pill border"
+                    style={{ background: 'var(--sto-bg)', borderColor: 'var(--sto-border)' }}
+                  >
                     {editingId === cat.id ? (
-                      <input 
+                      <input
                         autoFocus
                         value={editValue}
                         onChange={(e) => setEditValue(e.target.value)}
                         onBlur={() => saveEdit(cat.id)}
                         onKeyDown={(e) => e.key === 'Enter' && saveEdit(cat.id)}
-                        style={{ 
-                          background: 'none', border: 'none', color: '#818CF8', 
-                          fontSize: '13px', outline: 'none', width: '100px' 
-                        }}
+                        className="sto-text-accent small"
+                        style={{ background: 'none', border: 'none', outline: 'none', width: '100px' }}
                       />
                     ) : (
-                      <span 
+                      <span
                         onClick={() => startEditing(cat)}
-                        style={{ color: '#F1F5F9', fontSize: '13px', cursor: 'pointer' }}
+                        className="text-light small"
+                        style={{ cursor: 'pointer' }}
                         title="Натисніть, щоб редагувати"
                       >
                         {catName}
                       </span>
                     )}
-                    <button 
+                    <button
                       onClick={() => handleDeleteClick(catName)}
-                      style={{ 
-                        background: 'none', border: 'none', color: '#EF4444', 
-                        cursor: 'pointer', fontWeight: 'bold', fontSize: '16px'
-                      }}
+                      className="btn-close-sm fw-bold"
+                      style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontSize: '16px' }}
                     >
                       ×
                     </button>
@@ -121,7 +89,7 @@ export const CategoryManager = () => {
                 );
               })
             ) : (
-              <p style={{ color: '#64748B', fontSize: '12px', fontStyle: 'italic' }}>Категорій поки немає</p>
+              <p className="sto-text-dim small fst-italic">Категорій поки немає</p>
             )}
           </div>
         </div>

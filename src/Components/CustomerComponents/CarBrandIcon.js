@@ -1,9 +1,8 @@
 import React from 'react';
-import { customerStyles } from './CustomerStyles';
 
 export const CarBrandIcon = ({ brandName }) => {
   const getBrandText = (name) => {
-    const brand = name.toLowerCase();
+    const brand = (name || '').toLowerCase();
     if (brand.includes('bmw')) return 'BMW';
     if (brand.includes('mercedes')) return 'MB';
     if (brand.includes('audi')) return 'AU';
@@ -13,9 +12,5 @@ export const CarBrandIcon = ({ brandName }) => {
     return 'CR';
   };
 
-  return (
-    <div style={customerStyles.brandIcon}>
-      {getBrandText(brandName)}
-    </div>
-  );
+  return <div className="sto-brand-icon">{getBrandText(brandName)}</div>;
 };

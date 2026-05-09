@@ -26,6 +26,21 @@ export const useStaffLogic = () => {
       });
     }
 
+    // Збагачуємо кожного майстра інформацією про активні замовлення
+    const ACTIVE_STATUSES = ['IN_WORK', 'PENDING', 'READY'];
+    list = list.map(w => {
+      const activeOrders = (orders || []).filter(
+        o => o.masterId === w.id && ACTIVE_STATUSES.includes(o.status)
+      );
+      const carFromOrder = activeOrders[0]?.carDetails || activeOrders[0]?.carInfo || '';
+      return {
+        ...w,
+        hasActiveOrder: activeOrders.length > 0,
+        activeOrdersCount: activeOrders.length,
+        currentCar: w.currentCar || carFromOrder,
+      };
+    });
+
     if (sortBy === 'name') {
       list.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
     } else if (sortBy === 'exp') {
@@ -35,7 +50,7 @@ export const useStaffLogic = () => {
     }
     
     return list;
-  }, [workers, currentFilter, sortBy]);
+  }, [workers, orders, currentFilter, sortBy]);
 
   const toggleStatus = async (id) => {
     const worker = workers.find(w => w.id === id);

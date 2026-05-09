@@ -41,14 +41,15 @@ exports.getArchivedStaff = async (req, res) => {
 };
 
 exports.createStaff = async (req, res) => {
-  const { name, role, exp, staffCategoryId } = req.body;
+  const { name, role, exp, staffCategoryId, commissionPercent } = req.body;
   try {
     const newMember = await prisma.staff.create({ 
       data: { 
         name, 
         role, 
         exp: safeParseInt(exp), 
-        staffCategoryId: staffCategoryId ? Number(staffCategoryId) : null 
+        staffCategoryId: staffCategoryId ? Number(staffCategoryId) : null,
+        commissionPercent: commissionPercent !== undefined && commissionPercent !== '' ? Number(commissionPercent) : 10,
       },
       include: { staffCategory: true }
     });
@@ -61,7 +62,7 @@ exports.createStaff = async (req, res) => {
 
 exports.updateStaff = async (req, res) => {
   const { id } = req.params;
-  const { name, role, exp, staffCategoryId } = req.body;
+  const { name, role, exp, staffCategoryId, commissionPercent } = req.body;
   try {
     const updated = await prisma.staff.update({
       where: { id: Number(id) },
@@ -69,7 +70,8 @@ exports.updateStaff = async (req, res) => {
         name, 
         role, 
         exp: safeParseInt(exp), 
-        staffCategoryId: staffCategoryId ? Number(staffCategoryId) : null 
+        staffCategoryId: staffCategoryId ? Number(staffCategoryId) : null,
+        ...(commissionPercent !== undefined && commissionPercent !== '' ? { commissionPercent: Number(commissionPercent) } : {}),
       },
       include: { staffCategory: true }
     });

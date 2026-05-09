@@ -1,25 +1,11 @@
 import React from 'react';
-import { customerStyles } from './CustomerStyles';
 
 export const CustomerHeader = ({ onAddClick }) => (
-  <div style={customerStyles.header}>
-    <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#F8FAFC', margin: 0 }}>
+  <div className="d-flex justify-content-between align-items-center w-100">
+    <h1 className="m-0 fw-bold" style={{ fontSize: '28px', color: '#F8FAFC' }}>
       Клієнтська база
     </h1>
-    <button 
-      onClick={onAddClick}
-      style={{ 
-        padding: '12px 24px', 
-        backgroundColor: '#818CF8', 
-        color: 'white', 
-        border: 'none', 
-        borderRadius: '12px',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        boxShadow: '0 4px 12px rgba(129, 140, 248, 0.3)',
-        transition: 'transform 0.1s active'
-      }}
-    >
+    <button onClick={onAddClick} className="sto-btn sto-btn-primary">
       + НОВИЙ КЛІЄНТ
     </button>
   </div>

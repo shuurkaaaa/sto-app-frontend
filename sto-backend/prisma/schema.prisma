@@ -90,6 +90,7 @@ model Staff {
   staffCategory   StaffCategory? @relation(fields: [staffCategoryId], references: [id], onDelete: SetNull)
   status          String         @default("Вільний")
   earnings        Float          @default(0.0)
+  commissionPercent Float        @default(10)
   currentCar      String?        @default("")
   isDeleted       Boolean        @default(false)
   orders          Order[]

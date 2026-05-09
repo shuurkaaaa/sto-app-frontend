@@ -1,97 +1,82 @@
 import React from 'react';
 
-export const OrderStep2 = ({ 
-  services, selectedServices, handleServiceClick, 
-  masters, formData, setFormData, isUrgent, setIsUrgent, 
-  searchTerm, setSearchTerm, setIsPickerOpen, styles 
+export const OrderStep2 = ({
+  services, selectedServices, handleServiceClick,
+  masters, formData, setFormData, isUrgent, setIsUrgent,
+  searchTerm, setSearchTerm, setIsPickerOpen,
 }) => {
-  
   const filteredServices = (services || []).filter(s => {
-    const searchLower = (searchTerm || "").toLowerCase();
-    const nameMatch = (s.name || "").toLowerCase().includes(searchLower);
-    const catName = s.priceCategory?.name || s.categoryName || s.category || "";
+    const searchLower = (searchTerm || '').toLowerCase();
+    const nameMatch = (s.name || '').toLowerCase().includes(searchLower);
+    const catName = s.priceCategory?.name || s.categoryName || s.category || '';
     const categoryMatch = catName.toLowerCase().includes(searchLower);
     return nameMatch || categoryMatch;
   });
 
-  const inputStyle = typeof styles.input === 'function' ? styles.input(false) : (styles.input || {});
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+    <div className="d-flex flex-column gap-3">
       <div>
-        <p style={styles.label}>ВИБЕРІТЬ ПОСЛУГИ З ПРАЙСУ:</p>
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-          <input 
-            style={{ ...inputStyle, marginBottom: 0, flex: 1 }} 
-            placeholder="Пошук (назва або категорія)..." 
-            value={searchTerm || ""}
+        <p className="sto-label">ВИБЕРІТЬ ПОСЛУГИ З ПРАЙСУ:</p>
+        <div className="d-flex gap-2 mb-2">
+          <input
+            className="sto-input flex-grow-1"
+            placeholder="Пошук (назва або категорія)..."
+            value={searchTerm || ''}
             onChange={e => setSearchTerm(e.target.value)}
           />
-          <button 
+          <button
             type="button"
-            onClick={() => setIsPickerOpen(true)} 
-            style={{...(styles.btnSec || {}), whiteSpace: 'nowrap'}}
+            onClick={() => setIsPickerOpen(true)}
+            className="sto-btn sto-btn-secondary text-nowrap"
           >
-            📚 Каталог
+            Каталог
           </button>
         </div>
-        
-        <div style={{ 
-          height: '180px', 
-          overflowY: 'auto', 
-          border: '1px solid #334155', 
-          borderRadius: '12px', 
-          padding: '10px', 
-          background: '#0F172A' 
-        }}>
+
+        <div
+          className="rounded-3 p-2 border"
+          style={{ height: '180px', overflowY: 'auto', background: 'var(--sto-bg)', borderColor: 'var(--sto-border)' }}
+        >
           {filteredServices.length > 0 ? (
             filteredServices.map(s => {
               const isSelected = selectedServices.some(i => i.id === s.id);
               return (
-                <div 
-                  key={s.id} 
+                <div
+                  key={s.id}
                   onClick={() => handleServiceClick(s)}
+                  className="p-2 mb-2 rounded-2 d-flex justify-content-between align-items-center"
                   style={{
-                    padding: '10px',
-                    marginBottom: '8px',
-                    borderRadius: '8px',
-                    border: '1px solid',
                     cursor: 'pointer',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    transition: '0.2s',
-                    backgroundColor: isSelected ? '#1e3a8a' : '#1e293b',
-                    borderColor: isSelected ? '#3b82f6' : '#334155',
-                    color: isSelected ? '#fff' : '#cbd5e1'
+                    border: '1px solid',
+                    background: isSelected ? '#1e3a8a' : 'var(--sto-bg-2)',
+                    borderColor: isSelected ? '#3b82f6' : 'var(--sto-border)',
+                    color: isSelected ? '#fff' : '#cbd5e1',
                   }}
                 >
-                  <div style={{ flex: 1, marginRight: '10px' }}>
-                    <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block', textTransform: 'uppercase' }}>
+                  <div className="flex-grow-1 me-2">
+                    <span className="sto-text-muted d-block" style={{ fontSize: '10px', textTransform: 'uppercase' }}>
                       {s.priceCategory?.name || s.categoryName || s.category || 'Загальне'}
                     </span>
-                    <span style={{ fontWeight: '500' }}>{s.name}</span>
+                    <span className="fw-medium">{s.name}</span>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontWeight: 'bold', color: '#4ade80', display: 'block' }}>{s.price} грн</span>
-                    {isSelected && <span style={{ fontSize: '12px' }}>✅</span>}
+                  <div className="text-end">
+                    <span className="sto-text-success fw-bold d-block">{s.price} грн</span>
+                    {isSelected && <span style={{ fontSize: '12px' }}></span>}
                   </div>
                 </div>
               );
             })
           ) : (
-            <div style={{textAlign: 'center', color: '#64748b', marginTop: '70px'}}>
-              Послуг не знайдено
-            </div>
+            <div className="text-center sto-text-dim mt-5">Послуг не знайдено</div>
           )}
         </div>
       </div>
 
       <div>
-        <p style={styles.label}>ПРИЗНАЧИТИ МАЙСТРА:</p>
-        <select 
-          style={inputStyle}
-          value={formData.masterId || ""}
+        <p className="sto-label">ПРИЗНАЧИТИ МАЙСТРА:</p>
+        <select
+          className="sto-select"
+          value={formData.masterId || ''}
           onChange={e => setFormData({ ...formData, masterId: e.target.value })}
         >
           <option value="">Не призначено</option>
@@ -103,16 +88,14 @@ export const OrderStep2 = ({
         </select>
       </div>
 
-      <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '5px' }}>
-        <input 
-          type="checkbox" 
-          checked={isUrgent} 
-          onChange={e => setIsUrgent(e.target.checked)} 
+      <label className="d-flex align-items-center gap-2 p-1" style={{ cursor: 'pointer' }}>
+        <input
+          type="checkbox"
+          checked={isUrgent}
+          onChange={e => setIsUrgent(e.target.checked)}
           style={{ width: '18px', height: '18px', cursor: 'pointer' }}
         />
-        <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#ef4444' }}>
-          Терміново (+20% до вартості)
-        </span>
+        <span className="sto-text-danger fw-bold small">Терміново (+20% до вартості)</span>
       </label>
     </div>
   );

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { customerStyles } from './CustomerStyles';
 import { CustomerCarList } from './CustomerCarList';
 import { CustomerStats } from './CustomerStats';
 import { CustomerActivityStatus } from './CustomerActivityStatus';
@@ -7,8 +6,8 @@ import { QuickBookingAction } from './QuickBookingAction';
 import { CommunicationHistory } from './CommunicationHistory';
 import { MaintenanceAlert } from './MaintenanceAlert';
 
-export const CustomerDetailsModal = ({ 
-  customer, onClose, onAddCar, onDeleteCar, onDeleteCustomer, onArchiveCustomer, onUnarchiveCustomer, onUpdateNotes 
+export const CustomerDetailsModal = ({
+  customer, onClose, onAddCar, onDeleteCar, onDeleteCustomer, onArchiveCustomer, onUnarchiveCustomer, onUpdateNotes,
 }) => {
   const [isAddingCar, setIsAddingCar] = useState(false);
   const [carData, setCarData] = useState({ brand: '', model: '', plate: '' });
@@ -25,54 +24,49 @@ export const CustomerDetailsModal = ({
   };
 
   return (
-    <div style={customerStyles.modalOverlay} onClick={onClose}>
-      <div style={customerStyles.modalContent} onClick={e => e.stopPropagation()}>
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '25px' }}>
+    <div className="sto-modal-overlay" onClick={onClose}>
+      <div className="sto-modal sto-modal-lg" onClick={e => e.stopPropagation()}>
+
+        <div className="d-flex justify-content-between mb-4">
           <div>
             <CustomerActivityStatus lastVisit={customer.lastVisit} />
-            <h2 style={{ margin: '5px 0 0 0', color: '#F1F5F9' }}>{customer.name}</h2>
-            <small style={{ color: '#94A3B8' }}>{customer.phone}</small>
+            <h2 className="m-0 text-light">{customer.name}</h2>
+            <small className="sto-text-muted">{customer.phone}</small>
           </div>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+          <div className="d-flex gap-2 align-items-start">
             {customer.isArchived ? (
-                <button 
-                onClick={() => onUnarchiveCustomer()} 
-                style={{ background: '#10B981', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold' }}
-              >
+              <button onClick={() => onUnarchiveCustomer()} className="sto-btn fw-bold text-white" style={{ background: '#10B981' }}>
                 Повернути з архіву
               </button>
             ) : (
-                <button 
-                onClick={() => onArchiveCustomer()} 
-                style={{ background: '#F59E0B', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold' }}
-              >
+              <button onClick={() => onArchiveCustomer()} className="sto-btn fw-bold text-white" style={{ background: '#F59E0B' }}>
                 В архів
               </button>
             )}
-            <button 
-              onClick={() => { onDeleteCustomer(customer.id); onClose(); }} 
-              style={{ background: '#991b1b', color: '#FCA5A5', border: 'none', padding: '10px 18px', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold' }}
+            <button
+              onClick={() => { onDeleteCustomer(customer.id); onClose(); }}
+              className="sto-btn fw-bold"
+              style={{ background: '#991b1b', color: '#FCA5A5' }}
             >
               Видалити
             </button>
-            <button onClick={onClose} style={{ border: 'none', background: 'none', fontSize: '24px', cursor: 'pointer', color: '#94A3B8' }}>✕</button>
+            <button onClick={onClose} className="sto-text-muted" style={{ border: 'none', background: 'none', fontSize: '24px' }}>✕</button>
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '40px' }}>
+        <div className="d-grid" style={{ gridTemplateColumns: '1.2fr 1fr', gap: '40px' }}>
           <div>
             <CustomerCarList cars={customer.cars} customerId={customer.id} onDeleteCar={onDeleteCar} />
             {!isAddingCar ? (
-              <button onClick={() => setIsAddingCar(true)} style={customerStyles.addCarDashedBtn}>+ Додати автомобіль</button>
+              <button onClick={() => setIsAddingCar(true)} className="sto-btn-dashed">+ Додати автомобіль</button>
             ) : (
-              <div style={customerStyles.addCarForm}>
-                <input placeholder="Марка" style={customerStyles.input} value={carData.brand} onChange={e => setCarData({...carData, brand: e.target.value})} />
-                <input placeholder="Модель" style={customerStyles.input} value={carData.model} onChange={e => setCarData({...carData, model: e.target.value})} />
-                <input placeholder="Держ. номер" style={customerStyles.input} value={carData.plate} onChange={e => setCarData({...carData, plate: e.target.value})} />
-                <div style={{ display: 'flex', gap: '10px' }}>
-                   <button onClick={handleCarSubmit} style={customerStyles.saveBtn}>Зберегти</button>
-                   <button onClick={() => setIsAddingCar(false)} style={{ ...customerStyles.saveBtn, background: '#334155' }}>Скасувати</button>
+              <div className="sto-add-car-form">
+                <input className="sto-input mb-2" placeholder="Марка" value={carData.brand} onChange={e => setCarData({ ...carData, brand: e.target.value })} />
+                <input className="sto-input mb-2" placeholder="Модель" value={carData.model} onChange={e => setCarData({ ...carData, model: e.target.value })} />
+                <input className="sto-input mb-2" placeholder="Держ. номер" value={carData.plate} onChange={e => setCarData({ ...carData, plate: e.target.value })} />
+                <div className="d-flex gap-2">
+                  <button onClick={handleCarSubmit} className="sto-btn sto-btn-primary flex-grow-1">Зберегти</button>
+                  <button onClick={() => setIsAddingCar(false)} className="sto-btn sto-btn-secondary flex-grow-1">Скасувати</button>
                 </div>
               </div>
             )}

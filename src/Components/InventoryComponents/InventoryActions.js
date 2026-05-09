@@ -1,64 +1,56 @@
 import React, { useState } from 'react';
-import { inventoryStyles } from './InventoryStyles';
 
 export const InventoryActions = ({ inventoryItem, operationMode, onClose, onConfirm }) => {
   const [amountInput, setAmountInput] = useState(1);
   const [noteInput, setNoteInput] = useState('');
 
   const handleUpdate = () => {
-    // Якщо списуємо (sell), робимо число від'ємним
     const finalAmount = operationMode === 'sell' ? -Number(amountInput) : Number(amountInput);
     onConfirm(finalAmount, noteInput);
   };
 
   return (
-    <div style={inventoryStyles.modalOverlay}>
-      <div style={{ ...inventoryStyles.modalContent, maxWidth: '350px', padding: '25px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-          <h3 style={{ margin: 0, color: operationMode === 'sell' ? '#F87171' : '#4ADE80' }}>
+    <div className="sto-modal-overlay">
+      <div className="sto-modal" style={{ maxWidth: '350px' }}>
+        <div className="d-flex justify-content-between mb-3">
+          <h3 className={`m-0 ${operationMode === 'sell' ? 'sto-text-danger' : 'sto-text-success'}`}>
             {operationMode === 'sell' ? 'Списання товару' : 'Додавання на склад'}
           </h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#F1F5F9' }}>×</button>
+          <button onClick={onClose} className="text-light" style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>×</button>
         </div>
 
-        <p style={{ fontSize: '14px', marginBottom: '15px', color: '#F1F5F9' }}>
-            Товар: <b>{inventoryItem.name}</b>
-        </p>
-        
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px', color: '#94A3B8' }}>Кількість:</label>
-          <input 
-            type="number" 
+        <p className="text-light mb-3 small">Товар: <b>{inventoryItem.name}</b></p>
+
+        <div className="sto-form-group">
+          <label className="sto-label">Кількість:</label>
+          <input
+            type="number"
             min="1"
-            value={amountInput} 
-            onChange={(event) => setAmountInput(event.target.value)}
-            style={inventoryStyles.modalInput}
+            value={amountInput}
+            onChange={(e) => setAmountInput(e.target.value)}
+            className="sto-input"
           />
         </div>
-        
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px', color: '#94A3B8' }}>Примітка (номер авто / коментар):</label>
-          <textarea 
+
+        <div className="sto-form-group">
+          <label className="sto-label">Примітка (номер авто / коментар):</label>
+          <textarea
             placeholder="Наприклад: Audi A6 AA1234BB"
             value={noteInput}
-            onChange={(event) => setNoteInput(event.target.value)}
-            style={{ ...inventoryStyles.modalInput, height: '80px', resize: 'none', padding: '10px' }}
+            onChange={(e) => setNoteInput(e.target.value)}
+            className="sto-input sto-textarea"
+            style={{ height: '80px', resize: 'none' }}
           />
         </div>
 
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={onClose} style={inventoryStyles.purchaseButton}>Скасувати</button>
-          <button 
-            onClick={handleUpdate} 
-            style={{ 
-              flex: 1, 
-              padding: '10px', 
-              borderRadius: '8px', 
-              border: 'none', 
-              backgroundColor: operationMode === 'sell' ? '#F87171' : '#4ADE80', 
+        <div className="d-flex gap-2">
+          <button onClick={onClose} className="sto-btn sto-btn-secondary flex-grow-1">Скасувати</button>
+          <button
+            onClick={handleUpdate}
+            className="sto-btn fw-bold flex-grow-1"
+            style={{
+              background: operationMode === 'sell' ? '#F87171' : '#4ADE80',
               color: '#0F172A',
-              fontWeight: 'bold',
-              cursor: 'pointer'
             }}
           >
             Підтвердити

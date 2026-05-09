@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
-import { inventoryStyles } from './InventoryStyles';
 import { useInventoryContext } from '../../Context/InventoryContext';
 
-export const CategoryFilters = ({ 
-  selectedCategory, 
-  onSelectCategory, 
-  isLowStockFilter, 
-  onToggleLowStock, 
-  deficitCount 
+export const CategoryFilters = ({
+  selectedCategory, onSelectCategory, isLowStockFilter, onToggleLowStock, deficitCount,
 }) => {
   const { categories, addCategory, deleteCategory, editCategory } = useInventoryContext();
   const [newCatName, setNewCatName] = useState('');
@@ -17,128 +12,110 @@ export const CategoryFilters = ({
   const handleAdd = async () => {
     const trimmedName = newCatName.trim();
     if (!trimmedName) return;
-
-    // Локальна перевірка на дублікат перед запитом
-    const exists = categories.some(cat => cat.name.toLowerCase() === trimmedName.toLowerCase());
-    if (exists) {
-      alert("Категорія з такою назвою вже є у списку (локальна перевірка)");
+    if (categories.some(c => c.name.toLowerCase() === trimmedName.toLowerCase())) {
+      alert('Категорія з такою назвою вже є у списку');
       return;
     }
-
     setLoading(true);
     try {
-      await addCategory(trimmedName); 
+      await addCategory(trimmedName);
       setNewCatName('');
-    } catch (error) {
-      // Виводимо текст помилки з бекенду, якщо він є
-      const serverMsg = error.response?.data?.message || error.message || "Помилка при додаванні";
-      alert(`Сервер відхилив запит: ${serverMsg}`);
+    } catch (err) {
+      alert(`Сервер відхилив запит: ${err.response?.data?.message || err.message || 'Помилка'}`);
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Ви впевнені, що хочете видалити цю категорію?")) {
-      try {
-        await deleteCategory(id);
-      } catch (error) {
-        alert("Не вдалося видалити. Можливо, в цій категорії ще є запчастини.");
-      }
+    if (window.confirm('Ви впевнені, що хочете видалити цю категорію?')) {
+      try { await deleteCategory(id); } catch { alert('Не вдалося видалити.'); }
     }
   };
 
   const handleEdit = async (id, oldName) => {
     const newName = prompt('Нова назва категорії:', oldName);
     if (newName && newName.trim() !== oldName) {
-      try {
-        await editCategory(id, newName.trim());
-      } catch (error) {
-        const serverMsg = error.response?.data?.message || "Не вдалося оновити назву";
-        alert(serverMsg);
+      try { await editCategory(id, newName.trim()); } catch (err) {
+        alert(err.response?.data?.message || 'Не вдалося оновити назву');
       }
     }
   };
 
   return (
-    <div style={{ ...inventoryStyles.tableCard, padding: '20px', marginBottom: '20px' }}>
-      
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-        <h3 style={{ color: '#F1F5F9', margin: 0, fontSize: '18px' }}>Фільтр за категоріями</h3>
-        <button 
-          onClick={onToggleLowStock} 
-          style={{ 
-            ...inventoryStyles.purchaseButton, 
-            backgroundColor: isLowStockFilter ? '#F87171' : '#334155',
-            fontSize: '13px'
-          }}
+    <div className="sto-card mb-3">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h3 className="m-0 text-light" style={{ fontSize: '18px' }}>Фільтр за категоріями</h3>
+        <button
+          onClick={onToggleLowStock}
+          className="sto-btn fw-bold small"
+          style={{ background: isLowStockFilter ? '#F87171' : 'var(--sto-border)', color: '#fff' }}
         >
           {isLowStockFilter ? 'Показати все' : `Дефіцит (${deficitCount})`}
         </button>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
+      <div className="d-flex flex-wrap gap-2 mb-3">
         {categories.map(cat => (
           <button
             key={cat.id}
             onClick={() => onSelectCategory(cat.name)}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '8px',
-              border: 'none',
-              backgroundColor: selectedCategory === cat.name ? '#818CF8' : '#1E293B',
-              color: 'white',
-              cursor: 'pointer',
-              fontWeight: selectedCategory === cat.name ? 'bold' : 'normal',
-              transition: '0.2s'
-            }}
+            className={`sto-tab ${selectedCategory === cat.name ? 'active' : ''}`}
           >
             {cat.name}
           </button>
         ))}
       </div>
 
-      <div style={{ borderTop: '1px solid #334155', paddingTop: '15px' }}>
-        <div 
+      <div className="pt-3" style={{ borderTop: '1px solid var(--sto-border)' }}>
+        <div
           onClick={() => setIsManageMode(!isManageMode)}
-          style={{ color: '#94A3B8', fontSize: '12px', cursor: 'pointer', marginBottom: '10px', display: 'flex', alignItems: 'center' }}
+          className="sto-text-muted small mb-2"
+          style={{ cursor: 'pointer' }}
         >
           {isManageMode ? '▲ Приховати керування' : '⚙ Налаштування категорій'}
         </div>
 
         {isManageMode && (
-          <div style={{ background: '#0F172A', padding: '15px', borderRadius: '10px' }}>
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-              <input 
-                placeholder="Назва нової категорії" 
-                value={newCatName} 
+          <div className="rounded-3 p-3" style={{ background: 'var(--sto-bg)' }}>
+            <div className="d-flex gap-2 mb-3">
+              <input
+                placeholder="Назва нової категорії"
+                value={newCatName}
                 disabled={loading}
                 onChange={(e) => setNewCatName(e.target.value)}
-                style={{ ...inventoryStyles.modalInput, margin: 0 }}
+                className="sto-input"
               />
-              <button 
+              <button
                 onClick={handleAdd}
                 disabled={loading}
-                style={{ ...inventoryStyles.mainAddButton, padding: '0 20px', opacity: loading ? 0.5 : 1 }}
+                className="sto-btn sto-btn-primary"
+                style={{ opacity: loading ? 0.5 : 1 }}
               >
                 {loading ? '...' : 'Додати'}
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <div className="d-flex flex-column gap-1">
               {categories.filter(c => c.id !== 'all').map(cat => (
-                <div key={cat.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px', background: '#1E293B', borderRadius: '5px' }}>
-                  <span style={{ color: '#F1F5F9' }}>{cat.name}</span>
+                <div
+                  key={cat.id}
+                  className="d-flex justify-content-between p-2 rounded-2"
+                  style={{ background: 'var(--sto-bg-2)' }}
+                >
+                  <span className="text-light">{cat.name}</span>
                   <div>
-                    <button 
-                      onClick={() => handleEdit(cat.id, cat.name)} 
-                      style={{ background: 'none', border: 'none', color: '#60A5FA', cursor: 'pointer', marginRight: '10px' }}
+                    <button
+                      onClick={() => handleEdit(cat.id, cat.name)}
+                      className="border-0 me-3"
+                      style={{ background: 'none', color: '#60A5FA', cursor: 'pointer' }}
                     >
                       Ред.
                     </button>
-                    <button 
-                      onClick={() => handleDelete(cat.id)} 
-                      style={{ background: 'none', border: 'none', color: '#F87171', cursor: 'pointer' }}
+                    <button
+                      onClick={() => handleDelete(cat.id)}
+                      className="border-0 sto-text-danger"
+                      style={{ background: 'none', cursor: 'pointer' }}
                     >
                       Видалити
                     </button>

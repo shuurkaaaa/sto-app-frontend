@@ -184,10 +184,12 @@ const orderController = {
         const activeMasterId = masterId !== undefined ? (masterId ? parseInt(masterId) : null) : currentOrder.masterId;
         
         if (activeMasterId) {
+          const masterRecord = await prisma.staff.findUnique({ where: { id: activeMasterId } });
+          const commissionRate = (masterRecord?.commissionPercent ?? 10) / 100;
           await prisma.staff.update({
             where: { id: activeMasterId },
             data: {
-              ...(['COMPLETED', 'ВИКОНАНО'].includes(normStatus) ? { earnings: { increment: currentOrder.totalPrice * 0.1 } } : {}),
+              ...(['COMPLETED', 'ВИКОНАНО'].includes(normStatus) ? { earnings: { increment: currentOrder.totalPrice * commissionRate } } : {}),
               status: "Вільний",
               currentCar: ""
             }

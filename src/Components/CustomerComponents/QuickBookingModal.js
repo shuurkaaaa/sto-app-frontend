@@ -1,29 +1,28 @@
 import React from 'react';
-import { customerStyles } from './CustomerStyles';
 
 export const QuickBookingModal = ({ isOpen, onClose, customerName, customerPhone }) => {
   if (!isOpen) return null;
 
   return (
-    <div style={customerStyles.modalOverlay} onClick={onClose}>
-      <div style={{ ...customerStyles.modalContent, width: '450px' }} onClick={e => e.stopPropagation()}>
-        <h3 style={{ marginBottom: '20px', color: '#F1F5F9' }}>Швидкий запис</h3>
-        
-        <div style={customerStyles.formGroup}>
-          <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#94A3B8' }}>Клієнт</label>
-          <div style={{ padding: '12px', background: '#0F172A', borderRadius: '10px', fontSize: '14px', border: '1px solid #334155' }}>
-            <b style={{ color: '#F1F5F9' }}>{customerName}</b> <span style={{ color: '#94A3B8' }}>({customerPhone})</span>
+    <div className="sto-modal-overlay" onClick={onClose}>
+      <div className="sto-modal" style={{ maxWidth: '450px' }} onClick={e => e.stopPropagation()}>
+        <h3 className="text-light mb-3">Швидкий запис</h3>
+
+        <div className="sto-form-group">
+          <label className="sto-label">Клієнт</label>
+          <div className="rounded-3 p-3 border" style={{ background: 'var(--sto-bg)', borderColor: 'var(--sto-border)' }}>
+            <b className="text-light">{customerName}</b> <span className="sto-text-muted">({customerPhone})</span>
           </div>
         </div>
 
-        <div style={customerStyles.formGroup}>
-          <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#94A3B8' }}>Дата та час</label>
-          <input type="datetime-local" style={customerStyles.input} defaultValue="2026-03-02T10:00" />
+        <div className="sto-form-group">
+          <label className="sto-label">Дата та час</label>
+          <input type="datetime-local" className="sto-input" defaultValue="2026-03-02T10:00" />
         </div>
 
-        <div style={customerStyles.formGroup}>
-          <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#94A3B8' }}>Послуга</label>
-          <select style={customerStyles.input}>
+        <div className="sto-form-group">
+          <label className="sto-label">Послуга</label>
+          <select className="sto-select">
             <option>Комп'ютерна діагностика</option>
             <option>Технічне обслуговування (ТО)</option>
             <option>Ремонт ходової</option>
@@ -31,13 +30,11 @@ export const QuickBookingModal = ({ isOpen, onClose, customerName, customerPhone
           </select>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-          <button onClick={onClose} style={{ flex: 1, padding: '12px', background: '#334155', color: '#F1F5F9', border: 'none', borderRadius: '10px', cursor: 'pointer' }}>
-            Скасувати
-          </button>
-          <button 
-            onClick={() => { alert('Запис додано в календар!'); onClose(); }} 
-            style={{ flex: 1, padding: '12px', background: '#818CF8', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' }}
+        <div className="d-flex gap-2 mt-3">
+          <button onClick={onClose} className="sto-btn sto-btn-secondary flex-grow-1">Скасувати</button>
+          <button
+            onClick={() => { alert('Запис додано в календар!'); onClose(); }}
+            className="sto-btn sto-btn-primary flex-grow-1"
           >
             Підтвердити
           </button>

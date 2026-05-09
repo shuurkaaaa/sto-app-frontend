@@ -1,48 +1,30 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { inventoryStyles } from './InventoryStyles';
 
 export const CarManagerModal = ({ onClose }) => {
-  // Основні стейти для даних
   const [brands, setBrands] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState(null);
-  
-  // Стейти для створення нових записів
   const [newBrandName, setNewBrandName] = useState('');
   const [newModelName, setNewModelName] = useState('');
-  
-  // Стейти для режиму редагування існуючих записів
-  const [editingId, setEditingId] = useState(null); 
+  const [editingId, setEditingId] = useState(null);
   const [editValue, setEditValue] = useState('');
-
   const API_URL = 'http://localhost:5000/api/cars';
 
-  // Функція завантаження даних
-  // МАСИВ ЗАЛЕЖНОСТЕЙ ПОРОЖНІЙ [], щоб уникнути нескінченного циклу
   const fetchBrands = useCallback(async () => {
     try {
       const response = await axios.get(`${API_URL}/brands`);
       const data = response.data;
       setBrands(data);
-      
-      // Використовуємо функціональне оновлення (prevSelected), 
-      // щоб не залежати від зовнішньої змінної selectedBrand
-      setSelectedBrand(prevSelected => {
-        if (!prevSelected) return null;
-        const updatedSelected = data.find(b => b.id === prevSelected.id);
-        return updatedSelected || null;
+      setSelectedBrand(prev => {
+        if (!prev) return null;
+        return data.find(b => b.id === prev.id) || null;
       });
     } catch (error) {
-      console.error("Помилка при завантаженні марок авто:", error);
+      console.error('Помилка при завантаженні марок авто:', error);
     }
-  }, []); 
+  }, []);
 
-  // Завантажуємо при першому відкритті модалки
-  useEffect(() => {
-    fetchBrands();
-  }, [fetchBrands]);
-
-  // --- ЛОГІКА ДЛЯ БРЕНДІВ (МАРКИ) ---
+  useEffect(() => { fetchBrands(); }, [fetchBrands]);
 
   const handleAddBrand = async () => {
     if (!newBrandName.trim()) return;
@@ -50,159 +32,115 @@ export const CarManagerModal = ({ onClose }) => {
       await axios.post(`${API_URL}/brands`, { name: newBrandName });
       setNewBrandName('');
       await fetchBrands();
-    } catch (error) {
-      console.error("Помилка при додаванні марки:", error);
-      alert("Не вдалося додати марку. Можливо, вона вже існує.");
-    }
+    } catch { alert('Не вдалося додати марку.'); }
   };
 
   const handleUpdateBrand = async (id) => {
-    if (!editValue.trim()) {
-      setEditingId(null);
-      return;
-    }
+    if (!editValue.trim()) { setEditingId(null); return; }
     try {
       await axios.put(`${API_URL}/brands/${id}`, { name: editValue });
       setEditingId(null);
       await fetchBrands();
-    } catch (error) {
-      console.error("Помилка при оновленні марки:", error);
-    }
+    } catch (e) { console.error(e); }
   };
 
   const handleDeleteBrand = async (id) => {
-    if (!window.confirm("Увага! Видалення марки призведе до видалення всіх її моделей. Продовжити?")) return;
+    if (!window.confirm('Увага! Видалення марки призведе до видалення всіх моделей. Продовжити?')) return;
     try {
       await axios.delete(`${API_URL}/brands/${id}`);
       if (selectedBrand?.id === id) setSelectedBrand(null);
       await fetchBrands();
-    } catch (error) {
-      console.error("Помилка при видаленні марки:", error);
-    }
+    } catch (e) { console.error(e); }
   };
-
-  // --- ЛОГІКА ДЛЯ МОДЕЛЕЙ ---
 
   const handleAddModel = async () => {
     if (!newModelName.trim() || !selectedBrand) return;
     try {
-      await axios.post(`${API_URL}/models`, { 
-        name: newModelName, 
-        brandId: selectedBrand.id 
-      });
+      await axios.post(`${API_URL}/models`, { name: newModelName, brandId: selectedBrand.id });
       setNewModelName('');
       await fetchBrands();
-    } catch (error) {
-      console.error("Помилка при додаванні моделі:", error);
-    }
+    } catch (e) { console.error(e); }
   };
 
   const handleUpdateModel = async (id) => {
-    if (!editValue.trim()) {
-      setEditingId(null);
-      return;
-    }
+    if (!editValue.trim()) { setEditingId(null); return; }
     try {
       await axios.put(`${API_URL}/models/${id}`, { name: editValue });
       setEditingId(null);
       await fetchBrands();
-    } catch (error) {
-      console.error("Помилка при оновленні моделі:", error);
-    }
+    } catch (e) { console.error(e); }
   };
 
   const handleDeleteModel = async (id) => {
     try {
       await axios.delete(`${API_URL}/models/${id}`);
       await fetchBrands();
-    } catch (error) {
-      console.error("Помилка при видаленні моделі:", error);
-    }
+    } catch (e) { console.error(e); }
   };
 
   return (
-    <div style={inventoryStyles.modalOverlay}>
-      <div style={{ ...inventoryStyles.modalContent, width: '850px', maxWidth: '95%' }}>
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-          <h2 style={{ color: '#F1F5F9', margin: 0, fontSize: '22px', fontWeight: '600' }}>Керування базою автомобілів</h2>
-          <button 
-            onClick={onClose} 
-            style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', fontSize: '32px', lineHeight: '1' }}
-          >
-            &times;
-          </button>
+    <div className="sto-modal-overlay">
+      <div className="sto-modal" style={{ width: '850px', maxWidth: '95%' }}>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h2 className="m-0 text-light fw-semibold" style={{ fontSize: '22px' }}>Керування базою автомобілів</h2>
+          <button onClick={onClose} className="sto-text-muted border-0" style={{ background: 'none', fontSize: '32px', cursor: 'pointer' }}>&times;</button>
         </div>
 
-        <div style={{ display: 'flex', gap: '30px', height: '550px' }}>
-          
-          <div style={{ flex: 1, borderRight: '1px solid #334155', paddingRight: '20px', display: 'flex', flexDirection: 'column' }}>
-            <label style={inventoryStyles.modalLabel}>МАРКИ ТА БРЕНДИ</label>
-            
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-              <input 
-                style={inventoryStyles.modalInput} 
-                placeholder="Додати нову марку..." 
-                value={newBrandName} 
-                onChange={e => setNewBrandName(e.target.value)} 
+        <div className="d-flex gap-4" style={{ height: '550px' }}>
+          <div className="flex-grow-1 d-flex flex-column pe-3" style={{ flex: 1, borderRight: '1px solid var(--sto-border)' }}>
+            <label className="sto-label">МАРКИ ТА БРЕНДИ</label>
+
+            <div className="d-flex gap-2 mb-3">
+              <input
+                className="sto-input"
+                placeholder="Додати нову марку..."
+                value={newBrandName}
+                onChange={e => setNewBrandName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleAddBrand()}
               />
-              <button onClick={handleAddBrand} style={inventoryStyles.mainAddButton}>+</button>
+              <button onClick={handleAddBrand} className="sto-btn sto-btn-primary">+</button>
             </div>
 
-            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '5px' }}>
+            <div className="overflow-auto flex-grow-1">
               {brands.map(brand => (
-                <div 
+                <div
                   key={brand.id}
+                  className="d-flex align-items-center justify-content-between p-2 mb-2 rounded-3 border"
                   style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '12px', marginBottom: '8px', borderRadius: '10px',
-                    backgroundColor: selectedBrand?.id === brand.id ? '#1E293B' : 'rgba(30, 41, 59, 0.3)',
-                    border: '1px solid',
+                    background: selectedBrand?.id === brand.id ? 'var(--sto-bg-2)' : 'transparent',
                     borderColor: selectedBrand?.id === brand.id ? '#818CF8' : 'transparent',
-                    cursor: 'pointer', transition: 'all 0.2s ease'
+                    cursor: 'pointer',
                   }}
                   onClick={() => setSelectedBrand(brand)}
                 >
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                  <div className="flex-grow-1 d-flex align-items-center">
                     {editingId === `brand-${brand.id}` ? (
-                      <input 
-                        autoFocus 
-                        value={editValue} 
+                      <input
+                        autoFocus
+                        value={editValue}
                         onChange={e => setEditValue(e.target.value)}
                         onBlur={() => handleUpdateBrand(brand.id)}
                         onKeyDown={e => e.key === 'Enter' && handleUpdateBrand(brand.id)}
                         onClick={e => e.stopPropagation()}
-                        style={{ ...inventoryStyles.modalInput, height: '28px', margin: 0, fontSize: '14px' }}
+                        className="sto-input"
                       />
                     ) : (
-                      <span style={{ 
-                        color: selectedBrand?.id === brand.id ? '#818CF8' : '#F1F5F9', 
-                        fontWeight: selectedBrand?.id === brand.id ? '600' : '400',
-                        fontSize: '15px'
-                      }}>
+                      <span className={selectedBrand?.id === brand.id ? 'sto-text-accent fw-semibold' : 'text-light'}>
                         {brand.name}
                       </span>
                     )}
                   </div>
-                  
-                  <div style={{ display: 'flex', gap: '10px', marginLeft: '10px' }}>
-                    <button 
-                      onClick={(e) => { 
-                        e.stopPropagation();
-                        setEditingId(`brand-${brand.id}`); 
-                        setEditValue(brand.name); 
-                      }} 
-                      style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '4px' }}
+
+                  <div className="d-flex gap-2">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setEditingId(`brand-${brand.id}`); setEditValue(brand.name); }}
+                      className="sto-btn-edit-sm"
                     >
                       ✎
                     </button>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteBrand(brand.id);
-                      }} 
-                      style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '4px' }}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDeleteBrand(brand.id); }}
+                      className="sto-btn-delete-sm"
                     >
                       🗑
                     </button>
@@ -212,72 +150,59 @@ export const CarManagerModal = ({ onClose }) => {
             </div>
           </div>
 
-          <div style={{ flex: 1.4, display: 'flex', flexDirection: 'column' }}>
-            <label style={inventoryStyles.modalLabel}>
+          <div className="d-flex flex-column" style={{ flex: 1.4 }}>
+            <label className="sto-label">
               {selectedBrand ? `МОДЕЛІ ${selectedBrand.name.toUpperCase()}` : 'КЕРУВАННЯ МОДЕЛЯМИ'}
             </label>
-            
+
             {selectedBrand ? (
               <>
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-                  <input 
-                    style={inventoryStyles.modalInput} 
-                    placeholder={`Додати модель для ${selectedBrand.name}...`} 
-                    value={newModelName} 
-                    onChange={e => setNewModelName(e.target.value)} 
+                <div className="d-flex gap-2 mb-3">
+                  <input
+                    className="sto-input"
+                    placeholder={`Додати модель для ${selectedBrand.name}...`}
+                    value={newModelName}
+                    onChange={e => setNewModelName(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddModel()}
                   />
-                  <button onClick={handleAddModel} style={inventoryStyles.mainAddButton}>+</button>
+                  <button onClick={handleAddModel} className="sto-btn sto-btn-primary">+</button>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', overflowY: 'auto', alignContent: 'start', paddingRight: '5px' }}>
+                <div className="overflow-auto" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', alignContent: 'start' }}>
                   {selectedBrand.models?.map(model => (
-                    <div 
+                    <div
                       key={model.id}
-                      style={{
-                        padding: '12px', backgroundColor: '#0F172A', borderRadius: '10px',
-                        border: '1px solid #1E293B', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                      }}
+                      className="p-2 rounded-3 d-flex justify-content-between align-items-center"
+                      style={{ background: 'var(--sto-bg)', border: '1px solid var(--sto-bg-2)' }}
                     >
-                      <div style={{ flex: 1 }}>
+                      <div className="flex-grow-1">
                         {editingId === `model-${model.id}` ? (
-                          <input 
-                            autoFocus 
-                            value={editValue} 
+                          <input
+                            autoFocus
+                            value={editValue}
                             onChange={e => setEditValue(e.target.value)}
                             onBlur={() => handleUpdateModel(model.id)}
                             onKeyDown={e => e.key === 'Enter' && handleUpdateModel(model.id)}
-                            style={{ ...inventoryStyles.modalInput, height: '28px', margin: 0, fontSize: '13px' }}
+                            className="sto-input"
                           />
                         ) : (
-                          <span style={{ color: '#94A3B8', fontSize: '14px' }}>{model.name}</span>
+                          <span className="sto-text-muted">{model.name}</span>
                         )}
                       </div>
-                      
-                      <div style={{ display: 'flex', gap: '8px', marginLeft: '10px' }}>
-                        <button 
-                          onClick={() => { setEditingId(`model-${model.id}`); setEditValue(model.name); }} 
-                          style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', fontSize: '14px' }}
-                        >
-                          ✎
-                        </button>
-                        <button 
-                          onClick={() => handleDeleteModel(model.id)} 
-                          style={{ background: 'none', border: 'none', color: '#7F1D1D', cursor: 'pointer', fontSize: '14px' }}
-                        >
-                          🗑
-                        </button>
+
+                      <div className="d-flex gap-2">
+                        <button onClick={() => { setEditingId(`model-${model.id}`); setEditValue(model.name); }} className="sto-btn-edit-sm">✎</button>
+                        <button onClick={() => handleDeleteModel(model.id)} className="sto-btn-delete-sm">🗑</button>
                       </div>
                     </div>
                   ))}
                 </div>
               </>
             ) : (
-              <div style={{ 
-                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                color: '#475569', textAlign: 'center', border: '2px dashed #1E293B', borderRadius: '15px',
-                padding: '20px', lineHeight: '1.6'
-              }}>
+              <div
+                className="flex-grow-1 d-flex align-items-center justify-content-center text-center rounded-3 p-3 sto-text-dim"
+                style={{ border: '2px dashed var(--sto-bg-2)', lineHeight: '1.6' }}
+              >
                 Будь ласка, виберіть марку автомобіля зі списку ліворуч.
               </div>
             )}

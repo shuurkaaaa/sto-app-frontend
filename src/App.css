@@ -1,6 +1,3 @@
-body {
-  margin: 0;
-  padding: 0;
-  background-color: #0F172A;
-  box-sizing: border-box;
-}
+/* Global resets — palette and typography live in styles/theme.css */
+* { box-sizing: border-box; }
+body { margin: 0; padding: 0; }

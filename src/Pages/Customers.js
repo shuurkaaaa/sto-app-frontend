@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { useClients } from '../Context/ClientsContext';
-import { customerStyles } from '../Components/CustomerComponents/CustomerStyles'; 
 
 import { CustomerHeader } from '../Components/CustomerComponents/CustomerHeader';
 import { CustomerToolbar } from '../Components/CustomerComponents/CustomerToolbar';
@@ -9,16 +8,16 @@ import { CustomerDetailsModal } from '../Components/CustomerComponents/CustomerD
 import { AddCustomerModal } from '../Components/CustomerComponents/AddCustomerModal';
 
 const Customers = () => {
-  const { 
-    clients, 
-    addCustomer, 
-    deleteCustomer, 
-    toggleArchive, 
+  const {
+    clients,
+    addCustomer,
+    deleteCustomer,
+    toggleArchive,
     updateNotes,
-    addCommunicationNote, 
+    addCommunicationNote,
     deleteCommunicationNote,
     addCarToCustomer,
-    deleteCarFromCustomer
+    deleteCarFromCustomer,
   } = useClients();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,15 +26,11 @@ const Customers = () => {
   const [showArchive, setShowArchive] = useState(false);
 
   const filteredCustomers = useMemo(() => {
-    if (!Array.isArray(clients)) {
-      return [];
-    }
-
+    if (!Array.isArray(clients)) return [];
     return clients.filter((customer) => {
       const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            customer.phone.includes(searchTerm) ||
-                            (customer.cars && customer.cars.some((car) => car.plate.toLowerCase().includes(searchTerm.toLowerCase())));
-      
+        customer.phone.includes(searchTerm) ||
+        (customer.cars && customer.cars.some((car) => car.plate.toLowerCase().includes(searchTerm.toLowerCase())));
       const matchesArchive = (customer.isArchived === true) === showArchive;
       return matchesSearch && matchesArchive;
     });
@@ -47,53 +42,39 @@ const Customers = () => {
   }, [clients, selectedCustomerId]);
 
   return (
-    <div style={customerStyles.wrapper}>
-      <div style={customerStyles.content}>
-        
+    <div className="sto-page">
+      <div className="d-flex flex-column gap-4 mx-auto" style={{ maxWidth: '1200px' }}>
         <CustomerHeader onAddClick={() => setIsAddModalOpen(true)} />
 
-        <CustomerToolbar 
-          value={searchTerm} 
+        <CustomerToolbar
+          value={searchTerm}
           onChange={setSearchTerm}
           showArchive={showArchive}
           onToggleArchive={() => setShowArchive(!showArchive)}
         />
 
-        <CustomerList 
-          customers={filteredCustomers} 
-          onCustomerClick={setSelectedCustomerId} 
-        />
+        <CustomerList customers={filteredCustomers} onCustomerClick={setSelectedCustomerId} />
 
         {selectedCustomer && (
-          <CustomerDetailsModal 
-            customer={selectedCustomer} 
-            onClose={() => setSelectedCustomerId(null)} 
+          <CustomerDetailsModal
+            customer={selectedCustomer}
+            onClose={() => setSelectedCustomerId(null)}
             onAddCar={(id, car) => addCarToCustomer(id, car)}
             onDeleteCar={(id, carId) => deleteCarFromCustomer(id, carId)}
-            onDeleteCustomer={() => { 
-              deleteCustomer(selectedCustomer.id); 
-              setSelectedCustomerId(null); 
-            }}
-            onArchiveCustomer={() => { 
-              toggleArchive(selectedCustomer.id, true); 
-              setSelectedCustomerId(null); 
-            }}
-            onUnarchiveCustomer={() => { 
-              toggleArchive(selectedCustomer.id, false); 
-              setSelectedCustomerId(null); 
-            }}
+            onDeleteCustomer={() => { deleteCustomer(selectedCustomer.id); setSelectedCustomerId(null); }}
+            onArchiveCustomer={() => { toggleArchive(selectedCustomer.id, true); setSelectedCustomerId(null); }}
+            onUnarchiveCustomer={() => { toggleArchive(selectedCustomer.id, false); setSelectedCustomerId(null); }}
             onUpdateNotes={(newNotes) => updateNotes(selectedCustomer.id, newNotes)}
             onAddNote={(text) => addCommunicationNote(selectedCustomer.id, text)}
             onDeleteNote={(noteId) => deleteCommunicationNote(selectedCustomer.id, noteId)}
           />
         )}
 
-        <AddCustomerModal 
-          isOpen={isAddModalOpen} 
-          onClose={() => setIsAddModalOpen(false)} 
-          onAdd={addCustomer} 
+        <AddCustomerModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onAdd={addCustomer}
         />
-
       </div>
     </div>
   );

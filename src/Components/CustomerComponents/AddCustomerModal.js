@@ -1,102 +1,74 @@
 import React, { useState } from 'react';
-import { customerStyles } from './CustomerStyles';
 
 export const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
-  const [formData, setFormData] = useState({ 
-    name: '', 
-    phone: '', 
-    carBrand: '', 
-    carModel: '', 
-    plate: '', 
-    source: 'Прямий візит' 
+  const [formData, setFormData] = useState({
+    name: '', phone: '', carBrand: '', carModel: '', plate: '', source: 'Прямий візит',
   });
-  
   const [errors, setErrors] = useState({});
 
   if (!isOpen) return null;
 
   const validate = () => {
     let tempErrors = {};
-    
     const nameRegex = /^[А-Яа-яЄєІіЇїҐґA-Za-z'-]+\s+[А-Яа-яЄєІіЇїҐґA-Za-z'-]+/;
-    if (!nameRegex.test(formData.name.trim())) {
-      tempErrors.name = "Введіть Ім'я та Прізвище";
-    }
-
+    if (!nameRegex.test(formData.name.trim())) tempErrors.name = "Введіть Ім'я та Прізвище";
     const phoneRegex = /^\+380\d{9}$/;
-    if (!phoneRegex.test(formData.phone)) {
-      tempErrors.phone = "Формат: +380XXXXXXXXX";
-    }
-
-    if (formData.carBrand.trim().length < 2) tempErrors.carBrand = "Марка?";
-    if (formData.carModel.trim().length < 1) tempErrors.carModel = "Модель?";
-
+    if (!phoneRegex.test(formData.phone)) tempErrors.phone = 'Формат: +380XXXXXXXXX';
+    if (formData.carBrand.trim().length < 2) tempErrors.carBrand = 'Марка?';
+    if (formData.carModel.trim().length < 1) tempErrors.carModel = 'Модель?';
     const plateRegex = /^[A-Z]{2}\s?\d{4}\s?[A-Z]{2}$/i;
-    if (!plateRegex.test(formData.plate.trim())) {
-      tempErrors.plate = "Формат: AA 1234 AA";
-    }
-
+    if (!plateRegex.test(formData.plate.trim())) tempErrors.plate = 'Формат: AA 1234 AA';
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
     if (validate()) {
       onAdd({
         name: formData.name,
         phone: formData.phone,
         source: formData.source,
-        car: { 
-          brand: formData.carBrand, 
-          model: formData.carModel,
-          plate: formData.plate.toUpperCase(), 
-          vin: '—' 
-        },
+        car: { brand: formData.carBrand, model: formData.carModel, plate: formData.plate.toUpperCase(), vin: '—' },
         totalSpent: 0,
         notes: '',
-        lastVisit: 'Новий'
+        lastVisit: 'Новий',
       });
-      
       setFormData({ name: '', phone: '', carBrand: '', carModel: '', plate: '', source: 'Прямий візит' });
       setErrors({});
       onClose();
     }
   };
 
-  const errorStyle = { color: '#ef4444', fontSize: '10px', marginTop: '2px', display: 'block' };
-
   return (
-    <div style={customerStyles.modalOverlay}>
-      <div style={customerStyles.modalContent}>
-        <h2 style={{ marginBottom: '20px', color: '#F8FAFC' }}>Нова реєстрація клієнта</h2>
+    <div className="sto-modal-overlay">
+      <div className="sto-modal sto-modal-lg">
+        <h2 className="mb-3" style={{ color: '#F8FAFC' }}>Нова реєстрація клієнта</h2>
         <form onSubmit={handleSubmit}>
-          
-          <div style={customerStyles.formGroup}>
-            <label style={{ color: '#94A3B8', fontSize: '14px' }}>ПІБ Клієнта</label>
-            <input 
-              style={{...customerStyles.input, borderColor: errors.name ? '#ef4444' : 'transparent'}} 
-              value={formData.name} 
-              onChange={e => setFormData({...formData, name: e.target.value})} 
+          <div className="sto-form-group">
+            <label className="sto-text-muted small">ПІБ Клієнта</label>
+            <input
+              className={`sto-input ${errors.name ? 'sto-input--error' : ''}`}
+              value={formData.name}
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
             />
-            {errors.name && <span style={errorStyle}>{errors.name}</span>}
+            {errors.name && <span className="sto-text-danger" style={{ fontSize: '10px' }}>{errors.name}</span>}
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-            <div style={customerStyles.formGroup}>
-              <label style={{ color: '#94A3B8', fontSize: '14px' }}>Телефон</label>
-              <input 
-                style={{...customerStyles.input, borderColor: errors.phone ? '#ef4444' : 'transparent'}} 
+          <div className="d-grid gap-3" style={{ gridTemplateColumns: '1fr 1fr' }}>
+            <div className="sto-form-group">
+              <label className="sto-text-muted small">Телефон</label>
+              <input
+                className={`sto-input ${errors.phone ? 'sto-input--error' : ''}`}
                 placeholder="+380..."
-                value={formData.phone} 
-                onChange={e => setFormData({...formData, phone: e.target.value})} 
+                value={formData.phone}
+                onChange={e => setFormData({ ...formData, phone: e.target.value })}
               />
-              {errors.phone && <span style={errorStyle}>{errors.phone}</span>}
+              {errors.phone && <span className="sto-text-danger" style={{ fontSize: '10px' }}>{errors.phone}</span>}
             </div>
-            <div style={customerStyles.formGroup}>
-              <label style={{ color: '#94A3B8', fontSize: '14px' }}>Звідки дізналися?</label>
-              <select style={customerStyles.input} value={formData.source} onChange={e => setFormData({...formData, source: e.target.value})}>
+            <div className="sto-form-group">
+              <label className="sto-text-muted small">Звідки дізналися?</label>
+              <select className="sto-select" value={formData.source} onChange={e => setFormData({ ...formData, source: e.target.value })}>
                 <option>Прямий візит</option>
                 <option>Instagram</option>
                 <option>Google Maps</option>
@@ -105,24 +77,24 @@ export const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginTop: '10px' }}>
-            <div style={customerStyles.formGroup}>
-              <label style={{ color: '#94A3B8', fontSize: '14px' }}>Марка</label>
-              <input style={{...customerStyles.input, borderColor: errors.carBrand ? '#ef4444' : 'transparent'}} value={formData.carBrand} onChange={e => setFormData({...formData, carBrand: e.target.value})} />
+          <div className="d-grid gap-2 mt-2" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+            <div className="sto-form-group">
+              <label className="sto-text-muted small">Марка</label>
+              <input className={`sto-input ${errors.carBrand ? 'sto-input--error' : ''}`} value={formData.carBrand} onChange={e => setFormData({ ...formData, carBrand: e.target.value })} />
             </div>
-            <div style={customerStyles.formGroup}>
-              <label style={{ color: '#94A3B8', fontSize: '14px' }}>Модель</label>
-              <input style={{...customerStyles.input, borderColor: errors.carModel ? '#ef4444' : 'transparent'}} value={formData.carModel} onChange={e => setFormData({...formData, carModel: e.target.value})} />
+            <div className="sto-form-group">
+              <label className="sto-text-muted small">Модель</label>
+              <input className={`sto-input ${errors.carModel ? 'sto-input--error' : ''}`} value={formData.carModel} onChange={e => setFormData({ ...formData, carModel: e.target.value })} />
             </div>
-            <div style={customerStyles.formGroup}>
-              <label style={{ color: '#94A3B8', fontSize: '14px' }}>Держ. номер</label>
-              <input style={{...customerStyles.input, borderColor: errors.plate ? '#ef4444' : 'transparent'}} placeholder="AA 1234 AA" value={formData.plate} onChange={e => setFormData({...formData, plate: e.target.value})} />
+            <div className="sto-form-group">
+              <label className="sto-text-muted small">Держ. номер</label>
+              <input className={`sto-input ${errors.plate ? 'sto-input--error' : ''}`} placeholder="AA 1234 AA" value={formData.plate} onChange={e => setFormData({ ...formData, plate: e.target.value })} />
             </div>
           </div>
 
-          <div style={{ marginTop: '30px', display: 'flex', gap: '12px' }}>
-            <button type="submit" style={{ flex: 1, padding: '14px', background: '#818CF8', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>Зареєструвати</button>
-            <button type="button" onClick={onClose} style={{ flex: 1, padding: '14px', background: '#334155', color: '#F1F5F9', border: 'none', borderRadius: '12px', cursor: 'pointer' }}>Скасувати</button>
+          <div className="d-flex gap-3 mt-4">
+            <button type="submit" className="sto-btn sto-btn-primary flex-grow-1">Зареєструвати</button>
+            <button type="button" onClick={onClose} className="sto-btn sto-btn-secondary flex-grow-1">Скасувати</button>
           </div>
         </form>
       </div>

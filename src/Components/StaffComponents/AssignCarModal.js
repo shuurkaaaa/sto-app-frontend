@@ -2,43 +2,47 @@ import React, { useState } from 'react';
 
 export const AssignCarModal = ({ isOpen, onClose, onConfirm, pendingOrders = [] }) => {
   const [selectedOrderId, setSelectedOrderId] = useState('');
-
   if (!isOpen) return null;
 
+  const getCarLabel = (o) =>
+    o.carDetails || [o.car, o.plate].filter(Boolean).join(' — ') || `Замовлення #${o.id}`;
+
   const handleConfirm = () => {
-    const order = pendingOrders.find(o => o.id.toString() === selectedOrderId);
-    if (!order) return alert("Оберіть замовлення");
-    onConfirm(`${order.car} (${order.plate})`, order.id);
+    const order = pendingOrders.find(o => String(o.id) === String(selectedOrderId));
+    if (!order) return alert('Оберіть замовлення');
+    onConfirm(getCarLabel(order), order.id);
     setSelectedOrderId('');
     onClose();
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000, backdropFilter: 'blur(5px)' }}>
-      <div style={{ background: '#1E293B', padding: '30px', borderRadius: '24px', width: '380px', boxShadow: '0 20px 25px rgba(0,0,0,0.3)', border: '1px solid #334155' }}>
-        <h3 style={{ marginTop: 0, textAlign: 'center', color: '#F1F5F9' }}>Призначити замовлення</h3>
-        
-        <select 
-          style={{ width: '100%', padding: '12px', margin: '20px 0', borderRadius: '12px', border: '1px solid #334155', fontSize: '15px', backgroundColor: '#0F172A', color: '#F1F5F9' }}
+    <div className="sto-modal-overlay" style={{ zIndex: 2000 }}>
+      <div className="sto-modal" style={{ maxWidth: '380px', padding: '30px' }}>
+        <h3 className="mt-0 text-center text-light">Призначити замовлення</h3>
+
+        <select
+          className="sto-input my-4"
           value={selectedOrderId}
           onChange={(e) => setSelectedOrderId(e.target.value)}
         >
           <option value="">— Оберіть автомобіль —</option>
+          {pendingOrders.length === 0 && (
+            <option value="" disabled>Немає замовлень в очікуванні</option>
+          )}
           {pendingOrders.map(o => (
             <option key={o.id} value={o.id}>
-              {o.car} — {o.plate}
+              {getCarLabel(o)}
             </option>
           ))}
         </select>
 
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={onClose} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #334155', background: 'transparent', color: '#94A3B8', cursor: 'pointer' }}>
-            Скасувати
-          </button>
-          <button 
+        <div className="d-flex gap-2">
+          <button onClick={onClose} className="sto-btn sto-btn-ghost flex-grow-1">Скасувати</button>
+          <button
             disabled={!selectedOrderId}
-            onClick={handleConfirm} 
-            style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', background: '#818CF8', color: 'white', fontWeight: 'bold', cursor: 'pointer', opacity: selectedOrderId ? 1 : 0.5 }}
+            onClick={handleConfirm}
+            className="sto-btn sto-btn-primary flex-grow-1"
+            style={{ opacity: selectedOrderId ? 1 : 0.5 }}
           >
             В роботу
           </button>

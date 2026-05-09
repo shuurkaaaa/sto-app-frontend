@@ -1,58 +1,54 @@
 import React, { useState } from 'react';
 import { AddCategoryModal } from './AddCategoryModal';
 
-const styles = {
-  headerContainer: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' },
-  title: { margin: 0, fontSize: '28px', color: '#F1F5F9' },
-  toolbar: { display: 'flex', gap: '8px', alignItems: 'center', background: '#1E293B', padding: '6px', borderRadius: '14px', border: '1px solid #334155' },
-  filterButton: (isActive) => ({
-    padding: '8px 16px',
-    borderRadius: '10px',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: '600',
-    backgroundColor: isActive ? '#818CF8' : 'transparent',
-    color: isActive ? '#fff' : '#94A3B8'
-  }),
-  deleteBtn: { marginLeft: '8px', color: '#ef4444', fontWeight: 'bold', cursor: 'pointer' },
-  addButton: { padding: '8px 16px', borderRadius: '10px', border: '1px dashed #475569', backgroundColor: 'transparent', color: '#94A3B8', cursor: 'pointer', marginLeft: '10px' },
-  modeBtn: (isEditMode) => ({ padding: '8px 12px', borderRadius: '10px', border: 'none', backgroundColor: isEditMode ? '#334155' : 'transparent', color: '#94A3B8', cursor: 'pointer' })
-};
-
 export const StaffHeader = ({ categories = [], currentFilter, onFilterChange, onAddCategory, onDeleteCategory }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
-  // Функція-обробник, яка гарантує отримання актуального імені
   const handleModalAdd = async (categoryName) => {
-    if (!categoryName || categoryName.trim() === "") return;
-    
+    if (!categoryName || categoryName.trim() === '') return;
     try {
       await onAddCategory(categoryName);
-      setIsModalOpen(false); // Закриваємо тільки після успіху
+      setIsModalOpen(false);
     } catch (err) {
-      // Помилка вже виводиться в консоль з WorkersContext
+      // logged in context
     }
   };
 
   return (
     <>
-      <div style={styles.headerContainer}>
-        <h1 style={styles.title}>Команда СТО</h1>
-        
-        <div style={styles.toolbar}>
-          <button onClick={() => onFilterChange('Всі')} style={styles.filterButton(currentFilter === 'Всі')}>Всі</button>
-          
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1 className="m-0 fs-3 text-light">Команда СТО</h1>
+
+        <div
+          className="d-flex gap-2 align-items-center border"
+          style={{ background: 'var(--sto-bg-2)', padding: '6px', borderRadius: '14px', borderColor: 'var(--sto-border)' }}
+        >
+          <button
+            type="button"
+            onClick={() => onFilterChange('Всі')}
+            className={`px-3 py-2 rounded-3 border-0 fw-semibold small ${currentFilter === 'Всі' ? 'text-white' : 'sto-text-muted'}`}
+            style={{ backgroundColor: currentFilter === 'Всі' ? 'var(--sto-accent)' : 'transparent', cursor: 'pointer' }}
+          >
+            Всі
+          </button>
+
           {categories?.map(cat => (
-            <button key={cat.id} onClick={() => onFilterChange(cat.name)} style={styles.filterButton(currentFilter === cat.name)}>
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => onFilterChange(cat.name)}
+              className={`px-3 py-2 rounded-3 border-0 fw-semibold small ${currentFilter === cat.name ? 'text-white' : 'sto-text-muted'}`}
+              style={{ backgroundColor: currentFilter === cat.name ? 'var(--sto-accent)' : 'transparent', cursor: 'pointer' }}
+            >
               {cat.name}
               {isEditMode && (
-                <span 
-                  style={styles.deleteBtn} 
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    if(window.confirm(`Видалити спеціалізацію "${cat.name}"?`)) onDeleteCategory(cat.id); 
+                <span
+                  className="ms-2 fw-bold"
+                  style={{ color: '#ef4444', cursor: 'pointer' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (window.confirm(`Видалити спеціалізацію "${cat.name}"?`)) onDeleteCategory(cat.id);
                   }}
                 >
                   ×
@@ -60,21 +56,27 @@ export const StaffHeader = ({ categories = [], currentFilter, onFilterChange, on
               )}
             </button>
           ))}
-          
-          <button style={styles.modeBtn(isEditMode)} onClick={() => setIsEditMode(!isEditMode)}>
+
+          <button
+            type="button"
+            className={`px-3 py-2 rounded-3 border-0 sto-text-muted ${isEditMode ? '' : 'bg-transparent'}`}
+            style={{ backgroundColor: isEditMode ? 'var(--sto-border)' : 'transparent', cursor: 'pointer' }}
+            onClick={() => setIsEditMode(!isEditMode)}
+          >
             {isEditMode ? 'Готово' : 'Редагувати'}
           </button>
-          
-          <button onClick={() => setIsModalOpen(true)} style={styles.addButton}>+ Категорія</button>
+
+          <button onClick={() => setIsModalOpen(true)} className="sto-btn-dashed ms-2" style={{ width: 'auto', padding: '8px 16px' }}>
+            + Категорія
+          </button>
         </div>
       </div>
 
-      {/* Перемонтовуємо модалку кожного разу, коли вона відкривається */}
       {isModalOpen && (
-        <AddCategoryModal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
-          onAdd={handleModalAdd} 
+        <AddCategoryModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onAdd={handleModalAdd}
         />
       )}
     </>

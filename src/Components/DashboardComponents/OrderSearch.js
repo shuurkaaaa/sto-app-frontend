@@ -1,18 +1,15 @@
 import React from 'react';
-import { dashboardStyles } from './DashboardStyles';
 
-export const OrderSearch = ({ searchTerm, onSearchChange, onOpenAddModal }) => {
+export const OrderSearch = ({ searchTerm, onSearchChange }) => {
   return (
-    <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-      <div style={{ position: 'relative', flex: 1 }}>
-        <input
-          type="text"
-          placeholder="Пошук за авто, ПІБ або номером телефону..."
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-          style={dashboardStyles.searchField}
-        />
-      </div>
+    <div className="mb-3 d-flex align-items-center gap-2">
+      <input
+        type="text"
+        placeholder="Пошук за авто, ПІБ або номером телефону..."
+        value={searchTerm}
+        onChange={(e) => onSearchChange(e.target.value)}
+        className="sto-input-search w-100"
+      />
     </div>
   );
 };

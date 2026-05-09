@@ -1,5 +1,4 @@
 import React from 'react';
-import { serviceStyles } from './ServiceStyles';
 
 export const ServiceExport = ({ services }) => {
   const handlePrint = () => {
@@ -35,7 +34,7 @@ export const ServiceExport = ({ services }) => {
   };
 
   return (
-    <button onClick={handlePrint} style={serviceStyles.catButton}>
+    <button onClick={handlePrint} className="sto-btn sto-btn-secondary">
       Друкувати прайс
     </button>
   );

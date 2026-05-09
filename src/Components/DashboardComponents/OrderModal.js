@@ -4,21 +4,13 @@ import { FullPricePicker } from '../ServiceSelection/FullPricePicker';
 import { validateOrderForm, formatPlate } from './validation';
 import { OrderStep1 } from './OrderStep1';
 import { OrderStep2 } from './OrderStep2';
-import { dashboardStyles as defaultStyles } from './DashboardStyles';
 
-const initialFormState = { 
-  client: '', 
-  phone: '', 
-  car: '', 
-  plate: '', 
-  masterId: '', 
-  status: 'PENDING',
-  payment: 'Готівка',
-  deadline: '',
-  comment: ''
+const initialFormState = {
+  client: '', phone: '', car: '', plate: '', masterId: '',
+  status: 'PENDING', payment: 'Готівка', deadline: '', comment: '',
 };
 
-export const OrderModal = ({ isOpen, onClose, onSave, masters, initialData, styles = defaultStyles }) => {
+export const OrderModal = ({ isOpen, onClose, onSave, masters, initialData }) => {
   const { services } = usePrice();
   const [activeTab, setActiveTab] = useState(1);
   const [formData, setFormData] = useState(initialFormState);
@@ -28,16 +20,16 @@ export const OrderModal = ({ isOpen, onClose, onSave, masters, initialData, styl
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [errors, setErrors] = useState({});
 
-  useEffect(() => { 
-    if (isOpen) { 
-      setActiveTab(1); 
-      setErrors({}); 
-    } 
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(1);
+      setErrors({});
+    }
   }, [isOpen]);
 
   useEffect(() => {
     if (initialData && isOpen) {
-      setFormData({ 
+      setFormData({
         client: initialData.customer?.name || initialData.client || '',
         phone: initialData.customer?.phone || initialData.phone || '',
         car: initialData.car || (initialData.carDetails ? initialData.carDetails.split(' (')[0] : ''),
@@ -46,7 +38,7 @@ export const OrderModal = ({ isOpen, onClose, onSave, masters, initialData, styl
         status: initialData.status || 'PENDING',
         payment: initialData.paymentMethod || 'Готівка',
         deadline: initialData.deadline ? new Date(initialData.deadline).toISOString().slice(0, 16) : '',
-        comment: initialData.notes || initialData.comment || ''
+        comment: initialData.notes || initialData.comment || '',
       });
 
       if (initialData.services) {
@@ -55,7 +47,7 @@ export const OrderModal = ({ isOpen, onClose, onSave, masters, initialData, styl
         const names = initialData.serviceName.split(', ');
         setSelectedServices(services.filter(s => names.includes(s.name)));
       }
-      
+
       setIsUrgent(initialData.isUrgent || false);
     } else if (isOpen) {
       setFormData(initialFormState);
@@ -73,33 +65,29 @@ export const OrderModal = ({ isOpen, onClose, onSave, masters, initialData, styl
 
   const handleNextStep = () => {
     const { isValid, errors: vErrors } = validateOrderForm(formData);
-    if (!isValid) { 
-      setErrors(vErrors); 
-      return; 
-    }
-    setErrors({}); 
+    if (!isValid) { setErrors(vErrors); return; }
+    setErrors({});
     setActiveTab(2);
   };
 
   const handleConfirm = () => {
     if (selectedServices.length === 0) {
-      alert("Будь ласка, виберіть хоча б одну послугу");
+      alert('Будь ласка, виберіть хоча б одну послугу');
       return;
     }
-
     onSave({
       client: formData.client,
       phone: formData.phone,
       car: formData.car,
-      plate: formatPlate(formData.plate || ""),
+      plate: formatPlate(formData.plate || ''),
       masterId: formData.masterId ? parseInt(formData.masterId) : null,
       status: formData.status,
       payment: formData.payment,
       deadline: formData.deadline,
       comment: formData.comment,
-      isUrgent: isUrgent,
+      isUrgent,
       totalPrice: calculateTotal(),
-      services: selectedServices.map(s => ({ id: s.id }))
+      services: selectedServices.map(s => ({ id: s.id })),
     });
     onClose();
   };
@@ -107,75 +95,65 @@ export const OrderModal = ({ isOpen, onClose, onSave, masters, initialData, styl
   const toggleService = (service) => {
     setSelectedServices(prev => {
       const exists = prev.find(s => s.id === service.id);
-      if (exists) {
-        return prev.filter(s => s.id !== service.id);
-      } else {
-        return [...prev, service];
-      }
+      if (exists) return prev.filter(s => s.id !== service.id);
+      return [...prev, service];
     });
   };
 
   const isSubmitDisabled = activeTab === 2 && selectedServices.length === 0;
 
   return (
-    <div style={styles.modal.overlay} onClick={onClose}>
-      <div style={{...styles.modal.container, maxWidth: '650px'}} onClick={(e) => e.stopPropagation()}>
-        <div style={styles.modal.tabs}>
-          <button 
+    <div className="sto-modal-overlay" onClick={onClose}>
+      <div className="sto-modal sto-modal-lg" onClick={e => e.stopPropagation()}>
+        <div className="sto-modal-tabs">
+          <button
             type="button"
-            style={activeTab === 1 ? styles.modal.tabActive : styles.modal.tabInactive} 
+            className={`sto-tab ${activeTab === 1 ? 'active' : ''}`}
             onClick={() => setActiveTab(1)}
           >
             1. Авто та Клієнт
           </button>
-          <button 
+          <button
             type="button"
-            style={activeTab === 2 ? styles.modal.tabActive : styles.modal.tabInactive} 
+            className={`sto-tab ${activeTab === 2 ? 'active' : ''}`}
             onClick={handleNextStep}
           >
             2. Послуги
           </button>
         </div>
 
-        <div style={styles.modal.content}>
+        <div style={{ minHeight: '350px' }}>
           {activeTab === 1 ? (
-            <OrderStep1 
-              formData={formData} 
-              setFormData={setFormData} 
-              errors={errors} 
-              setErrors={setErrors}
-              styles={styles} 
-            />
+            <OrderStep1 formData={formData} setFormData={setFormData} errors={errors} setErrors={setErrors} />
           ) : (
-            <OrderStep2 
-              services={services} 
-              selectedServices={selectedServices} 
+            <OrderStep2
+              services={services}
+              selectedServices={selectedServices}
               handleServiceClick={toggleService}
-              masters={masters} 
-              formData={formData} 
+              masters={masters}
+              formData={formData}
               setFormData={setFormData}
-              isUrgent={isUrgent} 
-              setIsUrgent={setIsUrgent} 
-              searchTerm={searchTerm} 
-              setSearchTerm={setSearchTerm} 
+              isUrgent={isUrgent}
+              setIsUrgent={setIsUrgent}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
               setIsPickerOpen={setIsPickerOpen}
-              styles={styles} 
             />
           )}
         </div>
 
-        <div style={styles.modal.footer}>
-          <div style={styles.modal.totalSum}>
-            <span style={{ color: '#94A3B8', fontSize: '14px', marginRight: '8px' }}>СУМА:</span>
-            <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#F8FAFC' }}>
+        <div className="sto-modal-footer d-flex justify-content-between align-items-center">
+          <div>
+            <span className="sto-text-muted small me-2">СУМА:</span>
+            <span className="text-light fw-bold" style={{ fontSize: '20px' }}>
               {calculateTotal()} грн
             </span>
           </div>
-          <div style={styles.modal.buttonGroup}>
-            <button type="button" style={styles.modal.cancelBtn} onClick={onClose}>Скасувати</button>
-            <button 
+          <div className="d-flex gap-2">
+            <button type="button" className="sto-btn sto-btn-secondary" onClick={onClose}>Скасувати</button>
+            <button
               type="button"
-              style={isSubmitDisabled ? styles.modal.submitBtnDisabled : styles.modal.submitBtnActive}
+              className={`sto-btn ${isSubmitDisabled ? 'sto-btn-secondary' : 'sto-btn-primary'}`}
               onClick={activeTab === 1 ? handleNextStep : handleConfirm}
               disabled={isSubmitDisabled}
             >
@@ -185,14 +163,11 @@ export const OrderModal = ({ isOpen, onClose, onSave, masters, initialData, styl
         </div>
       </div>
 
-      <FullPricePicker 
-        isOpen={isPickerOpen} 
-        onClose={() => setIsPickerOpen(false)} 
-        onSelect={(service) => {
-          toggleService(service);
-          setIsPickerOpen(false); 
-        }} 
-        selectedServices={selectedServices} 
+      <FullPricePicker
+        isOpen={isPickerOpen}
+        onClose={() => setIsPickerOpen(false)}
+        onSelect={(service) => { toggleService(service); setIsPickerOpen(false); }}
+        selectedServices={selectedServices}
       />
     </div>
   );

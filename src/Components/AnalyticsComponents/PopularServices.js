@@ -1,22 +1,23 @@
 import React from 'react';
 import { useAnalytics } from '../../Context/AnalyticsContext';
-import { analyticsStyles } from './AnalyticsStyles';
 
 export const PopularServices = () => {
   const { popularServices, loading } = useAnalytics();
 
-  if (loading) return <p style={{ color: '#94A3B8' }}>Завантаження...</p>;
+  if (loading) return <p className="sto-text-muted">Завантаження...</p>;
+
+  const max = popularServices?.[0]?.count || 1;
 
   return (
     <div>
       {(popularServices || []).map((service, index) => (
-        <div key={index} style={{ marginBottom: '15px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#F1F5F9', fontSize: '14px' }}>
+        <div key={index} className="mb-3">
+          <div className="d-flex justify-content-between text-light small">
             <span>{service.name}</span>
-            <span style={{ color: '#94A3B8' }}>{service.count} разів</span>
+            <span className="sto-text-muted">{service.count} разів</span>
           </div>
-          <div style={analyticsStyles.progressBar}>
-            <div style={analyticsStyles.progressFill((service.count / (popularServices[0]?.count || 1)) * 100)} />
+          <div className="sto-progress">
+            <div className="sto-progress-fill" style={{ width: `${(service.count / max) * 100}%` }} />
           </div>
         </div>
       ))}

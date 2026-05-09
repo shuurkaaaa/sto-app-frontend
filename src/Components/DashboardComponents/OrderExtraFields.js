@@ -1,26 +1,17 @@
 import React from 'react';
 
-export const OrderExtraFields = ({ formData, setFormData, styles }) => {
-  
-  // Допоміжна функція для безпечного оновлення полів
+export const OrderExtraFields = ({ formData, setFormData }) => {
   const handleChange = (field, value) => {
-    setFormData({
-      ...formData,
-      [field]: value
-    });
+    setFormData({ ...formData, [field]: value });
   };
 
-  // Отримуємо базовий стиль інпуту, якщо styles.input — це функція
-  const inputStyle = typeof styles.input === 'function' ? styles.input(false) : (styles.input || {});
-
   return (
-    <div style={{ marginTop: '10px', borderTop: '1px solid #334155', paddingTop: '15px' }}>
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
-        
-        <div style={{ flex: 1 }}>
-          <p style={styles.label}>ОПЛАТА:</p>
-          <select 
-            style={inputStyle} 
+    <div className="mt-2 pt-3" style={{ borderTop: '1px solid var(--sto-border)' }}>
+      <div className="d-flex gap-2 mb-3">
+        <div className="flex-grow-1">
+          <p className="sto-label">ОПЛАТА:</p>
+          <select
+            className="sto-select"
             value={formData.payment || ''}
             onChange={e => handleChange('payment', e.target.value)}
           >
@@ -30,30 +21,23 @@ export const OrderExtraFields = ({ formData, setFormData, styles }) => {
           </select>
         </div>
 
-        <div style={{ flex: 1 }}>
-          <p style={styles.label}>ГОТОВНІСТЬ:</p>
-          <input 
-            type="datetime-local" 
-            style={inputStyle} 
+        <div className="flex-grow-1">
+          <p className="sto-label">ГОТОВНІСТЬ:</p>
+          <input
+            type="datetime-local"
+            className="sto-input"
             value={formData.deadline || ''}
             onChange={e => handleChange('deadline', e.target.value)}
           />
         </div>
-
       </div>
 
-      <div style={{ marginBottom: '5px' }}>
-        <p style={styles.label}>КОМЕНТАР МАЙСТРУ:</p>
-        <textarea 
-          style={{
-            ...inputStyle, 
-            height: '80px', 
-            resize: 'none', 
-            padding: '12px',
-            fontFamily: 'inherit',
-            lineHeight: '1.5'
-          }} 
-          placeholder="Опишіть зауваження, скарги або важливі деталі..." 
+      <div>
+        <p className="sto-label">КОМЕНТАР МАЙСТРУ:</p>
+        <textarea
+          className="sto-input sto-textarea"
+          style={{ height: '80px', resize: 'none' }}
+          placeholder="Опишіть зауваження, скарги або важливі деталі..."
           value={formData.comment || ''}
           onChange={e => handleChange('comment', e.target.value)}
         />
