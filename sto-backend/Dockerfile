@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 5000
 
 # Sync schema (creates any missing tables) then run the server
-CMD ["sh", "-c", "mkdir -p /app/data && npx prisma db push --accept-data-loss --skip-generate && node index.js"]
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss --skip-generate && node index.js"]
