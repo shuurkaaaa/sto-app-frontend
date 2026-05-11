@@ -151,7 +151,7 @@ export const ServiceHistoryModal = ({ isOpen, onClose, customer }) => {
                       <div className="d-flex flex-column gap-1">
                         {services.map((service, idx) => (
                           <div
-                            key={idx}
+                            key={`${order.id}-service-${idx}`}
                             className="d-flex justify-content-between align-items-center p-2 rounded-2"
                             style={{ background: 'rgba(255,255,255,0.05)' }}
                           >

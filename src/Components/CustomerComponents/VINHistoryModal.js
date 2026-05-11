@@ -6,7 +6,13 @@ export const VINHistoryModal = ({ isOpen, vin, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // ✅ НЕ спробуємо завантажити дані якщо VIN пустий
   const fetchVINData = useCallback(async () => {
+    if (!vin || vin.trim().length === 0) {
+      setError('VIN-код не вказаний');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     const result = await vinApi.checkComplete(vin);
