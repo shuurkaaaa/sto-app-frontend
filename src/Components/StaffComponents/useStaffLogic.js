@@ -3,9 +3,9 @@ import { useWorkers } from '../../Context/WorkersContext';
 import { useOrders } from '../../Context/OrdersContext';
 
 export const useStaffLogic = () => {
-  const { 
-    workers, fetchWorkers, addWorker, removeWorker, updateWorker, 
-    updateWorkerStatus, addCategory, deleteCategory 
+  const {
+    workers, fetchWorkers, addWorker, removeWorker, updateWorker,
+    updateWorkerStatus, addCategory, deleteCategory
   } = useWorkers();
   const { orders, fetchOrders, updateOrderStatus } = useOrders();
 
@@ -20,13 +20,13 @@ export const useStaffLogic = () => {
 
     if (currentFilter !== 'Всі') {
       list = list.filter(w => {
-        // Тепер беремо назву категорії з об'єкта staffCategory
+
         const workerCategoryName = w.staffCategory?.name || "";
         return String(workerCategoryName).trim() === String(currentFilter).trim();
       });
     }
 
-    // Збагачуємо кожного майстра інформацією про активні замовлення
+
     const ACTIVE_STATUSES = ['IN_WORK', 'PENDING', 'READY'];
     list = list.map(w => {
       const activeOrders = (orders || []).filter(
@@ -48,25 +48,25 @@ export const useStaffLogic = () => {
     } else {
       list.sort((a, b) => b.id - a.id);
     }
-    
+
     return list;
   }, [workers, orders, currentFilter, sortBy]);
 
   const toggleStatus = async (id) => {
     const worker = workers.find(w => w.id === id);
     if (!worker) return;
-    
+
     if (worker.status === 'Вільний') {
       setAssigningWorkerId(id);
     } else {
       const currentOrder = orders?.find(o => o.masterId === id && (o.status === 'IN_WORK' || o.status === 'PENDING'));
-      
+
       if (currentOrder) {
         await updateOrderStatus(currentOrder.id, { status: 'READY' });
       } else {
         await updateWorkerStatus(id, { status: 'Вільний', currentCar: "" });
       }
-      
+
       setTimeout(async () => {
         await fetchWorkers();
         if (fetchOrders) await fetchOrders();
@@ -110,10 +110,10 @@ export const useStaffLogic = () => {
     setEditingWorker(null);
   };
 
-  return { 
-    processedWorkers, toggleStatus, confirmAssignCar, assigningWorkerId, setAssigningWorkerId, 
+  return {
+    processedWorkers, toggleStatus, confirmAssignCar, assigningWorkerId, setAssigningWorkerId,
     setCurrentFilter, currentFilter, setSortBy, sortBy, deleteWorker,
     isModalOpen, openModal, closeModal, saveWorker, editingWorker,
-    addCategory, deleteCategory 
+    addCategory, deleteCategory
   };
 };

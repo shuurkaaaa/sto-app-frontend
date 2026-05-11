@@ -2,14 +2,14 @@ const prisma = require('../lib/prisma');
 
 const getAllServices = async (req, res) => {
   try {
-    const servicesList = await prisma.service.findMany({ 
-      include: { 
+    const servicesList = await prisma.service.findMany({
+      include: {
         serviceParts: {
           include: {
-            inventory: true 
+            inventory: true
           }
         },
-        priceCategory: true 
+        priceCategory: true
       },
       orderBy: { id: 'desc' }
     });
@@ -29,7 +29,7 @@ const createService = async (req, res) => {
         name: String(name),
         price: parseFloat(price),
         oldPrice: oldPrice ? parseFloat(oldPrice) : null,
-        recommendations: recommendations ? String(recommendations) : null, 
+        recommendations: recommendations ? String(recommendations) : null,
         categoryName: String(category || "Загальне"),
         time: parseInt(time) || 0,
         ...(categoryId && {
@@ -37,7 +37,7 @@ const createService = async (req, res) => {
             connect: { id: parseInt(categoryId) }
           }
         }),
-        serviceParts: { 
+        serviceParts: {
           create: (linkedParts || []).map(partItem => ({
             quantity: parseInt(partItem.quantity) || 1,
             inventory: {
@@ -46,8 +46,8 @@ const createService = async (req, res) => {
           }))
         }
       },
-      include: { 
-        serviceParts: true, 
+      include: {
+        serviceParts: true,
         priceCategory: true
       }
     });
@@ -65,27 +65,27 @@ const updateService = async (req, res) => {
     const serviceIdToUpdate = parseInt(id);
 
     const updatedServiceResult = await prisma.$transaction(async (prismaTx) => {
-      // 1. Спочатку видаляємо старі зв'язки із запчастинами
+
       await prismaTx.servicePart.deleteMany({
         where: { serviceId: serviceIdToUpdate }
       });
 
-      // 2. Оновлюємо основні дані послуги та створюємо нові зв'язки
+
       return await prismaTx.service.update({
         where: { id: serviceIdToUpdate },
-        data: { 
-          name: String(name), 
-          price: parseFloat(price), 
+        data: {
+          name: String(name),
+          price: parseFloat(price),
           oldPrice: oldPrice ? parseFloat(oldPrice) : null,
           recommendations: recommendations ? String(recommendations) : null,
-          categoryName: String(category || "Загальне"), 
+          categoryName: String(category || "Загальне"),
           time: parseInt(time) || 0,
           ...(categoryId ? {
             priceCategory: { connect: { id: parseInt(categoryId) } }
           } : {
             priceCategory: { disconnect: true }
           }),
-          serviceParts: { 
+          serviceParts: {
             create: (linkedParts || []).map(partItem => ({
               quantity: parseInt(partItem.quantity) || 1,
               inventory: {
@@ -108,8 +108,8 @@ const updateService = async (req, res) => {
 const deleteService = async (req, res) => {
   const { id } = req.params;
   try {
-    await prisma.service.delete({ 
-      where: { id: parseInt(id) } 
+    await prisma.service.delete({
+      where: { id: parseInt(id) }
     });
     res.status(204).send();
   } catch (error) {
@@ -118,9 +118,9 @@ const deleteService = async (req, res) => {
   }
 };
 
-module.exports = { 
-  getServices: getAllServices, 
-  createService, 
-  updateService, 
-  deleteService 
+module.exports = {
+  getServices: getAllServices,
+  createService,
+  updateService,
+  deleteService
 };

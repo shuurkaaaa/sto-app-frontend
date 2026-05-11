@@ -53,9 +53,9 @@ const deletePriceCategory = async (req, res) => {
   }
 };
 
-module.exports = { 
-  getPriceCategories, 
-  createPriceCategory, 
-  updatePriceCategory, 
-  deletePriceCategory 
+module.exports = {
+  getPriceCategories,
+  createPriceCategory,
+  updatePriceCategory,
+  deletePriceCategory
 };

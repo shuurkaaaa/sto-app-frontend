@@ -3,7 +3,7 @@ import { usePrice } from '../../Context/PriceContext';
 
 export const useServiceLogic = () => {
   const { services, categories, addService, updateService, deleteService } = usePrice();
-  
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Всі');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -22,11 +22,11 @@ export const useServiceLogic = () => {
     try {
       const existingService = services.find(service => service.id === serviceId);
       if (!existingService) return;
-      
+
       const updatedPriceData = {
         name: existingService.name,
         price: Number(newPriceValue),
-        oldPrice: existingService.price, 
+        oldPrice: existingService.price,
         category: existingService.priceCategory?.name || existingService.categoryName,
         time: existingService.time,
         linkedParts: existingService.serviceParts || existingService.parts || [],
@@ -42,12 +42,12 @@ export const useServiceLogic = () => {
     try {
       const partsToLink = (formData.linkedParts || []).map((linkedPart) => {
         return {
-          inventoryId: linkedPart.itemId, 
+          inventoryId: linkedPart.itemId,
           quantity: Number(linkedPart.quantity)
         };
       });
 
-      const serviceData = { 
+      const serviceData = {
         name: formData.name,
         price: Number(formData.price),
         oldPrice: formData.oldPrice ? Number(formData.oldPrice) : null,
@@ -82,18 +82,18 @@ export const useServiceLogic = () => {
   };
 
   return {
-    filteredServices, 
-    searchTerm, 
-    setSearchTerm, 
-    categories: categoriesForFilter, 
-    selectedCategory, 
-    setSelectedCategory, 
-    isAddModalOpen, 
+    filteredServices,
+    searchTerm,
+    setSearchTerm,
+    categories: categoriesForFilter,
+    selectedCategory,
+    setSelectedCategory,
+    isAddModalOpen,
     setIsAddModalOpen,
     closeModal,
     editingService,
     handleEditClick,
-    addNewService, 
+    addNewService,
     deleteService,
     updateServicePrice
   };

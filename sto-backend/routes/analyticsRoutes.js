@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const analyticsController = require('../controllers/analyticsController');
+const auth = require('../middlewares/authMiddleware');
 
-// Маршрут відкритий для запитів без перевірки токена
+router.use(auth);
+
 router.get('/summary', analyticsController.getAnalyticsSummary);
+router.post('/cache/clear', analyticsController.clearAnalyticsCache);
 
 module.exports = router;

@@ -1,6 +1,6 @@
 const prisma = require('../lib/prisma');
 
-// Отримати весь інвентар з усіма зв'язками для головної таблиці
+
 exports.getInventoryWithHistory = async (req, res) => {
   try {
     const items = await prisma.inventory.findMany({
@@ -17,7 +17,7 @@ exports.getInventoryWithHistory = async (req, res) => {
   }
 };
 
-// Отримати логи для КОНКРЕТНОГО товару
+
 exports.getItemLogs = async (req, res) => {
   try {
     const { id } = req.params;
@@ -31,7 +31,7 @@ exports.getItemLogs = async (req, res) => {
   }
 };
 
-// Отримати всі логи системи
+
 exports.getAllLogs = async (req, res) => {
   try {
     const logs = await prisma.inventoryLog.findMany({

@@ -11,7 +11,7 @@ export const StaffHeader = ({ categories = [], currentFilter, onFilterChange, on
       await onAddCategory(categoryName);
       setIsModalOpen(false);
     } catch (err) {
-      // logged in context
+
     }
   };
 

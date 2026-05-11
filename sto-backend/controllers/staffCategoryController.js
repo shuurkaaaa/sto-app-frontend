@@ -1,7 +1,7 @@
-// Підключаємо спільний клієнт Prisma
+
 const prisma = require('../lib/prisma');
 
-// Отримати всі спеціалізації майстрів
+
 exports.getAllStaffCategories = async (req, res) => {
   try {
     const categories = await prisma.staffCategory.findMany({
@@ -13,7 +13,7 @@ exports.getAllStaffCategories = async (req, res) => {
   }
 };
 
-// Створити нову спеціалізацію (напр. "Електрик")
+
 exports.createStaffCategory = async (req, res) => {
   const { name } = req.body;
   if (!name || name.trim() === '') {
@@ -29,17 +29,17 @@ exports.createStaffCategory = async (req, res) => {
   }
 };
 
-// Видалення спеціалізації
+
 exports.deleteStaffCategory = async (req, res) => {
   const id = Number(req.params.id);
   try {
     await prisma.$transaction([
-      // Відв'язуємо персонал від цієї спеціалізації (SetNull)
+
       prisma.staff.updateMany({
         where: { staffCategoryId: id },
         data: { staffCategoryId: null }
       }),
-      // Видаляємо саму категорію
+
       prisma.staffCategory.delete({
         where: { id: id }
       })

@@ -1,6 +1,6 @@
 const prisma = require('../lib/prisma');
 
-// Отримання всіх категорій складу
+
 const getAllCategories = async (req, res) => {
   try {
     const categories = await prisma.category.findMany({
@@ -13,7 +13,7 @@ const getAllCategories = async (req, res) => {
   }
 };
 
-// Створення нової категорії складу
+
 const createCategory = async (req, res) => {
   const { name } = req.body;
   if (!name || name.trim() === '') {
@@ -30,7 +30,7 @@ const createCategory = async (req, res) => {
   }
 };
 
-// Оновлення назви категорії складу
+
 const updateCategory = async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
@@ -49,11 +49,11 @@ const updateCategory = async (req, res) => {
   }
 };
 
-// Видалення категорії складу
+
 const deleteCategory = async (req, res) => {
   const id = Number(req.params.id);
   try {
-    // Використовуємо транзакцію, щоб безпечно відв'язати товари від категорії перед її видаленням
+
     await prisma.$transaction([
       prisma.inventory.updateMany({
         where: { categoryId: id },
@@ -70,7 +70,7 @@ const deleteCategory = async (req, res) => {
   }
 };
 
-// Експорт усіх функцій
+
 module.exports = {
   getAllCategories,
   createCategory,

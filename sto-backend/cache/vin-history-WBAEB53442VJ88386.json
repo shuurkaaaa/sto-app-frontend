@@ -1,0 +1,42 @@
+{
+  "data": {
+    "vin": "WBAEB53442VJ88386",
+    "timestamp": "2026-05-10T22:33:55.221Z",
+    "sources": {
+      "autoRIA": {
+        "source": "autoRIA.com",
+        "error": "Waiting for selector `input[placeholder*=\"Марка\"]` failed",
+        "found": false
+      },
+      "accidents": {
+        "source": "accident-registry",
+        "found": false,
+        "accidents": [],
+        "warnings": null,
+        "description": "Інформація про ДТП від державних реєстрів часто недоступна через API. Рекомендується перевірити в сервісних центрах або поліції."
+      },
+      "services": {
+        "source": "service-registry",
+        "found": false,
+        "services": [
+          {
+            "date": "невідомо",
+            "type": "ТО-1",
+            "description": "Перевірьте у сервісних центрах"
+          }
+        ],
+        "lastService": null,
+        "description": "Відкрита інформація про сервісне обслуговування обмежена. Перевірте у сервісних центрах за VIN-кодом або сервісних книжках автомобіля."
+      },
+      "reviews": {
+        "source": "repair-reviews",
+        "found": false,
+        "reviews": [],
+        "summary": "Рекомендуємо перевірити відгуки про сервісні центри на Google Maps та Яндекс.Карти. Збережіть VIN для швидкої діагностики."
+      }
+    },
+    "summary": "\n📋 Джерела:\n• autoRIA.com - ✗ дані не знайдені\n• Реєстр ДТП -  обмежено доступні\n• Історія ремонту -  потребує перевірки в сервісі\n"
+  },
+  "timestamp": 1778452435221,
+  "ttl": 604800000
+}

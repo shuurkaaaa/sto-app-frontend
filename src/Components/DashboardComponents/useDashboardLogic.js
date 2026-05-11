@@ -3,15 +3,15 @@ import { useOrders } from '../../Context/OrdersContext';
 import { useWorkers } from '../../Context/WorkersContext';
 
 export const useDashboardLogic = () => {
-  const { 
-    orders, 
-    fetchOrders, 
-    addOrder, 
-    updateOrder, 
-    updateOrderStatus, 
-    deleteOrder 
+  const {
+    orders,
+    fetchOrders,
+    addOrder,
+    updateOrder,
+    updateOrderStatus,
+    deleteOrder
   } = useOrders();
-  
+
   const { workers } = useWorkers();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,14 +47,14 @@ export const useDashboardLogic = () => {
       const carInfo = order.carDetails || order.car || "";
       const plateInfo = order.plate || "";
 
-      const matchesSearch = 
-        clientName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      const matchesSearch =
+        clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         carInfo.toLowerCase().includes(searchTerm.toLowerCase()) ||
         plateInfo.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       const status = (order.status || "").toUpperCase();
       const isFinished = status === 'COMPLETED' || status === 'ВИКОНАНО';
-      
+
       if (showArchive) {
         return matchesSearch && isFinished;
       } else {

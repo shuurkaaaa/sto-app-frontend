@@ -4,7 +4,7 @@ const workerSchema = Joi.object({
   name: Joi.string().min(2).required(),
   role: Joi.string().required(),
   exp: Joi.number().integer().min(0).default(0),
-  staffCategoryId: Joi.alternatives().try(Joi.number(), Joi.string()).allow(null).optional() 
+  staffCategoryId: Joi.alternatives().try(Joi.number(), Joi.string()).allow(null).optional()
 }).unknown(true);
 
 const validateStaff = (req, res, next) => {

@@ -10,15 +10,15 @@ export const CustomerDetailsModal = ({
   customer, onClose, onAddCar, onDeleteCar, onDeleteCustomer, onArchiveCustomer, onUnarchiveCustomer, onUpdateNotes,
 }) => {
   const [isAddingCar, setIsAddingCar] = useState(false);
-  const [carData, setCarData] = useState({ brand: '', model: '', plate: '' });
+  const [carData, setCarData] = useState({ brand: '', model: '', plate: '', vin: '' });
 
   if (!customer) return null;
 
   const handleCarSubmit = (e) => {
     e.preventDefault();
     if (carData.brand && carData.model && carData.plate) {
-      onAddCar(customer.id, { ...carData, vin: '—' });
-      setCarData({ brand: '', model: '', plate: '' });
+      onAddCar(customer.id, { ...carData });
+      setCarData({ brand: '', model: '', plate: '', vin: '' });
       setIsAddingCar(false);
     }
   };
@@ -64,6 +64,7 @@ export const CustomerDetailsModal = ({
                 <input className="sto-input mb-2" placeholder="Марка" value={carData.brand} onChange={e => setCarData({ ...carData, brand: e.target.value })} />
                 <input className="sto-input mb-2" placeholder="Модель" value={carData.model} onChange={e => setCarData({ ...carData, model: e.target.value })} />
                 <input className="sto-input mb-2" placeholder="Держ. номер" value={carData.plate} onChange={e => setCarData({ ...carData, plate: e.target.value })} />
+                <input className="sto-input mb-2" placeholder="VIN-код (необов'язково)" value={carData.vin} onChange={e => setCarData({ ...carData, vin: e.target.value })} />
                 <div className="d-flex gap-2">
                   <button onClick={handleCarSubmit} className="sto-btn sto-btn-primary flex-grow-1">Зберегти</button>
                   <button onClick={() => setIsAddingCar(false)} className="sto-btn sto-btn-secondary flex-grow-1">Скасувати</button>
@@ -73,7 +74,7 @@ export const CustomerDetailsModal = ({
             <CommunicationHistory />
           </div>
           <div>
-            <MaintenanceAlert lastVisit={customer.lastVisit} />
+            <MaintenanceAlert customer={customer} />
             <CustomerStats customer={customer} onUpdateNotes={onUpdateNotes} />
             <QuickBookingAction customer={customer} />
           </div>

@@ -1,22 +1,34 @@
 import React from 'react';
+import { checkCustomerServiceReminder } from '../../utils/customerReminder';
 
-export const MaintenanceAlert = ({ lastVisit }) => {
-  if (!lastVisit) return null;
-  const lastDate = new Date(lastVisit);
-  const today = new Date();
-  const diffTime = Math.abs(today - lastDate);
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  if (isNaN(diffDays) || diffDays < 180) return null;
+export const MaintenanceAlert = ({ customer }) => {
+  if (!customer) return null;
+  
+  const reminderInfo = checkCustomerServiceReminder(customer);
+  
+  if (!reminderInfo.needsReminder) return null;
 
   return (
-    <div className="sto-maintenance-alert">
+    <div 
+      className="rounded-3 p-3 mb-3"
+      style={{
+        background: 'rgba(239, 68, 68, 0.1)',
+        borderLeft: '4px solid #ef4444',
+        borderRadius: '8px'
+      }}
+    >
       <div>
-        <h4 className="m-0 fw-bold" style={{ color: '#FECACA', fontSize: '14px' }}>
-          Час на планове ТО!
+        <h4 className="m-0 fw-bold" style={{ color: '#fca5a5', fontSize: '14px' }}>
+          Час на планове обслуговування!
         </h4>
-        <p className="m-0 small" style={{ color: '#FCA5A5' }}>
-          Останній візит був {diffDays} днів тому. Рекомендується заміна мастила.
+        <p className="m-0 small mt-2" style={{ color: '#f87171' }}>
+          {reminderInfo.message}
         </p>
+        {reminderInfo.lastServiceDate && (
+          <p className="m-0 small mt-1" style={{ color: '#dc2626' }}>
+            Останнє ТО: {reminderInfo.lastServiceDate}
+          </p>
+        )}
       </div>
     </div>
   );

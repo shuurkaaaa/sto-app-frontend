@@ -1,18 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import axios from 'axios';
 import { toast } from 'react-hot-toast';
+import { apiClient } from '../services/apiClient';
 
 const NotificationsContext = createContext(null);
-const API_BASE_URL = 'http://localhost:5000/api';
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  }
-});
 
 const typeConfig = {
   manual: { label: 'ЗАМІТКА', color: '#10B981' },
@@ -24,11 +14,11 @@ const typeConfig = {
 export const NotificationsProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
-  
+
   const shownToastIds = useRef(new Set());
   const isFirstLoad = useRef(true);
 
-  // Функція для низького залишку (викликається локально з компонентів)
+
   const notifyLowStock = useCallback((itemName, current, minimum) => {
     const safeId = `stock-alert-${itemName.replace(/\s+/g, '-').toLowerCase()}`;
 
@@ -59,24 +49,24 @@ export const NotificationsProvider = ({ children }) => {
             Залишилось: <span style={{ color: '#fff', fontWeight: 'bold' }}>{current} шт.</span>
           </div>
         </div>
-      ), { 
-        id: safeId, 
-        duration: 2000, 
-        position: 'top-right' 
+      ), {
+        id: safeId,
+        duration: 2000,
+        position: 'top-right'
       });
       shownToastIds.current.add(safeId);
     }
   }, []);
 
-  // Основна функція отримання сповіщень
+
   const fetchNotifications = useCallback(async () => {
     if (isFirstLoad.current) setLoading(true);
-    
+
     try {
-      const response = await api.get('/notifications');
+      const response = await apiClient.get('/notifications');
       const freshData = Array.isArray(response.data) ? response.data : [];
 
-      // 1. Прибираємо тости, яких більше немає в списку бекенду
+
       const freshIds = new Set(freshData.map(n => n.id));
       shownToastIds.current.forEach(id => {
         if (!freshIds.has(id)) {
@@ -85,7 +75,7 @@ export const NotificationsProvider = ({ children }) => {
         }
       });
 
-      // 2. Показуємо нові тости
+
       if (!isFirstLoad.current) {
         freshData.forEach(item => {
           if (!shownToastIds.current.has(item.id)) {
@@ -112,17 +102,17 @@ export const NotificationsProvider = ({ children }) => {
                 <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{item.title}</div>
                 <div style={{ fontSize: '13px', color: '#94A3B8' }}>{item.message}</div>
               </div>
-            ), { 
-              id: item.id, 
-              duration: 2000, 
-              position: 'top-right' 
+            ), {
+              id: item.id,
+              duration: 2000,
+              position: 'top-right'
             });
 
             shownToastIds.current.add(item.id);
           }
         });
       } else {
-        // При першому завантаженні просто наповнюємо список без сповіщень
+
         freshData.forEach(item => shownToastIds.current.add(item.id));
         isFirstLoad.current = false;
       }
@@ -137,7 +127,7 @@ export const NotificationsProvider = ({ children }) => {
 
   const addNote = async (noteData) => {
     try {
-      await api.post('/notifications', noteData);
+      await apiClient.post('/notifications', noteData);
       toast.success("Замітку додано", { duration: 2000 });
       fetchNotifications();
     } catch (error) {
@@ -146,26 +136,26 @@ export const NotificationsProvider = ({ children }) => {
   };
 
   const removeNote = async (id) => {
-    // 1. Відразу видаляємо з локального стейту та реєстру тостів
+
     setNotifications(prev => prev.filter(n => n.id !== id));
     toast.dismiss(id);
     shownToastIds.current.delete(id);
 
     try {
-      // 2. Відправляємо запит на бекенд (upsert для системних або delete для ручних)
-      await api.delete(`/notifications/${id}`);
+
+      await apiClient.delete(`/notifications/${id}`);
       toast.success("Видалено", { duration: 2000 });
     } catch (error) {
       console.error("Помилка видалення:", error);
       toast.error("Помилка при видаленні", { duration: 2000 });
-      // У разі помилки повертаємо список (refresh)
+
       fetchNotifications();
     }
   };
 
   const clearAllManual = async () => {
     try {
-      await api.delete('/notifications/clear-all');
+      await apiClient.delete('/notifications/clear-all');
       toast.success("Архів очищено", { duration: 2000 });
       shownToastIds.current.clear();
       setNotifications([]);
@@ -175,9 +165,64 @@ export const NotificationsProvider = ({ children }) => {
     }
   };
 
+  const notifyMaintenanceNeeded = useCallback((customer) => {
+    if (!customer || !customer.name) return;
+
+    const safeId = `maintenance-alert-${customer.id}`;
+
+    if (!shownToastIds.current.has(safeId)) {
+      toast.custom((t) => (
+        <div style={{
+          background: '#1E293B',
+          color: '#fff',
+          padding: '16px',
+          borderRadius: '12px',
+          borderLeft: '6px solid #EF4444',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px',
+          minWidth: '320px',
+          pointerEvents: 'auto'
+        }}>
+          <div style={{ fontSize: '10px', fontWeight: '800', color: '#EF4444', textTransform: 'uppercase' }}>
+            ⚡ ОБСЛУГОВУВАННЯ ПОТРІБНЕ
+          </div>
+          <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{customer.name}</div>
+          <div style={{ fontSize: '13px', color: '#94A3B8' }}>
+            Час запропонувати клієнту техническое обслуживание
+          </div>
+        </div>
+      ), {
+        id: safeId,
+        duration: 3000,
+        position: 'top-right'
+      });
+      shownToastIds.current.add(safeId);
+    }
+
+    // Додаємо в список сповіщень
+    const newNotification = {
+      id: safeId,
+      type: 'maintenance',
+      priority: 'high',
+      title: `ТО потрібне: ${customer.name}`,
+      message: 'Останній візит був більше 6 місяців тому. Запропонуйте клієнту обслуговування.',
+      isRead: false,
+      isDismissed: false,
+      createdAt: new Date().toISOString()
+    };
+
+    setNotifications(prev => {
+      const exists = prev.some(n => n.id === safeId);
+      if (exists) return prev;
+      return [newNotification, ...prev];
+    });
+  }, []);
+
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 5000); 
+    const interval = setInterval(fetchNotifications, 5000);
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 
@@ -189,7 +234,8 @@ export const NotificationsProvider = ({ children }) => {
     addNote,
     removeNote,
     clearAllManual,
-    notifyLowStock
+    notifyLowStock,
+    notifyMaintenanceNeeded
   };
 
   return (
@@ -202,15 +248,16 @@ export const NotificationsProvider = ({ children }) => {
 export const useNotifications = () => {
   const context = useContext(NotificationsContext);
   if (!context) {
-    return { 
-      notifications: [], 
-      count: 0, 
-      loading: false, 
-      refresh: () => {}, 
-      addNote: () => {}, 
-      removeNote: () => {}, 
+    return {
+      notifications: [],
+      count: 0,
+      loading: false,
+      refresh: () => {},
+      addNote: () => {},
+      removeNote: () => {},
       clearAllManual: () => {},
-      notifyLowStock: () => {}
+      notifyLowStock: () => {},
+      notifyMaintenanceNeeded: () => {}
     };
   }
   return context;

@@ -7,8 +7,8 @@ const safeParseInt = (val) => {
 
 const logAction = async (staffId, action) => {
   try {
-    await prisma.staffLog.create({ 
-      data: { staffId: Number(staffId), action } 
+    await prisma.staffLog.create({
+      data: { staffId: Number(staffId), action }
     });
   } catch (e) {
     console.error("Помилка логування:", e.message);
@@ -43,11 +43,11 @@ exports.getArchivedStaff = async (req, res) => {
 exports.createStaff = async (req, res) => {
   const { name, role, exp, staffCategoryId, commissionPercent } = req.body;
   try {
-    const newMember = await prisma.staff.create({ 
-      data: { 
-        name, 
-        role, 
-        exp: safeParseInt(exp), 
+    const newMember = await prisma.staff.create({
+      data: {
+        name,
+        role,
+        exp: safeParseInt(exp),
         staffCategoryId: staffCategoryId ? Number(staffCategoryId) : null,
         commissionPercent: commissionPercent !== undefined && commissionPercent !== '' ? Number(commissionPercent) : 10,
       },
@@ -66,10 +66,10 @@ exports.updateStaff = async (req, res) => {
   try {
     const updated = await prisma.staff.update({
       where: { id: Number(id) },
-      data: { 
-        name, 
-        role, 
-        exp: safeParseInt(exp), 
+      data: {
+        name,
+        role,
+        exp: safeParseInt(exp),
         staffCategoryId: staffCategoryId ? Number(staffCategoryId) : null,
         ...(commissionPercent !== undefined && commissionPercent !== '' ? { commissionPercent: Number(commissionPercent) } : {}),
       },
@@ -87,13 +87,13 @@ exports.updateStaffStatus = async (req, res) => {
   const { status, currentCar } = req.body;
   try {
     const result = await prisma.$transaction([
-      prisma.staff.update({ 
-        where: { id: Number(id) }, 
-        data: { status, currentCar: currentCar || "" }, 
-        include: { staffCategory: true } 
+      prisma.staff.update({
+        where: { id: Number(id) },
+        data: { status, currentCar: currentCar || "" },
+        include: { staffCategory: true }
       }),
-      prisma.staffLog.create({ 
-        data: { staffId: Number(id), action: `Змінено статус на: ${status}` } 
+      prisma.staffLog.create({
+        data: { staffId: Number(id), action: `Змінено статус на: ${status}` }
       })
     ]);
     res.json(result[0]);
@@ -105,9 +105,9 @@ exports.updateStaffStatus = async (req, res) => {
 exports.deleteStaff = async (req, res) => {
   try {
     const id = Number(req.params.id);
-    await prisma.staff.update({ 
-      where: { id }, 
-      data: { isDeleted: true } 
+    await prisma.staff.update({
+      where: { id },
+      data: { isDeleted: true }
     });
     await logAction(id, "Майстра переміщено в архів");
     res.json({ message: "Успішно переміщено в архів" });
@@ -119,9 +119,9 @@ exports.deleteStaff = async (req, res) => {
 exports.restoreStaff = async (req, res) => {
   try {
     const id = Number(req.params.id);
-    await prisma.staff.update({ 
-      where: { id }, 
-      data: { isDeleted: false } 
+    await prisma.staff.update({
+      where: { id },
+      data: { isDeleted: false }
     });
     await logAction(id, "Майстра відновлено з архіву");
     res.json({ message: "Відновлено" });

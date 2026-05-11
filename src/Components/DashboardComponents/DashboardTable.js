@@ -46,6 +46,7 @@ export const DashboardTable = ({ orders, onDelete, onEdit }) => {
           <tr>
             <th>Клієнт / Дата</th>
             <th>Автомобіль</th>
+            <th>VIN-код</th>
             <th>Майстер</th>
             <th>Статус</th>
             <th>Сума</th>
@@ -70,6 +71,19 @@ export const DashboardTable = ({ orders, onDelete, onEdit }) => {
                   >
                     {order.plate}
                   </span>
+                )}
+              </td>
+              <td>
+                {order.vinCode ? (
+                  <span
+                    className="px-2 py-1 rounded-2"
+                    style={{ fontSize: '10px', background: '#e3f2fd', color: '#1976d2', fontFamily: 'monospace' }}
+                    title="VIN-код"
+                  >
+                    {order.vinCode}
+                  </span>
+                ) : (
+                  <span className="sto-text-muted" style={{ fontSize: '12px' }}>—</span>
                 )}
               </td>
               <td>

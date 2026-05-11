@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { apiClient } from '../../services/apiClient';
 
 export const CarManagerModal = ({ onClose }) => {
   const [brands, setBrands] = useState([]);
@@ -8,11 +8,11 @@ export const CarManagerModal = ({ onClose }) => {
   const [newModelName, setNewModelName] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editValue, setEditValue] = useState('');
-  const API_URL = 'http://localhost:5000/api/cars';
+  const API_URL = '/cars';
 
   const fetchBrands = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_URL}/brands`);
+      const response = await apiClient.get(`${API_URL}/brands`);
       const data = response.data;
       setBrands(data);
       setSelectedBrand(prev => {
@@ -29,7 +29,7 @@ export const CarManagerModal = ({ onClose }) => {
   const handleAddBrand = async () => {
     if (!newBrandName.trim()) return;
     try {
-      await axios.post(`${API_URL}/brands`, { name: newBrandName });
+      await apiClient.post(`${API_URL}/brands`, { name: newBrandName });
       setNewBrandName('');
       await fetchBrands();
     } catch { alert('Не вдалося додати марку.'); }
@@ -38,7 +38,7 @@ export const CarManagerModal = ({ onClose }) => {
   const handleUpdateBrand = async (id) => {
     if (!editValue.trim()) { setEditingId(null); return; }
     try {
-      await axios.put(`${API_URL}/brands/${id}`, { name: editValue });
+      await apiClient.put(`${API_URL}/brands/${id}`, { name: editValue });
       setEditingId(null);
       await fetchBrands();
     } catch (e) { console.error(e); }
@@ -47,7 +47,7 @@ export const CarManagerModal = ({ onClose }) => {
   const handleDeleteBrand = async (id) => {
     if (!window.confirm('Увага! Видалення марки призведе до видалення всіх моделей. Продовжити?')) return;
     try {
-      await axios.delete(`${API_URL}/brands/${id}`);
+      await apiClient.delete(`${API_URL}/brands/${id}`);
       if (selectedBrand?.id === id) setSelectedBrand(null);
       await fetchBrands();
     } catch (e) { console.error(e); }
@@ -56,7 +56,7 @@ export const CarManagerModal = ({ onClose }) => {
   const handleAddModel = async () => {
     if (!newModelName.trim() || !selectedBrand) return;
     try {
-      await axios.post(`${API_URL}/models`, { name: newModelName, brandId: selectedBrand.id });
+      await apiClient.post(`${API_URL}/models`, { name: newModelName, brandId: selectedBrand.id });
       setNewModelName('');
       await fetchBrands();
     } catch (e) { console.error(e); }
@@ -65,7 +65,7 @@ export const CarManagerModal = ({ onClose }) => {
   const handleUpdateModel = async (id) => {
     if (!editValue.trim()) { setEditingId(null); return; }
     try {
-      await axios.put(`${API_URL}/models/${id}`, { name: editValue });
+      await apiClient.put(`${API_URL}/models/${id}`, { name: editValue });
       setEditingId(null);
       await fetchBrands();
     } catch (e) { console.error(e); }
@@ -73,7 +73,7 @@ export const CarManagerModal = ({ onClose }) => {
 
   const handleDeleteModel = async (id) => {
     try {
-      await axios.delete(`${API_URL}/models/${id}`);
+      await apiClient.delete(`${API_URL}/models/${id}`);
       await fetchBrands();
     } catch (e) { console.error(e); }
   };

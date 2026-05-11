@@ -1,5 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useClients } from '../Context/ClientsContext';
+import { useNotifications } from '../Context/NotificationsContext';
+import { checkCustomerServiceReminder } from '../utils/customerReminder';
 
 import { CustomerHeader } from '../Components/CustomerComponents/CustomerHeader';
 import { CustomerToolbar } from '../Components/CustomerComponents/CustomerToolbar';
@@ -20,10 +22,26 @@ const Customers = () => {
     deleteCarFromCustomer,
   } = useClients();
 
+  const { notifyMaintenanceNeeded } = useNotifications();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [showArchive, setShowArchive] = useState(false);
+  const [checkedMaintenanceIds, setCheckedMaintenanceIds] = useState(new Set());
+
+  // Автоматично перевіряємо та сповіщаємо про ТО
+  useEffect(() => {
+    if (Array.isArray(clients)) {
+      clients.forEach(customer => {
+        const reminderInfo = checkCustomerServiceReminder(customer);
+        if (reminderInfo.needsReminder && !checkedMaintenanceIds.has(customer.id)) {
+          notifyMaintenanceNeeded(customer);
+          setCheckedMaintenanceIds(prev => new Set([...prev, customer.id]));
+        }
+      });
+    }
+  }, [clients, notifyMaintenanceNeeded, checkedMaintenanceIds]);
 
   const filteredCustomers = useMemo(() => {
     if (!Array.isArray(clients)) return [];

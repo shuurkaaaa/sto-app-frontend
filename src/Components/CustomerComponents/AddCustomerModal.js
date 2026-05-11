@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 export const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
   const [formData, setFormData] = useState({
-    name: '', phone: '', carBrand: '', carModel: '', plate: '', source: 'Прямий візит',
+    name: '', phone: '', carBrand: '', carModel: '', plate: '', vin: '', source: 'Прямий візит',
   });
   const [errors, setErrors] = useState({});
 
@@ -29,12 +29,12 @@ export const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
         name: formData.name,
         phone: formData.phone,
         source: formData.source,
-        car: { brand: formData.carBrand, model: formData.carModel, plate: formData.plate.toUpperCase(), vin: '—' },
+        car: { brand: formData.carBrand, model: formData.carModel, plate: formData.plate.toUpperCase(), vin: formData.vin || '—' },
         totalSpent: 0,
         notes: '',
         lastVisit: 'Новий',
       });
-      setFormData({ name: '', phone: '', carBrand: '', carModel: '', plate: '', source: 'Прямий візит' });
+      setFormData({ name: '', phone: '', carBrand: '', carModel: '', plate: '', vin: '', source: 'Прямий візит' });
       setErrors({});
       onClose();
     }
@@ -90,6 +90,11 @@ export const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
               <label className="sto-text-muted small">Держ. номер</label>
               <input className={`sto-input ${errors.plate ? 'sto-input--error' : ''}`} placeholder="AA 1234 AA" value={formData.plate} onChange={e => setFormData({ ...formData, plate: e.target.value })} />
             </div>
+          </div>
+
+          <div className="sto-form-group mt-2">
+            <label className="sto-text-muted small">VIN-код (необов'язково)</label>
+            <input className="sto-input" placeholder="Введіть VIN-код автомобіля..." value={formData.vin} onChange={e => setFormData({ ...formData, vin: e.target.value })} />
           </div>
 
           <div className="d-flex gap-3 mt-4">

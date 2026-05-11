@@ -9,7 +9,7 @@ const options = {
       description: 'Документація API для управління персоналом СТО',
     },
     servers: [{ url: 'http://localhost:5000' }],
-    // Додаємо схеми об'єктів
+
     components: {
       schemas: {
         Staff: {
@@ -33,7 +33,7 @@ const options = {
       }
     }
   },
-  apis: ['./routes/*.js'], 
+  apis: ['./routes/*.js'],
 };
 
 module.exports = swaggerJsdoc(options);

@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-
-const API = 'http://127.0.0.1:5000/api/auth';
+import { apiClient } from '../services/apiClient';
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -23,7 +21,7 @@ const ResetPassword = () => {
     let cancelled = false;
     const verify = async () => {
       try {
-        await axios.get(`${API}/reset-password/${token}/verify`);
+        await apiClient.get(`/auth/reset-password/${token}/verify`);
         if (!cancelled) setTokenValid(true);
       } catch (err) {
         if (!cancelled) setVerifyError(err.response?.data?.message || 'Посилання недійсне');
@@ -50,7 +48,7 @@ const ResetPassword = () => {
     if (!validate()) return;
     setLoading(true);
     try {
-      const res = await axios.post(`${API}/reset-password`, { token, newPassword: password });
+      const res = await apiClient.post(`/auth/reset-password`, { token, newPassword: password });
       setSuccess(res.data?.message || 'Пароль успішно змінено.');
       setTimeout(() => navigate('/'), 2000);
     } catch (err) {

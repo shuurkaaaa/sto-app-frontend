@@ -1,26 +1,26 @@
 const prisma = require('../lib/prisma');
 
-// Створення товару
+
 exports.createItem = async (req, res) => {
   try {
-    const { 
-      name, stockKeepingUnit, categoryId, price, 
-      current, minimum, compatibility, specifications 
+    const {
+      name, stockKeepingUnit, categoryId, price,
+      current, minimum, compatibility, specifications
     } = req.body;
 
-    // Жорстка перевірка числових полів
+
     const safePrice = parseInt(price, 10) || 0;
     const safeCurrent = parseInt(current, 10) || 0;
     const safeMin = parseInt(minimum, 10) || 0;
-    
-    // Категорія може бути або числом, або null
+
+
     let safeCategoryId = null;
     if (categoryId && categoryId !== "" && categoryId !== "null") {
       safeCategoryId = parseInt(categoryId, 10);
     }
 
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
-    
+
     let parsedSpecs = [];
     try {
       parsedSpecs = typeof specifications === 'string' ? JSON.parse(specifications) : (specifications || []);
@@ -35,7 +35,7 @@ exports.createItem = async (req, res) => {
         price: safePrice,
         current: safeCurrent,
         minimum: safeMin,
-        compatibility: String(compatibility || ""), 
+        compatibility: String(compatibility || ""),
         imageSource: imagePath,
         categoryId: safeCategoryId,
         technicalData: {
@@ -45,12 +45,12 @@ exports.createItem = async (req, res) => {
           }))
         }
       },
-      include: { 
-        technicalData: true, 
-        category: true 
+      include: {
+        technicalData: true,
+        category: true
       }
     });
-    
+
     res.status(201).json(newItem);
   } catch (error) {
     console.error("КРИТИЧНА ПОМИЛКА ПРИ СТВОРЕННІ:", error);
@@ -58,31 +58,31 @@ exports.createItem = async (req, res) => {
   }
 };
 
-// Оновлення товару
+
 exports.updateItem = async (req, res) => {
   const { id } = req.params;
   try {
     const itemId = parseInt(id, 10);
     if (isNaN(itemId)) return res.status(400).json({ error: "Некоректний ID" });
 
-    const { 
-      name, stockKeepingUnit, price, categoryId, 
-      technicalData, compatibility, current, minimum 
+    const {
+      name, stockKeepingUnit, price, categoryId,
+      technicalData, compatibility, current, minimum
     } = req.body;
 
     const result = await prisma.$transaction(async (tx) => {
       const updateData = {};
-      
+
       if (name !== undefined) updateData.name = String(name);
       if (stockKeepingUnit !== undefined) updateData.stockKeepingUnit = String(stockKeepingUnit);
       if (price !== undefined) updateData.price = parseInt(price, 10) || 0;
       if (current !== undefined) updateData.current = parseInt(current, 10) || 0;
       if (minimum !== undefined) updateData.minimum = parseInt(minimum, 10) || 0;
       if (compatibility !== undefined) updateData.compatibility = String(compatibility);
-      
+
       if (categoryId !== undefined) {
-        updateData.categoryId = (categoryId === "" || categoryId === "null" || categoryId === null) 
-          ? null 
+        updateData.categoryId = (categoryId === "" || categoryId === "null" || categoryId === null)
+          ? null
           : parseInt(categoryId, 10);
       }
 
@@ -125,7 +125,7 @@ exports.updateItem = async (req, res) => {
   }
 };
 
-// Видалення
+
 exports.deleteItem = async (req, res) => {
   try {
     const itemId = parseInt(req.params.id, 10);

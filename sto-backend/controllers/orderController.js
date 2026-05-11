@@ -6,7 +6,7 @@ const orderController = {
       const orders = await prisma.order.findMany({
         include: {
           customer: true,
-          // Додаємо вкладений include для категорії майстра
+
           master: {
             include: { staffCategory: true }
           },
@@ -25,8 +25,8 @@ const orderController = {
   createOrder: async (req, res) => {
     try {
       const {
-        client, phone, car, plate, services, totalPrice, 
-        payment, deadline, comment, masterId, isUrgent 
+        client, phone, car, plate, vinCode, services, totalPrice,
+        payment, deadline, comment, masterId, isUrgent
       } = req.body;
 
       let customer = await prisma.customer.findUnique({ where: { phone } });
@@ -43,8 +43,14 @@ const orderController = {
             brand: car.split(' ')[0] || "Unknown",
             model: car.split(' ').slice(1).join(' ') || "Unknown",
             plate: plate.toUpperCase(),
+            vin: vinCode || null,
             customerId: customer.id
           }
+        });
+      } else if (vinCode && !carRecord.vin) {
+        await prisma.car.update({
+          where: { id: carRecord.id },
+          data: { vin: vinCode }
         });
       }
 
@@ -52,6 +58,7 @@ const orderController = {
         data: {
           customerId: customer.id,
           carDetails: `${car} (${plate.toUpperCase()})`,
+          vinCode: vinCode || null,
           totalPrice: parseFloat(totalPrice),
           paymentMethod: payment || "Готівка",
           isUrgent: Boolean(isUrgent),
@@ -63,19 +70,19 @@ const orderController = {
             connect: services.map((s) => ({ id: s.id })),
           },
         },
-        include: { 
-          customer: true, 
-          services: true, 
-          master: { include: { staffCategory: true } } 
+        include: {
+          customer: true,
+          services: true,
+          master: { include: { staffCategory: true } }
         },
       });
 
       if (masterId) {
         await prisma.staff.update({
           where: { id: parseInt(masterId) },
-          data: { 
-            status: "Зайнятий", 
-            currentCar: plate.toUpperCase() 
+          data: {
+            status: "Зайнятий",
+            currentCar: plate.toUpperCase()
           }
         });
       }
@@ -89,7 +96,7 @@ const orderController = {
   updateOrder: async (req, res) => {
     try {
       const { id } = req.params;
-      const { client, phone, car, plate, services, totalPrice, payment, deadline, comment, masterId, isUrgent } = req.body;
+      const { client, phone, car, plate, vinCode, services, totalPrice, payment, deadline, comment, masterId, isUrgent } = req.body;
 
       const customer = await prisma.customer.upsert({
         where: { phone: phone },
@@ -102,6 +109,7 @@ const orderController = {
         data: {
           customerId: customer.id,
           carDetails: `${car} (${plate.toUpperCase()})`,
+          vinCode: vinCode || null,
           totalPrice: parseFloat(totalPrice),
           paymentMethod: payment,
           isUrgent: Boolean(isUrgent),
@@ -112,10 +120,10 @@ const orderController = {
             set: services.map((s) => ({ id: s.id })),
           },
         },
-        include: { 
-          customer: true, 
-          services: true, 
-          master: { include: { staffCategory: true } } 
+        include: {
+          customer: true,
+          services: true,
+          master: { include: { staffCategory: true } }
         }
       });
 
@@ -139,7 +147,7 @@ const orderController = {
 
       const updateData = {};
       if (status) updateData.status = status;
-      
+
       if (masterId !== undefined) {
         const newMasterId = masterId ? parseInt(masterId) : null;
         updateData.masterId = newMasterId;
@@ -154,9 +162,9 @@ const orderController = {
           if (newMasterId) {
             await prisma.staff.update({
               where: { id: newMasterId },
-              data: { 
-                status: "Зайнятий", 
-                currentCar: currentOrder.carDetails.split('(')[0].trim() 
+              data: {
+                status: "Зайнятий",
+                currentCar: currentOrder.carDetails.split('(')[0].trim()
               }
             });
             if (!status && currentOrder.status === 'PENDING') {
@@ -171,8 +179,8 @@ const orderController = {
 
       if (isReadyOrDone && currentOrder.status !== status) {
         if (['COMPLETED', 'ВИКОНАНО'].includes(normStatus)) {
-          // 1. Сумуємо потребу по кожній запчастині (одна деталь може бути у кількох послугах)
-          const requiredByItem = new Map(); // inventoryId -> { qty, name? }
+
+          const requiredByItem = new Map();
           for (const service of currentOrder.services) {
             for (const sPart of service.serviceParts) {
               const prev = requiredByItem.get(sPart.inventoryId) || 0;
@@ -180,7 +188,7 @@ const orderController = {
             }
           }
 
-          // 2. Перевіряємо, чи вистачає на складі — інакше відмова без жодних змін
+
           if (requiredByItem.size > 0) {
             const inventoryRecords = await prisma.inventory.findMany({
               where: { id: { in: [...requiredByItem.keys()] } },
@@ -214,7 +222,7 @@ const orderController = {
             }
           }
 
-          // 3. Списання у транзакції — або все, або нічого
+
           await prisma.$transaction(
             [...requiredByItem.entries()].map(([invId, qty]) =>
               prisma.inventory.update({
@@ -226,7 +234,7 @@ const orderController = {
         }
 
         const activeMasterId = masterId !== undefined ? (masterId ? parseInt(masterId) : null) : currentOrder.masterId;
-        
+
         if (activeMasterId) {
           const masterRecord = await prisma.staff.findUnique({ where: { id: activeMasterId } });
           const commissionRate = (masterRecord?.commissionPercent ?? 10) / 100;
@@ -251,10 +259,10 @@ const orderController = {
       const updatedOrder = await prisma.order.update({
         where: { id: parseInt(id) },
         data: updateData,
-        include: { 
-          customer: true, 
-          master: { include: { staffCategory: true } }, 
-          services: true 
+        include: {
+          customer: true,
+          master: { include: { staffCategory: true } },
+          services: true
         }
       });
 

@@ -9,7 +9,7 @@ export const ClientsProvider = ({ children }) => {
 
   const getHeaders = useCallback(() => {
     const token = localStorage.getItem('token');
-    const headers = { 
+    const headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     };
@@ -19,7 +19,7 @@ export const ClientsProvider = ({ children }) => {
     return headers;
   }, []);
 
-  // Загортаємо в useCallback, щоб прибрати помилку про залежності
+
   const fetchOptions = useCallback((method = 'GET', body = null) => {
     const options = {
       method,
@@ -38,7 +38,7 @@ export const ClientsProvider = ({ children }) => {
       })
       .then((data) => setClients(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Error fetching customers:", err));
-  }, [fetchOptions]); // Тепер fetchOptions стабільна і її можна додати сюди
+  }, [fetchOptions]);
 
   const addCustomer = async (newData) => {
     try {
@@ -98,7 +98,7 @@ export const ClientsProvider = ({ children }) => {
       }
       if (res.ok) {
         const newCar = await res.json();
-        setClients((prev) => prev.map((c) => 
+        setClients((prev) => prev.map((c) =>
           c.id === customerId ? { ...c, cars: [...(c.cars || []), newCar] } : c
         ));
       }
@@ -111,7 +111,7 @@ export const ClientsProvider = ({ children }) => {
     try {
       const res = await fetch(`${API_BASE}/${customerId}/car/${carId}`, fetchOptions('DELETE'));
       if (res.ok) {
-        setClients((prev) => prev.map((c) => 
+        setClients((prev) => prev.map((c) =>
           c.id === customerId ? { ...c, cars: (c.cars || []).filter((car) => car.id !== carId) } : c
         ));
       }
@@ -125,10 +125,10 @@ export const ClientsProvider = ({ children }) => {
       const res = await fetch(`${API_BASE}/${customerId}/note`, fetchOptions('POST', { text }));
       if (res.ok) {
         const newNote = await res.json();
-        setClients((prev) => prev.map((c) => 
-          c.id === customerId ? { 
-            ...c, 
-            communicationHistory: [newNote, ...(c.communicationHistory || [])] 
+        setClients((prev) => prev.map((c) =>
+          c.id === customerId ? {
+            ...c,
+            communicationHistory: [newNote, ...(c.communicationHistory || [])]
           } : c
         ));
       }
@@ -141,10 +141,10 @@ export const ClientsProvider = ({ children }) => {
     try {
       const res = await fetch(`${API_BASE}/${customerId}/note/${noteId}`, fetchOptions('DELETE'));
       if (res.ok) {
-        setClients((prev) => prev.map((c) => 
-          c.id === customerId ? { 
-            ...c, 
-            communicationHistory: (c.communicationHistory || []).filter((n) => n.id !== noteId) 
+        setClients((prev) => prev.map((c) =>
+          c.id === customerId ? {
+            ...c,
+            communicationHistory: (c.communicationHistory || []).filter((n) => n.id !== noteId)
           } : c
         ));
       }
@@ -154,9 +154,9 @@ export const ClientsProvider = ({ children }) => {
   };
 
   return (
-    <ClientsContext.Provider value={{ 
-      clients, addCustomer, deleteCustomer, toggleArchive, updateNotes, 
-      addCarToCustomer, deleteCarFromCustomer, addCommunicationNote, deleteCommunicationNote 
+    <ClientsContext.Provider value={{
+      clients, addCustomer, deleteCustomer, toggleArchive, updateNotes,
+      addCarToCustomer, deleteCarFromCustomer, addCommunicationNote, deleteCommunicationNote
     }}>
       {children}
     </ClientsContext.Provider>

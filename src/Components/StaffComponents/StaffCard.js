@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const StaffCard = ({ worker, onToggleStatus, onEdit, onDelete, onRestore, isArchived }) => {
-  // Майстер вважається вільним, лише якщо немає активних замовлень І статус "Вільний"
+
   const isFree = worker.status === 'Вільний' && !worker.hasActiveOrder;
 
   return (

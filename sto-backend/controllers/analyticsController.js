@@ -1,10 +1,22 @@
 const prisma = require('../lib/prisma');
 const { startOfDay, startOfWeek, startOfMonth } = require('date-fns');
 
+// 🚀 IN-MEMORY CACHE
+const analyticsCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000;
+
 exports.getAnalyticsSummary = async (req, res) => {
   const { period = 'month' } = req.query;
   const now = new Date();
-  
+  const cacheKey = `analytics_${period}`;
+
+  // Check cache
+  const cached = analyticsCache.get(cacheKey);
+  if (cached && (Date.now() - cached.timestamp < CACHE_TTL)) {
+    console.log(`📊 Cache hit for ${period}`);
+    return res.json(cached.data);
+  }
+
   let startDate;
   if (period === 'day') {
     startDate = startOfDay(now);
@@ -15,11 +27,11 @@ exports.getAnalyticsSummary = async (req, res) => {
   }
 
   try {
-    console.log(`Запуск оптимізованої аналітики OneWayLogistic за період: ${period}`);
+    console.log(`⚡ Loading analytics for period: ${period}`);
 
-    // Використовуємо Promise.all для паралельного виконання запитів до БД
+
     const [stats, carsInWork, customersCount, topWorkersRaw, serviceStatsRaw, chartDataRaw] = await Promise.all([
-      // 1. Основна агрегація (Прибуток, Кількість, Середній чек)
+
       prisma.order.aggregate({
         _sum: { totalPrice: true },
         _count: { id: true },
@@ -30,21 +42,21 @@ exports.getAnalyticsSummary = async (req, res) => {
         }
       }),
 
-      // 2. Машини в роботі
+
       prisma.order.count({
-        where: { 
-          status: { in: ['IN_WORK', 'READY'] } 
+        where: {
+          status: { in: ['IN_WORK', 'READY'] }
         }
       }),
 
-      // 3. Нові клієнти
+
       prisma.customer.count({
         where: {
           createdAt: { gte: startDate }
         }
       }),
 
-      // 4. Рейтинг майстрів (агрегуємо тільки потрібні дані)
+
       prisma.staff.findMany({
         where: { isDeleted: false },
         select: {
@@ -61,18 +73,18 @@ exports.getAnalyticsSummary = async (req, res) => {
         }
       }),
 
-      // 5. Популярні послуги (через count зв'язків)
+
       prisma.service.findMany({
         select: {
           name: true,
           _count: {
-            select: { 
+            select: {
               orders: {
                 where: {
                   status: 'COMPLETED',
                   completedAt: { gte: startDate }
                 }
-              } 
+              }
             }
           }
         },
@@ -82,7 +94,7 @@ exports.getAnalyticsSummary = async (req, res) => {
         take: 8
       }),
 
-      // 6. Дані для графіка (останні 15 точок для швидкості)
+
       prisma.order.findMany({
         where: {
           status: 'COMPLETED',
@@ -99,7 +111,7 @@ exports.getAnalyticsSummary = async (req, res) => {
       })
     ]);
 
-    // Обробка рейтингу майстрів
+
     const topWorkers = topWorkersRaw.map(w => ({
       id: w.id,
       name: w.name,
@@ -109,7 +121,7 @@ exports.getAnalyticsSummary = async (req, res) => {
     .sort((a, b) => b.earnings - a.earnings)
     .slice(0, 5);
 
-    // Обробка статистики послуг
+
     const serviceStats = serviceStatsRaw
       .filter(s => s._count.orders > 0)
       .map(s => ({
@@ -117,18 +129,16 @@ exports.getAnalyticsSummary = async (req, res) => {
         count: s._count.orders
       }));
 
-    // Обробка даних для графіка
+
     const chartData = chartDataRaw.map(o => ({
-      name: new Date(o.completedAt).toLocaleDateString('uk-UA', { 
-        day: '2-digit', 
-        month: '2-digit' 
+      name: new Date(o.completedAt).toLocaleDateString('uk-UA', {
+        day: '2-digit',
+        month: '2-digit'
       }),
       revenue: Number(o.totalPrice) || 0
     }));
 
-    console.log(`Аналітика сформована успішно для ${period}`);
-
-    res.json({
+    const responseData = {
       totalRevenue: Number(stats._sum.totalPrice) || 0,
       completedOrdersCount: stats._count.id || 0,
       averageCheck: Math.round(Number(stats._avg.totalPrice) || 0),
@@ -137,14 +147,31 @@ exports.getAnalyticsSummary = async (req, res) => {
       serviceStats,
       topWorkers,
       chartData,
-      period
-    });
+      period,
+      cached: false
+    };
+
+    // Store in cache
+    analyticsCache.set(cacheKey, { data: responseData, timestamp: Date.now() });
+    console.log(`✅ Analytics cached for ${period}`);
+
+    res.json(responseData);
 
   } catch (error) {
-    console.error("Помилка при генерації звітності:", error);
-    res.status(500).json({ 
-      error: "Помилка сервера при формуванні аналітики", 
-      details: error.message 
+    console.error("❌ Analytics error:", error);
+    res.status(500).json({
+      error: "Server error when generating analytics",
+      details: error.message
     });
+  }
+};
+
+exports.clearAnalyticsCache = (req, res) => {
+  try {
+    analyticsCache.clear();
+    console.log(`🗑️ Analytics cache cleared`);
+    res.json({ success: true, message: 'Analytics cache cleared successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

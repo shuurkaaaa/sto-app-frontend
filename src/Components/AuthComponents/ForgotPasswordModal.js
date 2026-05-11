@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-
-const API = 'http://127.0.0.1:5000/api/auth';
+import { apiClient } from '../../services/apiClient';
 
 export const ForgotPasswordModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
@@ -24,7 +22,7 @@ export const ForgotPasswordModal = ({ isOpen, onClose }) => {
     }
     setLoading(true);
     try {
-      const res = await axios.post(`${API}/forgot-password`, { email });
+      const res = await apiClient.post(`/auth/forgot-password`, { email });
       setMessage(res.data?.message || 'Лист надіслано (якщо такий email існує).');
       if (res.data?.data?.devResetUrl) setDevUrl(res.data.data.devResetUrl);
     } catch (err) {

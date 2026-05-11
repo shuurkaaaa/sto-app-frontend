@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { exportToExcel } from './ExportLogic';
+import { apiClient } from '../../services/apiClient';
 
 export const PurchaseOrderBtn = ({ items }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,7 +32,7 @@ export const PurchaseOrderBtn = ({ items }) => {
         const qty = Math.max(1, Number(item.minimum) - Number(item.current));
         return sum + qty * Number(item.price || 0);
       }, 0);
-      await axios.post('http://localhost:5000/api/purchase/create', {
+      await apiClient.post('/purchase/create', {
         items: deficitItems, totalPrice: calculatedTotal, status: 'Pending',
       });
     } catch (e) { console.error('Помилка БД:', e.message); } finally { setLoading(false); }

@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const orderController = require('../controllers/orderController');
+const auth = require('../middlewares/authMiddleware');
 
-// --- МАРШРУТИ ДЛЯ РОБОТИ ІЗ ЗАМОВЛЕННЯМИ ---
+router.use(auth);
+
+
 
 /**
  * Отримати список усіх замовлень

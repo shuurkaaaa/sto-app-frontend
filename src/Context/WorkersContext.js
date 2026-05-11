@@ -1,13 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { apiClient } from '../services/apiClient';
 
 const WorkersContext = createContext({});
-const API_URL = 'http://localhost:5000/api/staff';
-const CAT_API_URL = 'http://localhost:5000/api/staff-categories';
-// Налаштування axios для уникнення проблем із CORS у Safari/Chrome
-const api = axios.create({
-  withCredentials: true
-});
+const API_URL = '/staff';
+const CAT_API_URL = '/staff-categories';
 
 export const WorkersProvider = ({ children }) => {
   const [workers, setWorkers] = useState([]);
@@ -16,7 +12,7 @@ export const WorkersProvider = ({ children }) => {
 
   const fetchWorkers = useCallback(async () => {
     try {
-      const res = await api.get(API_URL);
+      const res = await apiClient.get(API_URL);
       setWorkers(res.data);
     } catch (err) {
       console.error("Помилка завантаження персоналу:", err);
@@ -25,7 +21,7 @@ export const WorkersProvider = ({ children }) => {
 
   const fetchArchivedWorkers = useCallback(async () => {
     try {
-      const res = await api.get(`${API_URL}/archived`);
+      const res = await apiClient.get(`${API_URL}/archived`);
       setArchivedWorkers(res.data);
     } catch (err) {
       console.error("Помилка завантаження архіву:", err);
@@ -34,14 +30,14 @@ export const WorkersProvider = ({ children }) => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const res = await api.get(CAT_API_URL);
+      const res = await apiClient.get(CAT_API_URL);
       setCategories(res.data);
     } catch (err) {
       console.error("Помилка завантаження категорій:", err);
     }
   }, []);
 
-  // Початкове завантаження даних
+
   useEffect(() => {
     fetchWorkers();
     fetchCategories();
@@ -51,7 +47,7 @@ export const WorkersProvider = ({ children }) => {
   const addCategory = async (name) => {
     if (!name || name.trim() === '') return;
     try {
-      const res = await api.post(CAT_API_URL, { name: name.trim() });
+      const res = await apiClient.post(CAT_API_URL, { name: name.trim() });
       setCategories(prev => [...prev, res.data]);
       return res.data;
     } catch (err) {
@@ -62,10 +58,10 @@ export const WorkersProvider = ({ children }) => {
 
   const deleteCategory = async (id) => {
     try {
-      await api.delete(`${CAT_API_URL}/${id}`);
+      await apiClient.delete(`${CAT_API_URL}/${id}`);
       setCategories(prev => prev.filter(cat => cat.id !== id));
-      // Оновлюємо список працівників, бо їхня категорія могла змінитися на null
-      fetchWorkers(); 
+
+      fetchWorkers();
     } catch (err) {
       console.error("Не вдалося видалити категорію:", err);
     }
@@ -73,12 +69,12 @@ export const WorkersProvider = ({ children }) => {
 
   const addWorker = async (workerData) => {
     try {
-      // Приводимо ID категорії до числа для Prisma
+
       const payload = {
         ...workerData,
         staffCategoryId: workerData.staffCategoryId ? Number(workerData.staffCategoryId) : null
       };
-      const res = await api.post(API_URL, payload);
+      const res = await apiClient.post(API_URL, payload);
       setWorkers(prev => [res.data, ...prev]);
     } catch (err) {
       console.error("Не вдалося додати майстра:", err);
@@ -87,7 +83,7 @@ export const WorkersProvider = ({ children }) => {
 
   const removeWorker = async (id) => {
     try {
-      await api.delete(`${API_URL}/${id}`);
+      await apiClient.delete(`${API_URL}/${id}`);
       const workerToArchive = workers.find(w => w.id === id);
       setWorkers(prev => prev.filter(w => w.id !== id));
       if (workerToArchive) {
@@ -100,7 +96,7 @@ export const WorkersProvider = ({ children }) => {
 
   const restoreWorker = async (id) => {
     try {
-      await api.put(`${API_URL}/${id}/restore`);
+      await apiClient.put(`${API_URL}/${id}/restore`);
       const workerToRestore = archivedWorkers.find(w => w.id === id);
       setArchivedWorkers(prev => prev.filter(w => w.id !== id));
       if (workerToRestore) {
@@ -117,7 +113,7 @@ export const WorkersProvider = ({ children }) => {
         ...workerData,
         staffCategoryId: workerData.staffCategoryId ? Number(workerData.staffCategoryId) : null
       };
-      const res = await api.put(`${API_URL}/${id}`, payload);
+      const res = await apiClient.put(`${API_URL}/${id}`, payload);
       setWorkers(prev => prev.map(w => w.id === id ? res.data : w));
     } catch (err) {
       console.error("Не вдалося оновити майстра:", err);
@@ -126,7 +122,7 @@ export const WorkersProvider = ({ children }) => {
 
   const addWorkerEarnings = async (id, amount) => {
     try {
-      const res = await api.put(`${API_URL}/${id}/earnings`, { amount });
+      const res = await apiClient.put(`${API_URL}/${id}/earnings`, { amount });
       setWorkers(prev => prev.map(w => w.id === id ? res.data : w));
     } catch (err) {
       console.error("Помилка заробітку:", err);
@@ -135,7 +131,7 @@ export const WorkersProvider = ({ children }) => {
 
   const updateWorkerStatus = async (id, statusData) => {
     try {
-      const res = await api.put(`${API_URL}/${id}/status`, statusData);
+      const res = await apiClient.put(`${API_URL}/${id}/status`, statusData);
       setWorkers(prev => prev.map(w => w.id === id ? res.data : w));
     } catch (err) {
       console.error("Помилка статусу:", err);
@@ -143,20 +139,20 @@ export const WorkersProvider = ({ children }) => {
   };
 
   return (
-    <WorkersContext.Provider value={{ 
-      workers, 
+    <WorkersContext.Provider value={{
+      workers,
       fetchWorkers,
-      archivedWorkers, 
-      setWorkers, 
-      addWorker, 
-      removeWorker, 
-      restoreWorker, 
-      updateWorker, 
-      addWorkerEarnings, 
+      archivedWorkers,
+      setWorkers,
+      addWorker,
+      removeWorker,
+      restoreWorker,
+      updateWorker,
+      addWorkerEarnings,
       updateWorkerStatus,
-      categories, 
+      categories,
       addCategory,
-      deleteCategory 
+      deleteCategory
     }}>
       {children}
     </WorkersContext.Provider>

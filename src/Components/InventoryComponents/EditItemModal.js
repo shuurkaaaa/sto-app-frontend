@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import axios from 'axios';
 import { useInventoryContext } from '../../Context/InventoryContext';
+import { apiClient } from '../../services/apiClient';
 
 export const EditItemModal = ({ inventoryItem, onClose, onSave }) => {
   const { categories, updateItem } = useInventoryContext();
@@ -17,7 +17,7 @@ export const EditItemModal = ({ inventoryItem, onClose, onSave }) => {
   const [selectedModelName, setSelectedModelName] = useState('');
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/cars/brands').then(r => setBrands(r.data)).catch(() => {});
+    apiClient.get('/cars/brands').then(r => setBrands(r.data)).catch(() => {});
 
     if (inventoryItem) {
       setFormData({

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import axios from 'axios';
 import { useInventoryContext } from '../../Context/InventoryContext';
 import { validateInventoryItem } from './inventoryValidation';
+import { apiClient } from '../../services/apiClient';
 
 export const InventoryAddScreen = ({ onBack, onSave }) => {
   const { categories, addNewItems } = useInventoryContext();
@@ -23,7 +23,7 @@ export const InventoryAddScreen = ({ onBack, onSave }) => {
   const [compatibilityList, setCompatibilityList] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/cars/brands').then(r => setDbBrands(r.data)).catch(() => {});
+    apiClient.get('/cars/brands').then(r => setDbBrands(r.data)).catch(() => {});
   }, []);
 
   const handlePhotoChange = (e) => {

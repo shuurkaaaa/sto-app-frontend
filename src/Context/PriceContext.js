@@ -1,18 +1,14 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { apiClient } from '../services/apiClient';
 
 const PriceContext = createContext();
 
-const API_BASE_URL = 'http://localhost:5000/api';
-
-const api = axios.create({
-  withCredentials: true
-});
+const API_BASE_URL = '';
 
 export const PriceProvider = ({ children }) => {
   const [services, setServices] = useState([]);
   const [categories, setCategories] = useState([]);
-  
+
   const normalizeService = (s) => {
     if (!s) return s;
     const parts = (s.serviceParts || []).map(sp => ({
@@ -24,11 +20,11 @@ export const PriceProvider = ({ children }) => {
     return { ...s, parts, linkedParts: parts };
   };
 
-  // Функція для повного оновлення даних прайсу з сервера
+
   const fetchPriceData = useCallback(async function() {
     try {
-      const servicesResponse = await api.get(`${API_BASE_URL}/services`);
-      const categoriesResponse = await api.get(`${API_BASE_URL}/price-categories`);
+      const servicesResponse = await apiClient.get(`${API_BASE_URL}/services`);
+      const categoriesResponse = await apiClient.get(`${API_BASE_URL}/price-categories`);
 
       const list = Array.isArray(servicesResponse.data) ? servicesResponse.data : [];
       setServices(list.map(normalizeService));
@@ -38,12 +34,12 @@ export const PriceProvider = ({ children }) => {
     }
   }, []);
 
-  // Викликаємо завантаження при першому запуску
+
   useEffect(function() {
     fetchPriceData();
   }, [fetchPriceData]);
 
-  // Додавання нової категорії послуг
+
   const addCategory = async function(categoryInput) {
     let nameToPost;
     if (typeof categoryInput === 'object') {
@@ -55,8 +51,8 @@ export const PriceProvider = ({ children }) => {
     if (!nameToPost) return;
 
     try {
-      const response = await api.post(`${API_BASE_URL}/price-categories`, { 
-        name: nameToPost 
+      const response = await apiClient.post(`${API_BASE_URL}/price-categories`, {
+        name: nameToPost
       });
       setCategories(function(prev) {
         return [...prev, response.data];
@@ -66,21 +62,21 @@ export const PriceProvider = ({ children }) => {
     }
   };
 
-  // Оновлення назви існуючої категорії
+
   const updateCategory = async function(categoryId, newName) {
     try {
-      const response = await api.put(`${API_BASE_URL}/price-categories/${categoryId}`, { 
-        name: newName 
+      const response = await apiClient.put(`${API_BASE_URL}/price-categories/${categoryId}`, {
+        name: newName
       });
-      
-      // Оновлюємо список категорій
+
+
       setCategories(function(prev) {
         return prev.map(function(cat) {
           return cat.id === categoryId ? response.data : cat;
         });
       });
-      
-      // Оновлюємо дані в послугах (безпечно обробляємо можливий null у priceCategory)
+
+
       setServices(function(prevServices) {
         return prevServices.map(function(service) {
           if (service.priceCategory?.id === categoryId) {
@@ -94,7 +90,7 @@ export const PriceProvider = ({ children }) => {
     }
   };
 
-  // Видалення категорії
+
   const deleteCategory = async function(categoryName) {
     try {
       const category = categories.find(function(cat) {
@@ -103,16 +99,16 @@ export const PriceProvider = ({ children }) => {
       });
 
       if (category && category.id) {
-        await api.delete(`${API_BASE_URL}/price-categories/${category.id}`);
-        
+        await apiClient.delete(`${API_BASE_URL}/price-categories/${category.id}`);
+
         setCategories(function(prev) {
           return prev.filter(function(cat) {
             const currentName = cat.name || cat;
             return currentName !== categoryName;
           });
         });
-        
-        // Після видалення категорії, послуги можуть змінити прив'язку, тому оновлюємо все
+
+
         await fetchPriceData();
       }
     } catch (error) {
@@ -120,7 +116,7 @@ export const PriceProvider = ({ children }) => {
     }
   };
 
-  // Додавання нової послуги
+
   const addService = async function(serviceData) {
     try {
       const foundCat = categories.find(function(cat) {
@@ -138,7 +134,7 @@ export const PriceProvider = ({ children }) => {
         linkedParts: serviceData.linkedParts || [],
       };
 
-      const response = await api.post(`${API_BASE_URL}/services/add`, payload);
+      const response = await apiClient.post(`${API_BASE_URL}/services/add`, payload);
       setServices(function(prev) {
         return [normalizeService(response.data), ...prev];
       });
@@ -149,7 +145,7 @@ export const PriceProvider = ({ children }) => {
     }
   };
 
-  // Оновлення існуючої послуги
+
   const updateService = async function(id, serviceData) {
     try {
       const foundCat = categories.find(function(cat) {
@@ -167,7 +163,7 @@ export const PriceProvider = ({ children }) => {
         linkedParts: serviceData.linkedParts || [],
       };
 
-      const response = await api.put(`${API_BASE_URL}/services/${id}`, payload);
+      const response = await apiClient.put(`${API_BASE_URL}/services/${id}`, payload);
       setServices(function(prev) {
         return prev.map(function(s) {
           return s.id === id ? normalizeService(response.data) : s;
@@ -180,10 +176,10 @@ export const PriceProvider = ({ children }) => {
     }
   };
 
-  // Видалення послуги з прайсу
+
   const deleteService = async function(id) {
     try {
-      await api.delete(`${API_BASE_URL}/services/${id}`);
+      await apiClient.delete(`${API_BASE_URL}/services/${id}`);
       setServices(function(prev) {
         return prev.filter(function(s) {
           return s.id !== id;
@@ -195,16 +191,16 @@ export const PriceProvider = ({ children }) => {
   };
 
   return (
-    <PriceContext.Provider value={{ 
-      services, 
-      categories, 
-      addCategory, 
-      updateCategory, 
-      deleteCategory, 
-      addService, 
-      updateService, 
-      deleteService, 
-      fetchPriceData 
+    <PriceContext.Provider value={{
+      services,
+      categories,
+      addCategory,
+      updateCategory,
+      deleteCategory,
+      addService,
+      updateService,
+      deleteService,
+      fetchPriceData
     }}>
       {children}
     </PriceContext.Provider>

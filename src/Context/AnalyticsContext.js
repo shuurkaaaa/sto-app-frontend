@@ -1,16 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useOrders } from './OrdersContext';
-import { useClients } from './ClientsContext';
-import { useWorkers } from './WorkersContext';
+import { apiClient } from '../services/apiClient';
 
 const AnalyticsContext = createContext();
 
 export const AnalyticsProvider = ({ children }) => {
-  const { orders } = useOrders();
-  const { clients } = useClients();
-  const { workers } = useWorkers();
-
-  // Додаємо стан для вибору періоду: 'day', 'week', 'month'
   const [timeRange, setTimeRange] = useState(() => {
     return localStorage.getItem('oneway_timeRange') || 'month';
   });
@@ -19,7 +12,7 @@ export const AnalyticsProvider = ({ children }) => {
     const savedStats = localStorage.getItem('oneway_stats');
     return savedStats ? JSON.parse(savedStats) : {
       totalRevenue: 0,
-      ordersCount: 0,
+      completedOrdersCount: 0,
       customersCount: 0,
       averageCheck: 0,
       carsInWork: 0
@@ -37,106 +30,54 @@ export const AnalyticsProvider = ({ children }) => {
   });
 
   const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const calculateAnalytics = useCallback(() => {
-    if (!orders || orders.length === 0) return;
+  const fetchAnalytics = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // ✅ ЗАВЖДИ запитуємо свіжі дані (забороняємо кеш браузера)
+      const res = await apiClient.get(`/analytics/summary`, {
+        params: { period: timeRange, _t: Date.now() }
+      });
+      const data = res.data || {};
 
-    const now = new Date();
-    let startDate = new Date();
+      const newStats = {
+        totalRevenue: Number(data.totalRevenue) || 0,
+        completedOrdersCount: Number(data.completedOrdersCount) || 0,
+        customersCount: Number(data.customersCount) || 0,
+        averageCheck: Number(data.averageCheck) || 0,
+        carsInWork: Number(data.carsInWork) || 0,
+      };
 
-    // Визначаємо початкову дату залежно від вибраного періоду
-    if (timeRange === 'day') {
-      startDate.setHours(0, 0, 0, 0);
-    } else if (timeRange === 'week') {
-      const day = startDate.getDay() || 7; // Понеділок - 1
-      startDate.setDate(startDate.getDate() - (day - 1));
-      startDate.setHours(0, 0, 0, 0);
-    } else {
-      // Місяць
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      const services = Array.isArray(data.serviceStats) ? data.serviceStats : [];
+      const popular = services
+        .map(s => ({ name: s.name, count: Number(s.count) || 0 }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+
+      const workers = Array.isArray(data.topWorkers) ? data.topWorkers : [];
+
+      // ✅ Оновлюємо ВСІ STATE (без localStorage)
+      setStats(newStats);
+      setPopularServices(popular);
+      setTopWorkers(workers);
+      setChartData(Array.isArray(data.chartData) ? data.chartData : []);
+
+      console.log(`✅ Analytics оновлено для ${timeRange}`);
+    } catch (e) {
+      console.error('Analytics load error:', e);
+      setError(e?.response?.data?.message || e?.message || 'Не вдалося завантажити аналітику');
+    } finally {
+      setLoading(false);
     }
+  }, [timeRange]);
 
-    // 1. Фільтруємо виконані замовлення за новим полем completedAt (або createdAt як запасний варіант)
-    const completedOrders = orders.filter(o => {
-      const isDone = o.status === 'Виконано' || o.status === 'completed' || o.status === 'COMPLETED';
-      const orderDate = new Date(o.completedAt || o.createdAt);
-      return isDone && orderDate >= startDate;
-    });
-    
-    // 2. Рахуємо прибуток
-    const totalRevenue = completedOrders.reduce((sum, o) => sum + (Number(o.total || o.totalPrice) || 0), 0);
-    
-    // 3. Середній чек
-    const averageCheck = completedOrders.length > 0 ? Math.round(totalRevenue / completedOrders.length) : 0;
-
-    // 4. Машини в роботі (поточний статус, незалежно від вибраного періоду дати)
-    const carsInWork = orders.filter(o => o.status === 'В роботі' || o.status === 'IN_WORK').length;
-
-    // 5. Нові клієнти за вибраний період
-    const newClientsCount = (clients || []).filter(c => {
-        const cDate = new Date(c.createdAt || c.date || now);
-        return cDate >= startDate;
-    }).length;
-
-    // 6. Популярні послуги за вибраний період
-    const serviceCounts = {};
-    completedOrders.forEach(order => {
-      if (order.services && Array.isArray(order.services)) {
-        order.services.forEach(s => {
-          const name = s.name || s.label || "Інше";
-          serviceCounts[name] = (serviceCounts[name] || 0) + 1;
-        });
-      }
-    });
-
-    const popular = Object.entries(serviceCounts)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-
-    // 7. Рейтинг майстрів за вибраний період
-    const workerStats = (workers || []).map(worker => {
-        const workerOrders = completedOrders.filter(o => o.masterId === worker.id || o.master === worker.name || o.masterId === String(worker.id));
-        const earned = workerOrders.reduce((sum, o) => sum + (Number(o.total || o.totalPrice) || 0), 0);
-        return {
-            id: worker.id,
-            name: worker.name,
-            role: worker.role || worker.position,
-            totalEarned: earned
-        };
-    }).sort((a, b) => b.totalEarned - a.totalEarned);
-
-    // 8. Дані для графіка (останні замовлення періоду)
-    const chart = completedOrders.slice(-10).map(o => ({
-      name: new Date(o.completedAt || o.createdAt).toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit' }),
-      revenue: Number(o.total || o.totalPrice)
-    }));
-
-    // Оновлюємо стейти
-    const newStats = {
-      totalRevenue,
-      ordersCount: completedOrders.length,
-      customersCount: newClientsCount,
-      averageCheck,
-      carsInWork
-    };
-
-    setStats(newStats);
-    setPopularServices(popular);
-    setTopWorkers(workerStats);
-    setChartData(chart);
-
-    // Зберігаємо результати
-    localStorage.setItem('oneway_stats', JSON.stringify(newStats));
-    localStorage.setItem('oneway_popular', JSON.stringify(popular));
-    localStorage.setItem('oneway_workers', JSON.stringify(workerStats));
-    localStorage.setItem('oneway_timeRange', timeRange);
-
-  }, [orders, clients, workers, timeRange]);
-
+  // ✅ Оновлюємо коли змінюється timeRange
   useEffect(() => {
-    calculateAnalytics();
-  }, [calculateAnalytics]);
+    fetchAnalytics();
+  }, [fetchAnalytics, timeRange]);
 
   const value = {
     stats,
@@ -145,9 +86,9 @@ export const AnalyticsProvider = ({ children }) => {
     timeRange,
     setTimeRange,
     chartData,
-    loading: !orders.length,
-    error: null,
-    refreshAnalytics: calculateAnalytics
+    loading,
+    error,
+    refreshAnalytics: fetchAnalytics
   };
 
   return (

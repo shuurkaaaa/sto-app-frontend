@@ -60,6 +60,18 @@ export const OrderStep1 = ({ formData, setFormData, errors, setErrors }) => {
         </div>
       </div>
 
+      <div className="sto-form-group">
+        <p className="sto-label">VIN-КОД (опціонально):</p>
+        <input
+          className="sto-input"
+          placeholder="Введіть VIN-код автомобіля"
+          value={formData.vinCode || ''}
+          onChange={e => handleChange('vinCode', e.target.value.toUpperCase())}
+          maxLength="17"
+        />
+        <small className="sto-text-muted">VIN-код дозволяє перевірити історію обслуговування авто</small>
+      </div>
+
       <OrderExtraFields formData={formData} setFormData={setFormData} />
     </div>
   );

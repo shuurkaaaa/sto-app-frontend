@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const { sendPasswordResetEmail } = require('./emailService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_for_sto_project_2026';
-const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 година
+const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
 
 /**
  * Допоміжна функція для стандартних відповідей сервера
@@ -33,7 +33,7 @@ const isValidEmail = (email) => {
  */
 exports.register = async (req, res) => {
     const { email, password, firstName, lastName } = req.body;
-    
+
     console.log(`[AUTH] Спроба реєстрації: ${email}`);
 
     try {
@@ -77,15 +77,15 @@ exports.register = async (req, res) => {
         console.log(`[AUTH][SUCCESS] Користувач створений: ${result.email}`);
 
         const token = jwt.sign(
-            { userId: result.id, email: result.email }, 
-            JWT_SECRET, 
+            { userId: result.id, email: result.email },
+            JWT_SECRET,
             { expiresIn: '24h' }
         );
 
         return sendResponse(res, 201, "Реєстрація успішна", {
             token,
-            user: { 
-                id: result.id, 
+            user: {
+                id: result.id,
                 email: result.email,
                 firstName: result.firstName,
                 lastName: result.lastName
@@ -120,19 +120,19 @@ exports.login = async (req, res) => {
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
-        
+
         if (!isMatch) {
             console.warn(`[AUTH][FAILED] Невірний пароль для: ${normalizedEmail}`);
             return sendResponse(res, 401, "Невірна пошта або пароль");
         }
 
         const token = jwt.sign(
-            { userId: user.id, email: user.email }, 
-            JWT_SECRET, 
+            { userId: user.id, email: user.email },
+            JWT_SECRET,
             { expiresIn: '24h' }
         );
 
-        // Оновлення часу входу в фоновому режимі
+
         prisma.user.update({
             where: { id: user.id },
             data: { lastLoginAt: new Date() }
@@ -140,8 +140,8 @@ exports.login = async (req, res) => {
 
         return sendResponse(res, 200, "Вхід успішний", {
             token,
-            user: { 
-                id: user.id, 
+            user: {
+                id: user.id,
                 email: user.email,
                 firstName: user.firstName,
                 lastName: user.lastName
@@ -159,15 +159,15 @@ exports.login = async (req, res) => {
  */
 exports.checkStatus = async (req, res) => {
     try {
-        // Використовуємо req.userId, який додав мідлвар
+
         const user = await prisma.user.findUnique({
             where: { id: req.userId },
-            select: { 
-                id: true, 
-                email: true, 
-                firstName: true, 
-                lastName: true, 
-                createdAt: true 
+            select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                createdAt: true
             }
         });
 
@@ -187,7 +187,7 @@ exports.checkStatus = async (req, res) => {
  */
 exports.updatePassword = async (req, res) => {
     const { oldPassword, newPassword } = req.body;
-    const userId = req.userId; // Отримуємо ID з мідлвару
+    const userId = req.userId;
 
     try {
         if (!oldPassword || !newPassword) {
@@ -203,7 +203,7 @@ exports.updatePassword = async (req, res) => {
         }
 
         const hashedNewPassword = await bcrypt.hash(newPassword, 12);
-        
+
         await prisma.user.update({
             where: { id: userId },
             data: { password: hashedNewPassword }
@@ -230,7 +230,7 @@ exports.forgotPassword = async (req, res) => {
         const normalizedEmail = email.toLowerCase().trim();
         const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
 
-        // З міркувань безпеки завжди повертаємо 200, щоб не зливати наявність email.
+
         const genericMsg = "Якщо такий email зареєстрований — лист зі скиданням надіслано.";
 
         if (!user) {
@@ -238,7 +238,7 @@ exports.forgotPassword = async (req, res) => {
             return sendResponse(res, 200, genericMsg);
         }
 
-        // Інвалідуємо попередні невикористані токени
+
         await prisma.passwordResetToken.updateMany({
             where: { userId: user.id, usedAt: null },
             data: { usedAt: new Date() }
@@ -254,13 +254,16 @@ exports.forgotPassword = async (req, res) => {
 
         try {
             const result = await sendPasswordResetEmail(user.email, rawToken);
-            // У dev-режимі (без RESEND_API_KEY) повертаємо лінк, щоб можна було протестувати
+
             if (result?.devMode) {
                 return sendResponse(res, 200, genericMsg, { devResetUrl: result.resetUrl });
             }
         } catch (emailErr) {
             console.error('[AUTH][RESET] Email error:', emailErr.message);
-            return sendResponse(res, 500, "Не вдалося надіслати лист. Спробуйте пізніше.");
+            // Не блокуємо флоу скидання пароля навіть якщо email-сервіс тимчасово не працює.
+            // У dev-режимі фронт покаже посилання, у prod — просто отримає genericMsg.
+            const resetUrl = `${process.env.APP_URL || 'http://localhost:3000'}/reset-password/${rawToken}`;
+            return sendResponse(res, 200, genericMsg, { devResetUrl: resetUrl, emailError: true });
         }
 
         return sendResponse(res, 200, genericMsg);

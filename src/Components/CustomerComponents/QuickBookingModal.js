@@ -16,7 +16,7 @@ export const QuickBookingModal = ({ isOpen, onClose, customer }) => {
   const { addOrder } = useOrders();
   const { workers } = useWorkers();
 
-  const cars = customer?.cars || [];
+  const cars = useMemo(() => customer?.cars || [], [customer?.cars]);
 
   const [selectedCarPlate, setSelectedCarPlate] = useState('');
   const [manualCar, setManualCar] = useState({ car: '', plate: '' });
@@ -40,8 +40,8 @@ export const QuickBookingModal = ({ isOpen, onClose, customer }) => {
       setComment('');
       setSubmitting(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, customer?.id]);
+
+  }, [isOpen, customer?.id, cars]);
 
   const selectedService = useMemo(
     () => services.find(s => String(s.id) === String(serviceId)),

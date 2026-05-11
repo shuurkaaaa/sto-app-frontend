@@ -1,7 +1,7 @@
 export const VALIDATION_RULES = {
   NAME: /^[A-ZА-ЯІЇЄҐ][a-zа-яіїєґ']+\s+[A-ZА-ЯІЇЄҐ][a-zа-яіїєґ']+.*$/,
   UA_PLATE: /^[A-ZА-Я]{2}\s?\d{4}\s?[A-ZА-Я]{2}$/i,
-  PHONE: /^\+?3?8?(0\d{9})$/, 
+  PHONE: /^\+?3?8?(0\d{9})$/,
   CAR_MIN_LENGTH: 3
 };
 

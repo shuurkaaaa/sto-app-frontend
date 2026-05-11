@@ -26,31 +26,31 @@ export const RevenueChart = () => {
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.5} />
-          <XAxis 
-            dataKey="name" 
-            tick={{fill: '#94a3b8', fontSize: 12}} 
+          <XAxis
+            dataKey="name"
+            tick={{fill: '#94a3b8', fontSize: 12}}
             axisLine={false}
             tickLine={false}
             dy={10}
           />
-          <YAxis 
-            tick={{fill: '#94a3b8', fontSize: 12}} 
+          <YAxis
+            tick={{fill: '#94a3b8', fontSize: 12}}
             axisLine={false}
             tickLine={false}
             tickFormatter={(value) => `${value}`}
           />
-          <Tooltip 
+          <Tooltip
             contentStyle={{ backgroundColor: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#F1F5F9' }}
             itemStyle={{ color: '#3B82F6' }}
             labelStyle={{ marginBottom: '5px', fontWeight: 'bold' }}
           />
-          <Area 
-            type="monotone" 
-            dataKey="revenue" 
-            stroke="#3B82F6" 
-            strokeWidth={3} 
-            fillOpacity={1} 
-            fill="url(#colorRevenue)" 
+          <Area
+            type="monotone"
+            dataKey="revenue"
+            stroke="#3B82F6"
+            strokeWidth={3}
+            fillOpacity={1}
+            fill="url(#colorRevenue)"
             dot={{ r: 4, fill: '#3B82F6', strokeWidth: 2, stroke: '#0F172A' }}
             activeDot={{ r: 6, strokeWidth: 0 }}
           />

@@ -15,7 +15,7 @@ export const StatsCards = () => {
 
   const cards = [
     { label: `Прибуток ${getPeriodLabel()}`, value: `${stats?.totalRevenue?.toLocaleString() || 0} грн`, color: 'var(--sto-success)' },
-    { label: 'Замовлення', value: stats?.ordersCount || 0, color: 'var(--sto-accent)' },
+    { label: 'Замовлення', value: stats?.completedOrdersCount || 0, color: 'var(--sto-accent)' },
     { label: 'Нові клієнти', value: stats?.customersCount || 0, color: '#FB923C' },
     { label: 'Середній чек', value: `${stats?.averageCheck?.toLocaleString() || 0} грн`, color: '#2DD4BF' },
   ];

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { ForgotPasswordModal } from '../Components/AuthComponents/ForgotPasswordModal';
+import { apiClient } from '../services/apiClient';
 
 const Login = ({ setAuth }) => {
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -37,7 +37,7 @@ const Login = ({ setAuth }) => {
     setServerError('');
     const endpoint = isLoginMode ? 'login' : 'register';
     try {
-      const res = await axios.post(`http://127.0.0.1:5000/api/auth/${endpoint}`, formData);
+      const res = await apiClient.post(`/auth/${endpoint}`, formData);
       const responseData = res.data;
       if (isLoginMode) {
         const token = responseData.token || responseData.data?.token;
@@ -56,7 +56,7 @@ const Login = ({ setAuth }) => {
       const errorMessage =
         err.response?.data?.message ||
         err.response?.data?.error ||
-        'Помилка з’єднання з сервером 127.0.0.1:5000';
+        'Помилка з’єднання з сервером';
       setServerError(errorMessage);
     } finally {
       setLoading(false);

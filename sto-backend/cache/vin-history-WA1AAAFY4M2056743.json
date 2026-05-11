@@ -1,0 +1,101 @@
+{
+  "data": {
+    "vin": "WA1AAAFY4M2056743",
+    "timestamp": "2026-05-11T17:24:00.286Z",
+    "status": "success",
+    "sources": {
+      "autoRIA": {
+        "source": "autoRIA.com",
+        "found": false,
+        "brand": null,
+        "model": null,
+        "year": null,
+        "mileage": null,
+        "price": null,
+        "description": null,
+        "url": null
+      },
+      "accidents": {
+        "source": "accident-registry",
+        "found": false,
+        "accidents": [],
+        "repairs": [
+          {
+            "type": "Обов'язкова діагностика",
+            "priority": "HIGH",
+            "description": "Перевірити ходову частину та кузов"
+          },
+          {
+            "type": "Перевірка документів",
+            "priority": "HIGH",
+            "description": "Запросити історію ремонту та ТО у власника"
+          },
+          {
+            "type": "Сервісне обслуговування",
+            "priority": "MEDIUM",
+            "description": "Виконати плановий ТО відповідно до км пробігу"
+          }
+        ],
+        "warnings": null,
+        "description": "📍 Виробництво: Європа (Західна)",
+        "dataSource": "Вільні/державні реєстри"
+      },
+      "services": {
+        "source": "service-registry",
+        "found": false,
+        "services": [],
+        "lastService": null,
+        "description": "📋 Історія сервісного обслуговування обмежена в громадських джерелах. Запросіть у власника оригінальні сервісні записи або сервісну книжку.",
+        "recommendations": [
+          {
+            "text": "Перевірити оригінальну сервісну книжку",
+            "priority": "HIGH"
+          },
+          {
+            "text": "Запитати у дилера історію сервісного обслуговування",
+            "priority": "HIGH"
+          },
+          {
+            "text": "Перевірити наявність гарантійних запечатків",
+            "priority": "MEDIUM"
+          },
+          {
+            "text": "Перевірити вік та пробіг при кожному ТО",
+            "priority": "MEDIUM"
+          }
+        ]
+      },
+      "reviews": {
+        "source": "service-reviews",
+        "found": false,
+        "topServices": [],
+        "description": "⭐ Рекомендуємо переглянути відгуки про сервісні центри в Google Maps та Яндекс.Картах. Активні форумы власників теж мають корисну інформацію про надійних механіків.",
+        "searchLinks": [
+          {
+            "name": "Google Maps - Сервісні центри",
+            "url": "https://maps.google.com/maps?q=автосервіс",
+            "description": "Пошук поблизу з оцінками"
+          },
+          {
+            "name": "Яндекс.Карти - СТО",
+            "url": "https://maps.yandex.ua/?text=сто",
+            "description": "Російська версія карт"
+          },
+          {
+            "name": "2GIS - Сервісні центри",
+            "url": "https://2gis.ua/search/сервісні центри",
+            "description": "Європейська база адрес"
+          },
+          {
+            "name": "AutoRIA - Форум власників",
+            "url": "https://forum.auto.ria.com",
+            "description": "Рекомендації від власників"
+          }
+        ]
+      }
+    },
+    "summary": "\n📍 Виробництво: Європа (Західна)\n\n📋 **Обслуговування**: 📋 Історія сервісного обслуговування обмежена в громадських джерелах. Запросіть у власника оригінальні сервісні записи або сервісну книжку.\n\n📊 **Джерела даних**:\n• autoRIA.com - ✗\n• Реєстр ДТП - ⚠️\n• Сервісні центри - ✓\n"
+  },
+  "timestamp": 1778520240286,
+  "ttl": 604800000
+}

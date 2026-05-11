@@ -1,16 +1,16 @@
 const prisma = require('../lib/prisma');
 
-// --- РОБОТА З МАРКАМИ (BRANDS) ---
 
-// Отримати всі марки разом із їхніми моделями
+
+
 exports.getAllBrands = async (req, res) => {
   try {
     const brands = await prisma.carBrand.findMany({
       include: {
-        models: true, // Включаємо масив моделей для кожної марки
+        models: true,
       },
       orderBy: {
-        name: 'asc', // Сортування за алфавітом
+        name: 'asc',
       },
     });
     res.json(brands);
@@ -20,7 +20,7 @@ exports.getAllBrands = async (req, res) => {
   }
 };
 
-// Створити нову марку
+
 exports.createBrand = async (req, res) => {
   const { name } = req.body;
   if (!name) {
@@ -41,7 +41,7 @@ exports.createBrand = async (req, res) => {
   }
 };
 
-// Оновити назву марки
+
 exports.updateBrand = async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
@@ -58,7 +58,7 @@ exports.updateBrand = async (req, res) => {
   }
 };
 
-// Видалити марку
+
 exports.deleteBrand = async (req, res) => {
   const { id } = req.params;
 
@@ -66,16 +66,16 @@ exports.deleteBrand = async (req, res) => {
     await prisma.carBrand.delete({
       where: { id: parseInt(id) },
     });
-    res.status(204).send(); // Успішно видалено
+    res.status(204).send();
   } catch (error) {
     console.error("Помилка при видаленні марки:", error);
     res.status(400).json({ error: "Помилка при видаленні марки. Можливо, вона вже видалена." });
   }
 };
 
-// --- РОБОТА З МОДЕЛЯМИ (MODELS) ---
 
-// Створити нову модель для конкретної марки
+
+
 exports.createModel = async (req, res) => {
   const { name, brandId } = req.body;
 
@@ -97,7 +97,7 @@ exports.createModel = async (req, res) => {
   }
 };
 
-// Оновити назву моделі
+
 exports.updateModel = async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
@@ -114,7 +114,7 @@ exports.updateModel = async (req, res) => {
   }
 };
 
-// Видалити модель
+
 exports.deleteModel = async (req, res) => {
   const { id } = req.params;
 

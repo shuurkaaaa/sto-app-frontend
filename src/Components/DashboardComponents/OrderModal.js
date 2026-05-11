@@ -6,7 +6,7 @@ import { OrderStep1 } from './OrderStep1';
 import { OrderStep2 } from './OrderStep2';
 
 const initialFormState = {
-  client: '', phone: '', car: '', plate: '', masterId: '',
+  client: '', phone: '', car: '', plate: '', vinCode: '', masterId: '',
   status: 'PENDING', payment: 'Готівка', deadline: '', comment: '',
 };
 
@@ -37,6 +37,7 @@ export const OrderModal = ({ isOpen, onClose, onSave, masters, initialData }) =>
         phone: initialData.customer?.phone || initialData.phone || '',
         car: initialData.car || (initialData.carDetails ? initialData.carDetails.replace(/\s*\([^)]+\)\s*$/, '') : ''),
         plate: initialData.plate || plateFromDetails || '',
+        vinCode: initialData.vinCode || initialData.vin || '',
         masterId: initialData.masterId ? String(initialData.masterId) : '',
         status: initialData.status || 'PENDING',
         payment: initialData.paymentMethod || 'Готівка',
@@ -83,6 +84,7 @@ export const OrderModal = ({ isOpen, onClose, onSave, masters, initialData }) =>
       phone: formData.phone,
       car: formData.car,
       plate: formatPlate(formData.plate || ''),
+      vinCode: formData.vinCode || null,
       masterId: formData.masterId ? parseInt(formData.masterId) : null,
       status: formData.status,
       payment: formData.payment,

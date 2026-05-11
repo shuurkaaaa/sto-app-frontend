@@ -3,11 +3,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-// --- Енумерації ---
+
 
 enum OrderStatus {
   PENDING
@@ -17,7 +17,7 @@ enum OrderStatus {
   CANCELLED
 }
 
-// --- Користувачі (Система авторизації) ---
+
 
 model User {
   id          Int       @id @default(autoincrement())
@@ -45,7 +45,7 @@ model PasswordResetToken {
   @@index([userId])
 }
 
-// --- Клієнти та Авто ---
+
 
 model Customer {
   id                   Int                    @id @default(autoincrement())
@@ -86,7 +86,7 @@ model CommunicationHistory {
   customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 }
 
-// --- Персонал ---
+
 
 model StaffCategory {
   id    Int     @id @default(autoincrement())
@@ -118,7 +118,7 @@ model StaffLog {
   createdAt DateTime @default(now())
 }
 
-// --- Замовлення та Послуги ---
+
 
 model Order {
   id            Int         @id @default(autoincrement())
@@ -126,6 +126,7 @@ model Order {
   completedAt   DateTime?
   status        OrderStatus @default(PENDING)
   carDetails    String
+  vinCode       String?
   totalPrice    Float
   paymentMethod String      @default("Готівка")
   isUrgent      Boolean     @default(false)
@@ -167,7 +168,7 @@ model ServicePart {
   quantity    Int       @default(1)
 }
 
-// --- Склад (Inventory) ---
+
 
 model Category {
   id        Int         @id @default(autoincrement())
@@ -209,7 +210,7 @@ model InventoryLog {
   date    DateTime  @default(now())
 }
 
-// --- Довідники Авто ---
+
 
 model CarBrand {
   id     Int        @id @default(autoincrement())
@@ -224,7 +225,7 @@ model CarModel {
   brand   CarBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
 }
 
-// --- Закупівлі ---
+
 
 model PurchaseOrder {
   id         Int         @id @default(autoincrement())
@@ -244,16 +245,16 @@ model OrderItem {
   price    Float
 }
 
-// --- СИСТЕМА СПОВІЩЕНЬ ТА ЗАМІТОК ---
+
 
 model Notification {
   id          String   @id @default(uuid())
-  type        String   // 'inventory', 'service', 'delay', 'manual'
-  priority    String   // 'high', 'medium', 'low'
+  type        String
+  priority    String
   title       String
   message     String
   isRead      Boolean  @default(false)
-  isDismissed Boolean  @default(false) // Щоб сповіщення зникало після натискання "Видалити"
-  inventoryId Int?     // Зв'язок з конкретним товаром (опціонально)
+  isDismissed Boolean  @default(false)
+  inventoryId Int?
   createdAt   DateTime @default(now())
 }

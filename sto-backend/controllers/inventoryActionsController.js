@@ -1,12 +1,12 @@
 const prisma = require('../lib/prisma');
 
-// Отримати всі товари
+
 exports.getAllItems = async (req, res) => {
   try {
     const items = await prisma.inventory.findMany({
-      include: { 
-        category: true, 
-        technicalData: true 
+      include: {
+        category: true,
+        technicalData: true
       },
       orderBy: { id: 'desc' }
     });
@@ -17,12 +17,12 @@ exports.getAllItems = async (req, res) => {
   }
 };
 
-// Створити новий товар
+
 exports.addItem = async (req, res) => {
   try {
-    const { 
-      name, stockKeepingUnit, current, minimum, 
-      price, categoryId, specifications, compatibility, supplier 
+    const {
+      name, stockKeepingUnit, current, minimum,
+      price, categoryId, specifications, compatibility, supplier
     } = req.body;
 
     if (!name || !categoryId) {
@@ -30,12 +30,12 @@ exports.addItem = async (req, res) => {
     }
 
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
-    
+
     let specsArray = [];
     try {
       specsArray = typeof specifications === 'string' ? JSON.parse(specifications) : (specifications || []);
-    } catch (e) { 
-      console.error("Помилка парсингу характеристик:", e); 
+    } catch (e) {
+      console.error("Помилка парсингу характеристик:", e);
     }
 
     const newItem = await prisma.inventory.create({
@@ -65,22 +65,22 @@ exports.addItem = async (req, res) => {
   }
 };
 
-// Редагувати товар
+
 exports.updateItem = async (req, res) => {
   try {
     const itemId = parseInt(req.params.id, 10);
     const body = req.body || {};
 
-    const { 
-      name, stockKeepingUnit, current, minimum, 
-      price, categoryId, technicalData, compatibility, supplier 
+    const {
+      name, stockKeepingUnit, current, minimum,
+      price, categoryId, technicalData, compatibility, supplier
     } = body;
 
     if (isNaN(itemId)) return res.status(400).json({ error: 'Некоректний ID' });
 
     const result = await prisma.$transaction(async (tx) => {
       const updateData = {};
-      
+
       if (name !== undefined) updateData.name = name.trim();
       if (stockKeepingUnit !== undefined) updateData.stockKeepingUnit = stockKeepingUnit.trim();
       if (current !== undefined) updateData.current = parseInt(current, 10);
@@ -92,12 +92,12 @@ exports.updateItem = async (req, res) => {
       if (req.file) {
         updateData.imageSource = `/uploads/${req.file.filename}`;
       }
-      
+
       if (categoryId) {
         updateData.categoryId = parseInt(categoryId, 10);
       }
 
-      // Оновлюємо та включаємо всі дані, щоб фронтенд миттєво оновив статус дефіциту
+
       const updated = await tx.inventory.update({
         where: { id: itemId },
         data: updateData,
@@ -113,7 +113,7 @@ exports.updateItem = async (req, res) => {
         }
 
         await tx.technicalSpec.deleteMany({ where: { inventoryId: itemId } });
-        
+
         if (specsArray.length > 0) {
           await tx.technicalSpec.createMany({
             data: specsArray.map(spec => ({
@@ -134,13 +134,13 @@ exports.updateItem = async (req, res) => {
   }
 };
 
-// Видалити товар
+
 exports.deleteItem = async (req, res) => {
   try {
     const itemId = parseInt(req.params.id, 10);
     if (isNaN(itemId)) return res.status(400).json({ error: 'Некоректний ID' });
 
-    // Видаляємо зв'язані логи та характеристики перед видаленням товару (якщо немає CASCADE)
+
     await prisma.$transaction([
       prisma.technicalSpec.deleteMany({ where: { inventoryId: itemId } }),
       prisma.inventoryLog.deleteMany({ where: { itemId: itemId } }),
@@ -156,7 +156,7 @@ exports.deleteItem = async (req, res) => {
   }
 };
 
-// Склад: Прихід/Списання з записом в InventoryLog
+
 exports.handleStockChange = async (req, res) => {
   const { id, quantity, note } = req.body;
   const itemId = parseInt(id, 10);
@@ -169,19 +169,19 @@ exports.handleStockChange = async (req, res) => {
       const item = await tx.inventory.findUnique({ where: { id: itemId } });
       if (!item) throw new Error("Товар не знайдено");
 
-      // Повертаємо об'єкт із категорією, щоб фронтенд міг ідентифікувати товар у сповіщеннях
+
       const updatedItem = await tx.inventory.update({
         where: { id: itemId },
         data: { current: { increment: change } },
-        include: { category: true, technicalData: true } 
+        include: { category: true, technicalData: true }
       });
 
       await tx.inventoryLog.create({
         data: {
-          itemId: itemId, 
+          itemId: itemId,
           amount: change,
           note: note || (change > 0 ? "Прихід" : "Списання"),
-          date: new Date() 
+          date: new Date()
         }
       });
       return updatedItem;
@@ -193,7 +193,7 @@ exports.handleStockChange = async (req, res) => {
   }
 };
 
-// Дані авто
+
 exports.getCarData = async (req, res) => {
   try {
     const brands = await prisma.carBrand.findMany({
@@ -207,7 +207,7 @@ exports.getCarData = async (req, res) => {
   }
 };
 
-// Перевірка SKU
+
 exports.checkSKU = async (req, res) => {
   const { sku } = req.query;
   try {

@@ -7,11 +7,11 @@ const getNotifications = async (req, res) => {
   try {
     const notifications = [];
     const today = new Date();
-    
-    // МЕХАНІЗМ АРХІВУ: Замітки старіші за 24 години автоматично не завантажуються
+
+
     const archiveThreshold = new Date(today.getTime() - (24 * 60 * 60 * 1000));
 
-    // Отримуємо всі збережені системні записи (для dismissed-стану та стабільного часу)
+
     const storedRecords = await prisma.notification.findMany({
       where: { type: { in: ['inventory', 'service', 'delay'] } },
       select: { id: true, isDismissed: true, createdAt: true }
@@ -21,8 +21,8 @@ const getNotifications = async (req, res) => {
       storedRecords.filter(r => r.isDismissed).map(r => String(r.id))
     );
 
-    // Допоміжна функція: повертає стабільний createdAt для системного сповіщення.
-    // Якщо запис ще не існує в БД — створюємо (firstSeen = now), інакше беремо збережений.
+
+
     const ensureSystemTimestamp = async (systemId, type, title, message, priority) => {
       const existing = storedMap.get(systemId);
       if (existing) return existing.createdAt;
@@ -45,16 +45,16 @@ const getNotifications = async (req, res) => {
       }
     };
 
-    // 1. ПЕРЕВІРКА СКЛАДУ (Inventory)
+
     try {
       const allItems = await prisma.inventory.findMany();
       const deficitItemIds = new Set(
         allItems.filter(item => item.current <= item.minimum).map(item => item.id)
       );
 
-      // АВТО-СКИДАННЯ: видаляємо старі inventory-записи для товарів, де дефіциту вже немає.
-      // Це гарантує, що при повторному падінні запасу нижче мінімуму сповіщення з'явиться знову,
-      // навіть якщо користувач його колись приховав.
+
+
+
       const stalePrefixed = [...storedMap.keys()].filter(k => {
         if (!k.startsWith('inventory-')) return false;
         const itemId = parseInt(k.slice('inventory-'.length), 10);
@@ -73,7 +73,7 @@ const getNotifications = async (req, res) => {
       for (const item of deficitItems) {
         const systemId = `inventory-${item.id}`;
 
-        // Додаємо, тільки якщо не приховано користувачем
+
         if (!dismissedIds.has(systemId)) {
           const title = 'Дефіцит на складі';
           const message = `Запчастина "${item.name}" закінчується. Залишок: ${item.current} шт.`;
@@ -95,7 +95,7 @@ const getNotifications = async (req, res) => {
       console.error("⚠️ Помилка Inventory:", e.message);
     }
 
-    // 2. СЕРВІСНІ НАГАДУВАННЯ (6 місяців після завершеного замовлення)
+
     try {
       const sixMonthsAgo = new Date();
       sixMonthsAgo.setMonth(today.getMonth() - 6);
@@ -110,7 +110,7 @@ const getNotifications = async (req, res) => {
 
       oldOrders.forEach(order => {
         const systemId = `service-${order.id}`;
-        
+
         if (!dismissedIds.has(systemId)) {
           notifications.push({
             id: systemId,
@@ -126,7 +126,7 @@ const getNotifications = async (req, res) => {
       console.error("⚠️ Помилка Service:", e.message);
     }
 
-    // 3. ЗАТРИМКИ В РОБОТІ (Понад 3 дні в статусі IN_WORK)
+
     try {
       const threeDaysAgo = new Date();
       threeDaysAgo.setDate(today.getDate() - 3);
@@ -140,7 +140,7 @@ const getNotifications = async (req, res) => {
 
       delayedOrders.forEach(order => {
         const systemId = `delay-${order.id}`;
-        
+
         if (!dismissedIds.has(systemId)) {
           notifications.push({
             id: systemId,
@@ -156,16 +156,16 @@ const getNotifications = async (req, res) => {
       console.error("⚠️ Помилка затримок:", e.message);
     }
 
-    // 4. РУЧНІ ЗАМІТКИ
+
     try {
       const manualNotes = await prisma.notification.findMany({
-        where: { 
+        where: {
           type: 'manual',
           isDismissed: false,
-          createdAt: { 
+          createdAt: {
             lte: today,
             gte: archiveThreshold
-          } 
+          }
         },
         orderBy: { createdAt: 'desc' }
       });
@@ -184,7 +184,7 @@ const getNotifications = async (req, res) => {
       console.error("⚠️ Помилка ручних заміток:", e.message);
     }
 
-    // Сортування: Високий пріоритет завжди зверху
+
     const sortedResult = notifications.sort((a, b) => {
       if (a.priority === 'high' && b.priority !== 'high') return -1;
       if (a.priority !== 'high' && b.priority === 'high') return 1;
@@ -235,8 +235,8 @@ const createNotification = async (req, res) => {
 const deleteNotification = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // Перевірка на системне сповіщення (містить дефіс)
+
+
     if (String(id).includes('-')) {
       await prisma.notification.upsert({
         where: { id: String(id) },
@@ -254,7 +254,7 @@ const deleteNotification = async (req, res) => {
       return res.json({ success: true, message: "Системне сповіщення приховано" });
     }
 
-    // Для ручних заміток: перевіряємо, чи ID числове чи UUID
+
     const numericId = parseInt(id);
     const finalId = isNaN(numericId) ? id : numericId;
 
@@ -262,7 +262,7 @@ const deleteNotification = async (req, res) => {
       where: { id: finalId },
       data: { isDismissed: true }
     });
-    
+
     res.json({ success: true, message: "Замітку приховано" });
   } catch (error) {
     console.error('❌ ПОМИЛКА ВИДАЛЕННЯ:', error);
@@ -286,9 +286,9 @@ const clearAllNotifications = async (req, res) => {
   }
 };
 
-module.exports = { 
-  getNotifications, 
-  createNotification, 
-  deleteNotification, 
-  clearAllNotifications 
+module.exports = {
+  getNotifications,
+  createNotification,
+  deleteNotification,
+  clearAllNotifications
 };

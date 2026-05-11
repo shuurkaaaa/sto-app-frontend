@@ -1,18 +1,13 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import { useWorkers } from './WorkersContext'; 
+import { useWorkers } from './WorkersContext';
 import { useInventoryContext } from './InventoryContext';
+import { apiClient } from '../services/apiClient';
 
 const OrdersContext = createContext({});
 
-// Використовуємо 127.0.0.1:5000 для стабільного з'єднання
-const API_URL = 'http://localhost:5000/api/orders';
 
-// Створюємо екземпляр axios із налаштуваннями CORS
-const api = axios.create({
-  withCredentials: true
-});
+const API_URL = '/orders';
 
 export const OrdersProvider = ({ children }) => {
   const [orders, setOrders] = useState([]);
@@ -21,7 +16,7 @@ export const OrdersProvider = ({ children }) => {
 
   const fetchOrders = useCallback(async function() {
     try {
-      const response = await api.get(API_URL);
+      const response = await apiClient.get(API_URL);
       if (Array.isArray(response.data)) {
         setOrders(response.data);
       } else {
@@ -34,11 +29,11 @@ export const OrdersProvider = ({ children }) => {
 
   const addOrder = async function(orderData) {
     try {
-      const response = await api.post(API_URL, orderData);
+      const response = await apiClient.post(API_URL, orderData);
       setOrders(function(prevOrders) {
         return [response.data, ...prevOrders];
       });
-      if (fetchWorkers) await fetchWorkers(); 
+      if (fetchWorkers) await fetchWorkers();
       return response.data;
     } catch (error) {
       console.error("Помилка створення замовлення:", error);
@@ -49,13 +44,13 @@ export const OrdersProvider = ({ children }) => {
   const updateOrder = async function(id, formData) {
     if (!id) return;
     try {
-      const response = await api.put(`${API_URL}/${id}`, formData);
+      const response = await apiClient.put(`${API_URL}/${id}`, formData);
       setOrders(function(prevOrders) {
         return prevOrders.map(function(order) {
           return order.id === id ? response.data : order;
         });
       });
-      if (fetchWorkers) await fetchWorkers(); 
+      if (fetchWorkers) await fetchWorkers();
       return response.data;
     } catch (error) {
       console.error("Помилка оновлення замовлення:", error);
@@ -66,9 +61,9 @@ export const OrdersProvider = ({ children }) => {
   const updateOrderStatus = async function(id, payload) {
     if (!id) return;
     try {
-      // payload очікується як об'єкт { status: '...' }
-      const response = await api.put(`${API_URL}/${id}/status`, payload);
-      
+
+      const response = await apiClient.put(`${API_URL}/${id}/status`, payload);
+
       setOrders(function(prevOrders) {
         return prevOrders.map(function(order) {
           return order.id === id ? response.data : order;
@@ -76,10 +71,10 @@ export const OrdersProvider = ({ children }) => {
       });
 
       if (fetchWorkers) {
-        await fetchWorkers(); 
+        await fetchWorkers();
       }
 
-      // Якщо замовлення завершене — список запчастин на складі змінився
+
       const newStatus = String(payload?.status || '').toUpperCase();
       if ((newStatus === 'COMPLETED' || newStatus === 'ВИКОНАНО') && fetchInventory) {
         await fetchInventory();
@@ -100,25 +95,25 @@ export const OrdersProvider = ({ children }) => {
     if (!confirmation || !id) return;
 
     try {
-      await api.delete(`${API_URL}/${id}`);
+      await apiClient.delete(`${API_URL}/${id}`);
       setOrders(function(prevOrders) {
         return prevOrders.filter(function(order) {
           return order.id !== id;
         });
       });
-      if (fetchWorkers) await fetchWorkers(); 
+      if (fetchWorkers) await fetchWorkers();
     } catch (error) {
       console.error("Помилка видалення замовлення:", error);
     }
   };
 
   return (
-    <OrdersContext.Provider value={{ 
+    <OrdersContext.Provider value={{
       orders,
       fetchOrders,
-      addOrder, 
+      addOrder,
       updateOrder,
-      deleteOrder, 
+      deleteOrder,
       updateOrderStatus
     }}>
       {children}
