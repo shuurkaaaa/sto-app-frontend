@@ -7,6 +7,7 @@ export const ForgotPasswordModal = ({ isOpen, onClose }) => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [devUrl, setDevUrl] = useState('');
+  const [deliveryMode, setDeliveryMode] = useState('');
 
   if (!isOpen) return null;
 
@@ -15,6 +16,7 @@ export const ForgotPasswordModal = ({ isOpen, onClose }) => {
     setError('');
     setMessage('');
     setDevUrl('');
+    setDeliveryMode('');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError('Невірний формат email');
@@ -23,8 +25,17 @@ export const ForgotPasswordModal = ({ isOpen, onClose }) => {
     setLoading(true);
     try {
       const res = await apiClient.post(`/auth/forgot-password`, { email });
-      setMessage(res.data?.message || 'Лист надіслано (якщо такий email існує).');
-      if (res.data?.data?.devResetUrl) setDevUrl(res.data.data.devResetUrl);
+      const data = res.data?.data || {};
+      const mode = data.deliveryMode || '';
+      setDeliveryMode(mode);
+      if (mode === 'email') {
+        setMessage(res.data?.message || 'Лист надіслано (якщо такий email існує).');
+      } else if (data.devResetUrl) {
+        setMessage('Пошта для скидання пароля на цьому сервері зараз не налаштована. Скористайтеся посиланням нижче.');
+        setDevUrl(data.devResetUrl);
+      } else {
+        setMessage(res.data?.message || 'Запит прийнято.');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Помилка з’єднання з сервером');
     } finally {
@@ -37,6 +48,7 @@ export const ForgotPasswordModal = ({ isOpen, onClose }) => {
     setMessage('');
     setError('');
     setDevUrl('');
+    setDeliveryMode('');
     onClose();
   };
 
@@ -88,7 +100,9 @@ export const ForgotPasswordModal = ({ isOpen, onClose }) => {
             {devUrl && (
               <div className="rounded-3 mb-3 p-2 small"
                    style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', color: '#93c5fd' }}>
-                <div className="fw-bold mb-1">DEV-режим (RESEND_API_KEY не заданий):</div>
+                <div className="fw-bold mb-1">
+                  {deliveryMode === 'fallback' ? 'Email-сервіс тимчасово недоступний:' : 'Email не налаштований у цьому середовищі:'}
+                </div>
                 <a href={devUrl} className="text-info small" style={{ wordBreak: 'break-all' }}>{devUrl}</a>
               </div>
             )}

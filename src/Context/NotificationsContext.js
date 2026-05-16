@@ -186,7 +186,7 @@ export const NotificationsProvider = ({ children }) => {
           pointerEvents: 'auto'
         }}>
           <div style={{ fontSize: '10px', fontWeight: '800', color: '#EF4444', textTransform: 'uppercase' }}>
-            ⚡ ОБСЛУГОВУВАННЯ ПОТРІБНЕ
+            ОБСЛУГОВУВАННЯ ПОТРІБНЕ
           </div>
           <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{customer.name}</div>
           <div style={{ fontSize: '13px', color: '#94A3B8' }}>
@@ -201,7 +201,6 @@ export const NotificationsProvider = ({ children }) => {
       shownToastIds.current.add(safeId);
     }
 
-    // Додаємо в список сповіщень
     const newNotification = {
       id: safeId,
       type: 'maintenance',

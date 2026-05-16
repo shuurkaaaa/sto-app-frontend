@@ -142,7 +142,7 @@ export const CarManagerModal = ({ onClose }) => {
                       onClick={(e) => { e.stopPropagation(); handleDeleteBrand(brand.id); }}
                       className="sto-btn-delete-sm"
                     >
-                      🗑
+                      ×
                     </button>
                   </div>
                 </div>
@@ -192,7 +192,7 @@ export const CarManagerModal = ({ onClose }) => {
 
                       <div className="d-flex gap-2">
                         <button onClick={() => { setEditingId(`model-${model.id}`); setEditValue(model.name); }} className="sto-btn-edit-sm">✎</button>
-                        <button onClick={() => handleDeleteModel(model.id)} className="sto-btn-delete-sm">🗑</button>
+                        <button onClick={() => handleDeleteModel(model.id)} className="sto-btn-delete-sm">×</button>
                       </div>
                     </div>
                   ))}

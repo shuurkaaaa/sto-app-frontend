@@ -8,10 +8,6 @@ const {
 } = require('../controllers/notificationController');
 const auth = require('../middlewares/authMiddleware');
 
-/**
- * Маршрути системи сповіщень OneWayLogistic
- */
-
 router.use(auth);
 
 

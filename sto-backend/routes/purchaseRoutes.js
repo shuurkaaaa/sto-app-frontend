@@ -6,10 +6,6 @@ const auth = require('../middlewares/authMiddleware');
 
 router.use(auth);
 
-/**
- * POST /api/purchase/create
- * Створення нового замовлення на закупівлю запчастин
- */
 router.post('/create', async (req, res) => {
   try {
     const { items, totalPrice, status } = req.body;
@@ -38,10 +34,6 @@ router.post('/create', async (req, res) => {
   }
 });
 
-/**
- * GET /api/purchase/history
- * Отримання історії всіх закупівель
- */
 router.get('/history', async (req, res) => {
   try {
     const history = await prisma.purchaseOrder.findMany({

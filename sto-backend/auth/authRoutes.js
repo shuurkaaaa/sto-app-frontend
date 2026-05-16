@@ -3,11 +3,6 @@ const router = express.Router();
 const authController = require('./authController');
 const auth = require('../middlewares/authMiddleware');
 
-/**
- * МАРШРУТИ АВТОРИЗАЦІЇ
- */
-
-
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.post('/forgot-password', authController.forgotPassword);

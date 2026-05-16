@@ -44,7 +44,7 @@ export const ServiceTable = ({ services, onDelete, onUpdatePrice, onEdit }) => {
 
                   {((s.parts || s.linkedParts) && (s.parts || s.linkedParts).length > 0) && (
                     <div className="sto-text-dim small mt-1">
-                      📦 {(s.parts || s.linkedParts).map(p => p.name).join(', ')}
+                      Запчастини: {(s.parts || s.linkedParts).map(p => p.name).join(', ')}
                     </div>
                   )}
 

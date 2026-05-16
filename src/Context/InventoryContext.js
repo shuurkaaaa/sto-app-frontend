@@ -52,9 +52,6 @@ export const InventoryProvider = ({ children }) => {
 
 
 
-  /**
-   * Оновлення залишків (Прихід/Списання) з миттєвою синхронізацією сповіщень
-   */
   const updateStock = async (id, newQuantity) => {
     try {
       const response = await apiClient.put(`/inventory-actions/${id}`, {
@@ -82,9 +79,6 @@ export const InventoryProvider = ({ children }) => {
     }
   };
 
-  /**
-   * Додавання нового товару
-   */
   const addNewItems = async (formData) => {
     try {
       const response = await apiClient.post('/inventory-actions/add', formData, {
@@ -107,9 +101,6 @@ export const InventoryProvider = ({ children }) => {
     }
   };
 
-  /**
-   * Редагування характеристик товару
-   */
   const updateItem = async (id, data) => {
     if (!id) {
       console.error("Помилка: ID товару не визначено!");
@@ -136,9 +127,6 @@ export const InventoryProvider = ({ children }) => {
     }
   };
 
-  /**
-   * Видалення товару
-   */
   const removeItem = async (id) => {
     try {
       const stringId = String(id);
@@ -156,12 +144,26 @@ export const InventoryProvider = ({ children }) => {
 
 
 
-  const getItemLogs = async (id) => {
+  const getItemLogs = async (id, options = {}) => {
     try {
-      const response = await apiClient.get(`/inventory-actions/${id}/logs`);
+      const params = {};
+      if (options.orderId != null && options.orderId !== '') {
+        params.orderId = options.orderId;
+      }
+      const response = await apiClient.get(`/inventory-actions/${id}/logs`, { params });
       return response.data;
     } catch (error) {
       console.error("Помилка завантаження історії товару:", error);
+      return [];
+    }
+  };
+
+  const getInventoryLogsByOrderId = async (orderId) => {
+    try {
+      const response = await apiClient.get(`/inventory-actions/order/${orderId}/logs`);
+      return Array.isArray(response.data) ? response.data : [];
+    } catch (error) {
+      console.error('Помилка завантаження складу за замовленням:', error);
       return [];
     }
   };
@@ -218,6 +220,7 @@ export const InventoryProvider = ({ children }) => {
       addNewItems,
       updateItem,
       getItemLogs,
+      getInventoryLogsByOrderId,
       categories,
       addCategory,
       editCategory,

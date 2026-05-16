@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="950" viewBox="0 0 1000 950">
+  <defs>
+    <marker id="mkEnd" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#000"/></marker>
+    <marker id="mkStart" markerWidth="9" markerHeight="9" refX="1" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M9,0 L9,9 L0,4.5 z" fill="#000"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1000" height="950" fill="#ffffff"/>
+
+  <text x="500" y="34" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle">Client application structure &#8212; STO App</text>
+
+  <rect x="340" y="48" rx="10" ry="10" width="320" height="48" fill="#fff" stroke="#000" stroke-width="2"/>
+  <text x="500" y="78" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">User / browser</text>
+
+  <rect x="340" y="112" rx="10" ry="10" width="320" height="48" fill="#fff" stroke="#000" stroke-width="2"/>
+  <text x="500" y="142" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">React SPA</text>
+
+  <rect x="110" y="184" rx="10" ry="10" width="780" height="48" fill="#fff" stroke="#000" stroke-width="1.8"/>
+  <text x="500" y="214" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">React Router</text>
+
+  <rect x="240" y="248" rx="8" ry="8" width="520" height="48" fill="#fff" stroke="#000" stroke-width="1.8"/>
+  <text x="500" y="278" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">Route guard &#8212; session check &amp; redirects</text>
+
+  <rect x="56" y="312" rx="12" ry="12" width="888" height="258" fill="none" stroke="#000" stroke-width="2"/>
+  <text x="500" y="338" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">CombinedProvider &#8212; React Context</text>
+
+  <rect x="88" y="352" rx="8" ry="8" width="392" height="44" fill="#fff" stroke="#000" stroke-width="1.8"/>
+  <text x="284" y="380" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">InventoryContext</text>
+
+  <rect x="508" y="352" rx="8" ry="8" width="404" height="44" fill="#fff" stroke="#000" stroke-width="1.8"/>
+  <text x="710" y="380" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">ClientsContext</text>
+
+  <rect x="88" y="408" rx="8" ry="8" width="392" height="44" fill="#fff" stroke="#000" stroke-width="1.8"/>
+  <text x="284" y="436" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">WorkersContext</text>
+
+  <rect x="508" y="408" rx="8" ry="8" width="404" height="44" fill="#fff" stroke="#000" stroke-width="1.8"/>
+  <text x="710" y="436" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">PriceContext</text>
+
+  <rect x="88" y="464" rx="8" ry="8" width="392" height="44" fill="#fff" stroke="#000" stroke-width="1.8"/>
+  <text x="284" y="492" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">AnalyticsContext</text>
+
+  <rect x="508" y="464" rx="8" ry="8" width="404" height="44" fill="#fff" stroke="#000" stroke-width="1.8"/>
+  <text x="710" y="492" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">OrdersContext</text>
+
+  <rect x="268" y="520" rx="8" ry="8" width="464" height="44" fill="#fff" stroke="#000" stroke-width="1.8"/>
+  <text x="500" y="548" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">NotificationsContext</text>
+
+  <rect x="110" y="586" rx="10" ry="10" width="780" height="82" fill="#fff" stroke="#000" stroke-width="1.8"/>
+  <text x="500" y="612" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">Pages</text>
+  <text x="500" y="634" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">Login &#183; ResetPassword &#183; Dashboard &#183; Customers &#183; Inventory &#183; Services</text>
+  <text x="500" y="654" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">Staff &#183; Analytics &#183; Notifications</text>
+
+  <rect x="110" y="696" rx="10" ry="10" width="780" height="52" fill="#fff" stroke="#000" stroke-width="1.8"/>
+  <text x="500" y="728" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">Components &amp; custom hooks</text>
+
+  <rect x="300" y="784" rx="10" ry="10" width="400" height="56" fill="#fff" stroke="#000" stroke-width="2"/>
+  <text x="500" y="814" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">Axios apiClient</text>
+  <text x="500" y="834" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">JWT from localStorage &#183; base URL &#183; auth interceptors</text>
+
+  <rect x="300" y="874" rx="10" ry="10" width="400" height="48" fill="#fff" stroke="#000" stroke-width="2"/>
+  <text x="500" y="904" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">REST API (backend)</text>
+
+  <rect x="40" y="790" rx="8" ry="8" width="168" height="44" fill="#fff" stroke="#000" stroke-width="1.8"/>
+  <text x="124" y="818" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle">localStorage &#183; JWT</text>
+
+  <line x1="500" y1="96" x2="500" y2="112" stroke="#000" stroke-width="1.1" marker-end="url(#mkEnd)"/>
+  <line x1="500" y1="160" x2="500" y2="184" stroke="#000" stroke-width="1.1" marker-end="url(#mkEnd)"/>
+  <line x1="500" y1="232" x2="500" y2="248" stroke="#000" stroke-width="1.1" marker-end="url(#mkEnd)"/>
+  <line x1="500" y1="296" x2="500" y2="312" stroke="#000" stroke-width="1.1" marker-end="url(#mkEnd)"/>
+  <line x1="500" y1="570" x2="500" y2="586" stroke="#000" stroke-width="1.1" marker-end="url(#mkEnd)"/>
+  <line x1="500" y1="668" x2="500" y2="696" stroke="#000" stroke-width="1.1" marker-end="url(#mkEnd)"/>
+  <line x1="500" y1="748" x2="500" y2="784" stroke="#000" stroke-width="1.1" marker-end="url(#mkEnd)"/>
+  <line x1="500" y1="840" x2="500" y2="874" stroke="#000" stroke-width="1.1" marker-end="url(#mkEnd)" marker-start="url(#mkStart)"/>
+
+  <line x1="208" y1="812" x2="300" y2="812" stroke="#000" stroke-width="1.1" marker-end="url(#mkEnd)"/>
+</svg>

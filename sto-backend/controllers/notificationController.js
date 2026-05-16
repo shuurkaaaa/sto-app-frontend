@@ -1,8 +1,5 @@
 const prisma = require('../lib/prisma');
 
-/**
- * Отримання всіх сповіщень: склад, сервіс, затримки та замітки (Архів 24г)
- */
 const getNotifications = async (req, res) => {
   try {
     const notifications = [];
@@ -92,7 +89,7 @@ const getNotifications = async (req, res) => {
         }
       }
     } catch (e) {
-      console.error("⚠️ Помилка Inventory:", e.message);
+      console.error("[NOTIFICATIONS] Inventory error:", e.message);
     }
 
 
@@ -123,7 +120,7 @@ const getNotifications = async (req, res) => {
         }
       });
     } catch (e) {
-      console.error("⚠️ Помилка Service:", e.message);
+      console.error("[NOTIFICATIONS] Service error:", e.message);
     }
 
 
@@ -153,7 +150,7 @@ const getNotifications = async (req, res) => {
         }
       });
     } catch (e) {
-      console.error("⚠️ Помилка затримок:", e.message);
+      console.error("[NOTIFICATIONS] Delays error:", e.message);
     }
 
 
@@ -181,7 +178,7 @@ const getNotifications = async (req, res) => {
         });
       });
     } catch (e) {
-      console.error("⚠️ Помилка ручних заміток:", e.message);
+      console.error("[NOTIFICATIONS] Manual notes error:", e.message);
     }
 
 
@@ -194,14 +191,11 @@ const getNotifications = async (req, res) => {
     res.json(sortedResult);
 
   } catch (error) {
-    console.error('❌ КРИТИЧНА ПОМИЛКА КОНТРОЛЕРА:', error);
+    console.error('[NOTIFICATIONS] Critical controller error:', error);
     res.status(500).json({ error: 'Внутрішня помилка сервера', details: error.message });
   }
 };
 
-/**
- * Створення нової замітки
- */
 const createNotification = async (req, res) => {
   try {
     const { title, message, priority, scheduledAt } = req.body;
@@ -224,14 +218,11 @@ const createNotification = async (req, res) => {
 
     res.status(201).json(newNote);
   } catch (error) {
-    console.error('❌ ПОМИЛКА СТВОРЕННЯ ЗАМІТКИ:', error);
+    console.error('[NOTIFICATIONS] Create error:', error);
     res.status(500).json({ error: 'Не вдалося створити замітку' });
   }
 };
 
-/**
- * Видалення або приховання сповіщення
- */
 const deleteNotification = async (req, res) => {
   try {
     const { id } = req.params;
@@ -265,14 +256,11 @@ const deleteNotification = async (req, res) => {
 
     res.json({ success: true, message: "Замітку приховано" });
   } catch (error) {
-    console.error('❌ ПОМИЛКА ВИДАЛЕННЯ:', error);
+    console.error('[NOTIFICATIONS] Delete error:', error);
     res.status(500).json({ error: 'Не вдалося видалити сповіщення', details: error.message });
   }
 };
 
-/**
- * Очищення ручних заміток
- */
 const clearAllNotifications = async (req, res) => {
   try {
     await prisma.notification.updateMany({
@@ -281,7 +269,7 @@ const clearAllNotifications = async (req, res) => {
     });
     res.json({ success: true, message: "Всі замітки приховано" });
   } catch (error) {
-    console.error('❌ ПОМИЛКА ОЧИЩЕННЯ:', error);
+    console.error('[NOTIFICATIONS] Clear error:', error);
     res.status(500).json({ error: "Не вдалося очистити список" });
   }
 };

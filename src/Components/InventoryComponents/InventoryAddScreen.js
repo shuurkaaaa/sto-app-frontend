@@ -97,7 +97,7 @@ export const InventoryAddScreen = ({ onBack, onSave }) => {
               {previewUrl ? (
                 <img src={previewUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
-                <div className="sto-text-muted small">📸 Фото</div>
+                <div className="sto-text-muted small">Фото</div>
               )}
             </div>
             <input id="imageUpload" type="file" accept="image/*" onChange={handlePhotoChange} className="d-none" />

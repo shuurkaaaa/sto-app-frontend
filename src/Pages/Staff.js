@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { toast } from 'react-hot-toast';
 import { useStaffLogic } from '../Components/StaffComponents/useStaffLogic';
 import { useOrders } from '../Context/OrdersContext';
 import { useWorkers } from '../Context/WorkersContext';
@@ -9,7 +10,7 @@ import { StaffModal } from '../Components/StaffComponents/StaffModal';
 import { AssignCarModal } from '../Components/StaffComponents/AssignCarModal';
 
 const StaffPage = () => {
-  const { categories, addCategory, deleteCategory, archivedWorkers, restoreWorker } = useWorkers();
+  const { categories, addCategory, deleteCategory, updateCategory, archivedWorkers, restoreWorker } = useWorkers();
   const { orders, updateOrderStatus } = useOrders();
 
   const [viewMode, setViewMode] = useState('active');
@@ -25,6 +26,17 @@ const StaffPage = () => {
     await deleteCategory(id);
     if (currentFilter === categoryToDelete?.name) setCurrentFilter('Всі');
   }, [categories, currentFilter, deleteCategory, setCurrentFilter]);
+
+  const handleRenameCategory = useCallback(async (id, previousName, newName) => {
+    try {
+      const updated = await updateCategory(id, newName);
+      toast.success('Спеціалізацію оновлено', { duration: 2000 });
+      if (currentFilter === previousName) setCurrentFilter(updated.name);
+    } catch (err) {
+      if (err?.message === 'EMPTY_NAME') return;
+      throw err;
+    }
+  }, [updateCategory, currentFilter, setCurrentFilter]);
 
   const displayList = viewMode === 'active' ? processedWorkers : archivedWorkers;
 
@@ -49,6 +61,7 @@ const StaffPage = () => {
               onFilterChange={setCurrentFilter}
               onAddCategory={addCategory}
               onDeleteCategory={handleDeleteCategory}
+              onRenameCategory={handleRenameCategory}
             />
             <StaffToolbar
               onAdd={openModal}
@@ -81,10 +94,12 @@ const StaffPage = () => {
       <AssignCarModal
         isOpen={!!assigningWorkerId}
         onClose={() => setAssigningWorkerId(null)}
-        pendingOrders={orders?.filter(o => o.status === 'PENDING') || []}
-        onConfirm={(carInfo, orderId) => {
-          confirmAssignCar(carInfo);
-          if (updateOrderStatus) updateOrderStatus(orderId, { status: 'IN_WORK', masterId: assigningWorkerId });
+        pendingOrders={(orders || []).filter(o => o.status === 'PENDING' && !o.masterId)}
+        onConfirm={async (carInfo, orderId) => {
+          if (updateOrderStatus && assigningWorkerId) {
+            await updateOrderStatus(orderId, { status: 'IN_WORK', masterId: assigningWorkerId });
+          }
+          await confirmAssignCar();
         }}
       />
     </div>

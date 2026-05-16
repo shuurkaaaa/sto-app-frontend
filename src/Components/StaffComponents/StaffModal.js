@@ -30,7 +30,7 @@ export const StaffModal = ({ isOpen, onClose, onSave, worker }) => {
   const validate = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Введіть ПІБ майстра';
-    if (!formData.role.trim()) newErrors.role = 'Вкажіть посаду (напр. Моторист)';
+    if (!formData.role.trim()) newErrors.role = 'Вкажіть посаду (напр. механік 2 розряду)';
     if (!formData.category) newErrors.category = 'Оберіть спеціалізацію';
     const cp = Number(formData.commissionPercent);
     if (Number.isNaN(cp) || cp < 0 || cp > 100) newErrors.commissionPercent = 'Відсоток від 0 до 100';
@@ -56,7 +56,7 @@ export const StaffModal = ({ isOpen, onClose, onSave, worker }) => {
     <div className="sto-modal-overlay" style={{ zIndex: 5000 }}>
       <div className="sto-modal" style={{ maxWidth: '440px' }}>
         <h2 className="mt-0 mb-3 text-light" style={{ fontSize: '22px' }}>
-          {worker ? 'Редагувати майстра' : ' Новий працівник'}
+          {worker ? 'Редагувати майстра' : 'Додавання нового майстра'}
         </h2>
 
         <form onSubmit={handleSubmit}>
@@ -75,7 +75,7 @@ export const StaffModal = ({ isOpen, onClose, onSave, worker }) => {
             <label className="sto-label">Посада *</label>
             <input
               className={`sto-input ${errors.role ? 'sto-input--error' : ''}`}
-              placeholder="Наприклад: Моторист"
+              placeholder="наприклад: механік 2 розряду"
               value={formData.role}
               onChange={e => setFormData({ ...formData, role: e.target.value })}
             />

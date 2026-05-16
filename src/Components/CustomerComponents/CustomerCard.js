@@ -7,12 +7,13 @@ export const CustomerCard = ({ customer, onClick }) => {
   const [selectedVIN, setSelectedVIN] = useState(null);
   const [showServiceHistory, setShowServiceHistory] = useState(false);
   const reminderInfo = checkCustomerServiceReminder(customer);
+  const serviceHistoryCount = Array.isArray(customer.orders) ? customer.orders.length : 0;
   
   return (
     <>
       <div
         className="sto-card sto-card-clickable position-relative"
-        style={reminderInfo.needsReminder ? { borderColor: '#ef4444', borderWidth: '2px' } : customer.isVip ? { borderColor: '#fbbf24' } : undefined}
+        style={reminderInfo.needsReminder ? { borderColor: '#ef4444', borderWidth: '2px' } : undefined}
         onClick={() => onClick(customer.id)}
       >
         {reminderInfo.needsReminder && (
@@ -21,15 +22,6 @@ export const CustomerCard = ({ customer, onClick }) => {
             style={{ top: '-10px', right: '10px', background: '#ef4444', fontSize: '10px' }}
           >
             ТО ПОТРІБНЕ
-          </div>
-        )}
-        
-        {customer.isVip && !reminderInfo.needsReminder && (
-          <div
-            className="position-absolute fw-bold rounded-3 px-2 py-1 text-white"
-            style={{ top: '-10px', right: '10px', background: '#fbbf24', fontSize: '10px' }}
-          >
-            VIP
           </div>
         )}
 
@@ -96,7 +88,7 @@ export const CustomerCard = ({ customer, onClick }) => {
           className="sto-btn sto-btn-secondary w-100 mt-3"
           style={{ fontSize: '12px', padding: '6px 12px' }}
         >
-          📋 Історія обслуговування
+          Історія обслуговування {serviceHistoryCount > 0 ? `(${serviceHistoryCount})` : ''}
         </button>
       </div>
 

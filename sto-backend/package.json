@@ -6,6 +6,10 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "sync-price-categories": "node scripts/syncPriceCategoriesFromInventory.js",
+    "seed-services-warehouse": "node scripts/seedServicesFromWarehouse.js",
+    "seed-demo-orders": "node scripts/seedDemoOrdersJournal.js",
+    "patch-demo-order-vins": "node scripts/patchDemoOrdersAutoriaVins.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

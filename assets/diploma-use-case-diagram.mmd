@@ -1,0 +1,192 @@
+%% Stadium-прецеденти розтягнуті горизонтально (непомітний U+3000 по краях підпису); колонку й базовий овал ELK притискає лінія `~~~`; проміжки мінімальні.
+%%{init: {
+  "theme": "neutral",
+  "flowchart": {
+    "defaultRenderer": "elk",
+    "diagramPadding": 0,
+    "nodeSpacing": 0,
+    "rankSpacing": 0,
+    "padding": 0,
+    "curve": "linear"
+  },
+  "themeVariables": {
+    "fontSize": "72px",
+    "fontFamily": "Arial, Helvetica, sans-serif",
+    "clusterBkg": "transparent",
+    "clusterBorder": "transparent"
+  }
+}}%%
+flowchart LR
+  AU(("Авторизований користувач"))
+
+  subgraph sCLI[" "]
+    direction LR
+    subgraph sCLI_L[" "]
+      direction TB
+      UC_CL_A([　　　　　　　　　　　　　　CL-A Реєстрація клієнта　　　　　　　　　　　　　　])
+      UC_CL_B([　　　　　　　　　　　　　　CL-B Прив’язка авто до клієнта　　　　　　　　　　　　　　])
+      UC_CL_C([　　　　　　　　　　　　　　CL-C Пошук і відкриття картки　　　　　　　　　　　　　　])
+      UC_CL_D([　　　　　　　　　　　　　　CL-D Облік текстових нотаток　　　　　　　　　　　　　　])
+    end
+    UC_VIEW_CLI([　　　　　　　　　　　　　　Перегляд і робота з<br/>клієнтською базою　　　　　　　　　　　　　　])
+    sCLI_L ~~~ UC_VIEW_CLI
+    UC_CL_A -.->|extend| UC_VIEW_CLI
+    UC_CL_B -.->|extend| UC_VIEW_CLI
+    UC_CL_C -.->|extend| UC_VIEW_CLI
+    UC_CL_D -.->|extend| UC_VIEW_CLI
+  end
+
+  subgraph sINV[" "]
+    direction LR
+    subgraph sINV_L[" "]
+      direction TB
+      UC_IN1([　　　　　　　　　　　　　　IN-1 Управління категоріями складу　　　　　　　　　　　　　　])
+      UC_IN2([　　　　　　　　　　　　　　IN-2 Додавання номенклатури ТМЦ　　　　　　　　　　　　　　])
+      UC_IN3([　　　　　　　　　　　　　　IN-3 Залишки та історія руху　　　　　　　　　　　　　　])
+      UC_IN4([　　　　　　　　　　　　　　IN-4 Дефіцит та закупівлі　　　　　　　　　　　　　　])
+    end
+    UC_VIEW_INV([　　　　　　　　　　　　　　Перегляд і робота зі складом　　　　　　　　　　　　　　])
+    sINV_L ~~~ UC_VIEW_INV
+    UC_IN1 -.->|extend| UC_VIEW_INV
+    UC_IN2 -.->|extend| UC_VIEW_INV
+    UC_IN3 -.->|extend| UC_VIEW_INV
+    UC_IN4 -.->|extend| UC_VIEW_INV
+  end
+
+  subgraph sPRI[" "]
+    direction LR
+    subgraph sPRI_L[" "]
+      direction TB
+      UC_PR1([　　　　　　　　　　　　　　PR-1 Послуга з ціною та тривалістю　　　　　　　　　　　　　　])
+      UC_PR2([　　　　　　　　　　　　　　PR-2 Запчастини до послуги　　　　　　　　　　　　　　])
+      UC_PR3([　　　　　　　　　　　　　　PR-3 Категорії цін　　　　　　　　　　　　　　])
+      UC_PR4([　　　　　　　　　　　　　　PR-4 Архівування / зміна послуги　　　　　　　　　　　　　　])
+    end
+    UC_VIEW_PRICE([　　　　　　　　　　　　　　Перегляд і робота з прайсом　　　　　　　　　　　　　　])
+    sPRI_L ~~~ UC_VIEW_PRICE
+    UC_PR1 -.->|extend| UC_VIEW_PRICE
+    UC_PR2 -.->|extend| UC_VIEW_PRICE
+    UC_PR3 -.->|extend| UC_VIEW_PRICE
+    UC_PR4 -.->|extend| UC_VIEW_PRICE
+    UC_PR2 -.->|include| UC_VIEW_INV
+  end
+
+  subgraph sSTF[" "]
+    direction LR
+    subgraph sSTF_L[" "]
+      direction TB
+      UC_EM1([　　　　　　　　　　　　　　EM-1 Категорії персоналу　　　　　　　　　　　　　　])
+      UC_EM2([　　　　　　　　　　　　　　EM-2 Внесення співробітника　　　　　　　　　　　　　　])
+      UC_EM3([　　　　　　　　　　　　　　EM-3 Редагування й архів　　　　　　　　　　　　　　])
+    end
+    UC_VIEW_STAFF([　　　　　　　　　　　　　　Перегляд і робота з персоналом　　　　　　　　　　　　　　])
+    sSTF_L ~~~ UC_VIEW_STAFF
+    UC_EM1 -.->|extend| UC_VIEW_STAFF
+    UC_EM2 -.->|extend| UC_VIEW_STAFF
+    UC_EM3 -.->|extend| UC_VIEW_STAFF
+  end
+
+  subgraph sORD[" "]
+    direction LR
+    subgraph sORD_L[" "]
+      direction TB
+      UC_JDA([　　　　　　　　　　　　　　JD-A Створення замовлення　　　　　　　　　　　　　　])
+      UC_JDB([　　　　　　　　　　　　　　JD-B Редагування замовлення　　　　　　　　　　　　　　])
+      UC_JDC([　　　　　　　　　　　　　　JD-C Зміна статусу виконання　　　　　　　　　　　　　　])
+      UC_JDD([　　　　　　　　　　　　　　JD-D Складові по наряду　　　　　　　　　　　　　　])
+      UC_JDE([　　　　　　　　　　　　　　JD-E Завершення «Виконано»　　　　　　　　　　　　　　])
+      UC_JDF([　　　　　　　　　　　　　　JD-F Відміна завершення　　　　　　　　　　　　　　])
+      UC_JDG([　　　　　　　　　　　　　　JD-G Архів замовлень　　　　　　　　　　　　　　])
+      UC_JDH([　　　　　　　　　　　　　　JD-H Моніторинг майстрів　　　　　　　　　　　　　　])
+    end
+    UC_VIEW_ORD([　　　　　　　　　　　　　　Перегляд журналу замовлень　　　　　　　　　　　　　　])
+    sORD_L ~~~ UC_VIEW_ORD
+    UC_JDA -.->|extend| UC_VIEW_ORD
+    UC_JDB -.->|extend| UC_VIEW_ORD
+    UC_JDC -.->|extend| UC_VIEW_ORD
+    UC_JDD -.->|extend| UC_VIEW_ORD
+    UC_JDE -.->|extend| UC_VIEW_ORD
+    UC_JDF -.->|extend| UC_VIEW_ORD
+    UC_JDG -.->|extend| UC_VIEW_ORD
+    UC_JDH -.->|extend| UC_VIEW_ORD
+    UC_JDA -.->|include| UC_VIEW_CLI
+    UC_JDD -.->|include| UC_VIEW_PRICE
+    UC_JDD -.->|include| UC_VIEW_INV
+    UC_JDH -.->|include| UC_VIEW_STAFF
+  end
+
+  subgraph sANL[" "]
+    direction LR
+    subgraph sANL_L[" "]
+      direction TB
+      UC_ANA([　　　　　　　　　　　　　　AN-A Період звітності　　　　　　　　　　　　　　])
+      UC_ANB([　　　　　　　　　　　　　　AN-B Виручка та KPI　　　　　　　　　　　　　　])
+      UC_ANC([　　　　　　　　　　　　　　AN-C Популярність послуг і персоналу　　　　　　　　　　　　　　])
+      UC_VIEW_NOTIF([　　　　　　　　　　　　　　Перегляд сповіщень　　　　　　　　　　　　　　])
+    end
+    UC_VIEW_ANAL([　　　　　　　　　　　　　　Перегляд аналітики сервісу　　　　　　　　　　　　　　])
+    sANL_L ~~~ UC_VIEW_ANAL
+    UC_ANA -.->|extend| UC_VIEW_ANAL
+    UC_ANB -.->|extend| UC_VIEW_ANAL
+    UC_ANC -.->|extend| UC_VIEW_ANAL
+  end
+
+  subgraph sAUT[" "]
+    direction LR
+    subgraph sAUT_L[" "]
+      direction TB
+      UC_SIGNUP([　　　　　　　　　　　　　　Зареєструватися　　　　　　　　　　　　　　])
+      UC_FPASS([　　　　　　　　　　　　　　Запит на відновлення пароля　　　　　　　　　　　　　　])
+      UC_LOGOUT([　　　　　　　　　　　　　　Вийти з системи　　　　　　　　　　　　　　])
+    end
+    UC_LOGIN([　　　　　　　　　　　　　　Авторизуватися　　　　　　　　　　　　　　])
+    sAUT_L ~~~ UC_LOGIN
+    UC_SIGNUP -.->|extend| UC_LOGIN
+    UC_FPASS -.->|extend| UC_LOGIN
+    UC_LOGOUT -.->|extend| UC_LOGIN
+  end
+
+  subgraph sEXT[" "]
+    direction TB
+    EXT([　　　　　　　　　　　　　　Зовнішні сервіси<br/>VIN / AUTO.RIA　　　　　　　　　　　　　　])
+  end
+
+  UC_ANB -.->|include| UC_VIEW_ORD
+  UC_VIEW_NOTIF -.->|extend| UC_VIEW_ORD
+
+  UC_CL_B -.->|include CL-B| EXT
+  UC_IN4 -.->|include IN-4| EXT
+
+  sCLI ~~~ sINV ~~~ sPRI ~~~ sSTF ~~~ sORD ~~~ sANL ~~~ sAUT ~~~ sEXT
+
+  GU(("Гість"))
+
+  AU --> UC_VIEW_CLI
+  AU --> UC_VIEW_ORD
+  AU --> UC_VIEW_ANAL
+  AU --> UC_VIEW_NOTIF
+  AU --> UC_LOGOUT
+
+  GU --> UC_LOGIN
+  GU --> UC_SIGNUP
+  GU --> UC_FPASS
+
+  classDef cluster fill:none,stroke:none,color:transparent;
+  classDef clusterInner fill:none,stroke:none,color:transparent;
+  class sCLI,sINV,sPRI,sSTF,sORD,sANL,sAUT,sEXT cluster;
+  class sCLI_L,sINV_L,sPRI_L,sSTF_L,sORD_L,sANL_L,sAUT_L clusterInner;
+  style sCLI fill:none,stroke:none
+  style sINV fill:none,stroke:none
+  style sPRI fill:none,stroke:none
+  style sSTF fill:none,stroke:none
+  style sORD fill:none,stroke:none
+  style sANL fill:none,stroke:none
+  style sAUT fill:none,stroke:none
+  style sEXT fill:none,stroke:none
+  style sCLI_L fill:none,stroke:none
+  style sINV_L fill:none,stroke:none
+  style sPRI_L fill:none,stroke:none
+  style sSTF_L fill:none,stroke:none
+  style sORD_L fill:none,stroke:none
+  style sANL_L fill:none,stroke:none
+  style sAUT_L fill:none,stroke:none

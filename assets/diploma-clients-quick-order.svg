@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="520" viewBox="0 0 920 520">
+  <rect width="100%" height="100%" fill="#fff"/>
+  <text x="460" y="30" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" text-anchor="middle">
+    Fig. 4.1 (schematic). Create work order wizard � step 1: client and vehicle</text>
+  <rect x="140" y="56" width="640" height="400" rx="8" fill="none" stroke="#000" stroke-width="1.5"/>
+  <text x="460" y="84" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="bold" text-anchor="middle">New order / work order</text>
+  <text x="180" y="118" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10">Name, phone, vehicle, plate, assignee ...</text>
+  <rect x="180" y="130" width="560" height="28" rx="3" fill="#f9f9f9" stroke="#000"/>
+  <rect x="180" y="168" width="560" height="28" rx="3" fill="#f9f9f9" stroke="#000"/>
+  <rect x="180" y="206" width="560" height="28" rx="3" fill="#f9f9f9" stroke="#000"/>
+  <text x="180" y="262" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold">Step 2: pick price-list services, urgent flag, confirm</text>
+  <rect x="180" y="276" width="260" height="120" rx="4" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="200" y="300" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="9">Service catalog</text>
+  <rect x="460" y="276" width="280" height="120" rx="4" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="480" y="300" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="9">Line items, total ...</text>
+  <rect x="580" y="412" width="140" height="32" rx="4" fill="none" stroke="#111" stroke-width="1.2"/>
+  <text x="640" y="432" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold" text-anchor="middle">Save</text>
+  <text x="460" y="488" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="9" font-style="italic" text-anchor="middle">
+    replace with screenshot of real UI from Orders journal for final thesis</text>
+</svg>

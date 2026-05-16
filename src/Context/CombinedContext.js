@@ -13,13 +13,13 @@ export const CombinedProvider = ({ children }) => {
       <ClientsProvider>
         <WorkersProvider>
           <PriceProvider>
-            <OrdersProvider>
-              <AnalyticsProvider>
+            <AnalyticsProvider>
+              <OrdersProvider>
                 <NotificationsProvider>
                   {children}
                 </NotificationsProvider>
-              </AnalyticsProvider>
-            </OrdersProvider>
+              </OrdersProvider>
+            </AnalyticsProvider>
           </PriceProvider>
         </WorkersProvider>
       </ClientsProvider>

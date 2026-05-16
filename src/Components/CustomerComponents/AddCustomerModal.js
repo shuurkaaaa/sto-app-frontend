@@ -43,7 +43,7 @@ export const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
   return (
     <div className="sto-modal-overlay">
       <div className="sto-modal sto-modal-lg">
-        <h2 className="mb-3" style={{ color: '#F8FAFC' }}>Нова реєстрація клієнта</h2>
+        <h2 className="mb-3" style={{ color: '#F8FAFC' }}>Реєстрація клієнта</h2>
         <form onSubmit={handleSubmit}>
           <div className="sto-form-group">
             <label className="sto-text-muted small">ПІБ Клієнта</label>

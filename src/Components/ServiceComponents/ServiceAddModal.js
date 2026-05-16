@@ -90,7 +90,7 @@ export const ServiceAddModal = ({ isOpen, onClose, onAdd, categories, editData }
             />
             {currentSuggestions.length > 0 && (
               <div className="sto-text-success small mt-1 ps-1">
-                💡 Порада: додайте {currentSuggestions.join(', ')}
+                Порада: додайте {currentSuggestions.join(', ')}
               </div>
             )}
           </div>

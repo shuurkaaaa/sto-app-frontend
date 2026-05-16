@@ -61,7 +61,6 @@ export const OrderStep2 = ({
                   </div>
                   <div className="text-end">
                     <span className="sto-text-success fw-bold d-block">{s.price} грн</span>
-                    {isSelected && <span style={{ fontSize: '12px' }}></span>}
                   </div>
                 </div>
               );

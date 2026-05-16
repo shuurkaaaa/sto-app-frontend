@@ -37,7 +37,6 @@ export const AnalyticsProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
-      // ✅ ЗАВЖДИ запитуємо свіжі дані (забороняємо кеш браузера)
       const res = await apiClient.get(`/analytics/summary`, {
         params: { period: timeRange, _t: Date.now() }
       });
@@ -59,13 +58,10 @@ export const AnalyticsProvider = ({ children }) => {
 
       const workers = Array.isArray(data.topWorkers) ? data.topWorkers : [];
 
-      // ✅ Оновлюємо ВСІ STATE (без localStorage)
       setStats(newStats);
       setPopularServices(popular);
       setTopWorkers(workers);
       setChartData(Array.isArray(data.chartData) ? data.chartData : []);
-
-      console.log(`✅ Analytics оновлено для ${timeRange}`);
     } catch (e) {
       console.error('Analytics load error:', e);
       setError(e?.response?.data?.message || e?.message || 'Не вдалося завантажити аналітику');
@@ -74,7 +70,6 @@ export const AnalyticsProvider = ({ children }) => {
     }
   }, [timeRange]);
 
-  // ✅ Оновлюємо коли змінюється timeRange
   useEffect(() => {
     fetchAnalytics();
   }, [fetchAnalytics, timeRange]);

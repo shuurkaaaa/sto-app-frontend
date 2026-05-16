@@ -21,7 +21,7 @@ export const DashboardTable = ({ orders, onDelete, onEdit }) => {
       <html><body style="font-family: sans-serif; padding: 20px;">
         <h2 style="text-align: center;">СТО "PRO-SERVICE"</h2>
         <hr/>
-        <p><strong>Клієнт:</strong> ${clientName}</p>
+        <p><strong>Замовлення:</strong> №${order.id}</p>
         <p><strong>Авто:</strong> ${carInfo}</p>
         <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">${servicesRows}</table>
         <h3 style="text-align: right; margin-top: 20px;">РАЗОМ: ${order.totalPrice || 0} грн</h3>
@@ -44,6 +44,7 @@ export const DashboardTable = ({ orders, onDelete, onEdit }) => {
       <table className="sto-table">
         <thead>
           <tr>
+            <th>№ замовлення</th>
             <th>Клієнт / Дата</th>
             <th>Автомобіль</th>
             <th>VIN-код</th>
@@ -56,6 +57,15 @@ export const DashboardTable = ({ orders, onDelete, onEdit }) => {
         <tbody>
           {orders.map(order => (
             <tr key={order.id}>
+              <td>
+                <span
+                  className="px-2 py-1 rounded-2 fw-bold"
+                  style={{ fontSize: '12px', background: 'var(--sto-bg)', fontFamily: 'monospace' }}
+                  title="Унікальний номер замовлення в системі (автоінкремент)"
+                >
+                  №{order.id}
+                </span>
+              </td>
               <td>
                 <div className="fw-bold">{order.customer?.name || order.client}</div>
                 <div className="sto-text-muted" style={{ fontSize: '11px' }}>

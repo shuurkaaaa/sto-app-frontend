@@ -30,7 +30,6 @@ const Customers = () => {
   const [showArchive, setShowArchive] = useState(false);
   const [checkedMaintenanceIds, setCheckedMaintenanceIds] = useState(new Set());
 
-  // Автоматично перевіряємо та сповіщаємо про ТО
   useEffect(() => {
     if (Array.isArray(clients)) {
       clients.forEach(customer => {

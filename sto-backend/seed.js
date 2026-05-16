@@ -3,8 +3,7 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🧹 Починаю повну дезінфекцію бази даних...");
-
+  console.log("Починаю повну дезінфекцію бази даних...");
 
   const tableNames = [
     'servicePart', 'inventoryLog', 'technicalSpec', 'orderItem',
@@ -21,11 +20,9 @@ async function main() {
 
     }
   }
-  console.log("♻️ Всі старі дані видалено.");
+  console.log("Всі старі дані видалено.");
 
-
-
-  console.log("👤 Створюю профіль адміністратора...");
+  console.log("Створюю профіль адміністратора...");
   const hashedPassword = await bcrypt.hash('password123', 10);
 
   await prisma.user.create({
@@ -37,12 +34,12 @@ async function main() {
     }
   });
 
-  console.log("✅ БАЗА ДАНИХ ТЕПЕР ПОВНІСТЮ ПОРОЖНЯ ТА ГОТОВА ДО РОБОТИ!");
+  console.log("База даних готова до роботи.");
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Помилка:", e);
+    console.error("Помилка:", e);
     process.exit(1);
   })
   .finally(async () => {

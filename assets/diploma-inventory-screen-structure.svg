@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="620" viewBox="0 0 1040 620">
+  <defs>
+    <marker id="a2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" overflow="visible">
+      <path d="M0,0 L0,8 L8,4 z" fill="#000"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="520" y="34" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle">
+    Рис. Узагальнена структура екрану модуля «Склад запчастин» (авторизований користувач)</text>
+
+  <!-- App chrome -->
+  <rect x="32" y="56" width="976" height="536" rx="6" fill="none" stroke="#000" stroke-width="1.5"/>
+
+  <!-- Sidebar -->
+  <rect x="32" y="56" width="200" height="536" rx="6" fill="#f8f8f8" stroke="#000" stroke-width="1.2"/>
+  <text x="132" y="92" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="bold" text-anchor="middle">Бічне меню</text>
+  <text x="48" y="122" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10">Аналітика</text>
+  <text x="48" y="144" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10">Журнал замовлень</text>
+  <text x="48" y="166" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10">Клієнтська база</text>
+  <rect x="44" y="178" width="176" height="22" rx="3" fill="#e8e8e8" stroke="#000" stroke-width="1"/>
+  <text x="52" y="194" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold">Склад запчастин</text>
+  <text x="48" y="224" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10">Прайс-ліст …</text>
+
+  <!-- Main -->
+  <text x="640" y="88" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" text-anchor="middle">Робоча область: склад</text>
+
+  <!-- Category / filters card -->
+  <rect x="252" y="104" width="736" height="108" rx="4" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="268" y="132" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold">Панель категорій і фільтрів</text>
+  <rect x="268" y="144" width="140" height="28" rx="3" fill="none" stroke="#000" stroke-width="0.9"/>
+  <text x="278" y="162" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="9">+ Нова категорія …</text>
+  <rect x="420" y="144" width="160" height="28" rx="3" fill="none" stroke="#000" stroke-width="0.9"/>
+  <text x="430" y="162" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="9">Керування марками/моделями</text>
+  <rect x="600" y="144" width="120" height="28" rx="3" fill="none" stroke="#333" stroke-dasharray="3,2" stroke-width="0.9"/>
+  <text x="608" y="162" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="9" font-style="italic">дефіцит / експорт</text>
+
+  <!-- Table -->
+  <rect x="252" y="228" width="736" height="260" rx="4" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="268" y="252" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold">Таблиця товарних позицій</text>
+  <line x1="268" y1="268" x2="972" y2="268" stroke="#000" stroke-width="0.8"/>
+  <text x="280" y="286" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="9">Назва · SKU · Категорія · Залишок · Сумісність · Дії …</text>
+  <rect x="268" y="300" width="688" height="36" rx="2" fill="#fafafa" stroke="#ccc" stroke-width="0.6"/>
+  <text x="280" y="322" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="9">Рядок товару</text>
+  <text x="820" y="322" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="9">[Історія]</text>
+
+  <!-- Modal callout -->
+  <rect x="580" y="340" width="380" height="130" rx="6" fill="#ffffff" stroke="#000" stroke-width="1.6"/>
+  <text x="770" y="368" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="bold" text-anchor="middle">Модальне вікно</text>
+  <text x="600" y="392" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10">• Форма «Нова запчастина» (приймання)</text>
+  <text x="600" y="412" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10">або перегляд історії рухів</text>
+  <text x="600" y="432" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10">обраної позиції складу.</text>
+
+  <line x1="860" y1="318" x2="770" y2="340" stroke="#000" stroke-width="1" marker-end="url(#a2)"/>
+
+  <!-- Add button area -->
+  <rect x="252" y="504" width="736" height="72" rx="4" fill="none" stroke="#000" stroke-width="1"/>
+  <rect x="268" y="524" width="180" height="32" rx="4" fill="none" stroke="#000" stroke-width="1.1"/>
+  <text x="278" y="544" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold">Додати товар на склад</text>
+
+  <text x="520" y="598" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" text-anchor="middle">
+    умовний макет: елементи відповідають розташуванню в односторінковому інтерфейсі після авторизації</text>
+</svg>

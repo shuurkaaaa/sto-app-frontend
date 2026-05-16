@@ -27,17 +27,18 @@ export const useStaffLogic = () => {
     }
 
 
-    const ACTIVE_STATUSES = ['IN_WORK', 'PENDING', 'READY'];
+    const ACTIVE_STATUSES = ['IN_WORK', 'PENDING'];
     list = list.map(w => {
       const activeOrders = (orders || []).filter(
         o => o.masterId === w.id && ACTIVE_STATUSES.includes(o.status)
       );
       const carFromOrder = activeOrders[0]?.carDetails || activeOrders[0]?.carInfo || '';
+      const isFreeStatus = w.status === 'Вільний';
       return {
         ...w,
         hasActiveOrder: activeOrders.length > 0,
         activeOrdersCount: activeOrders.length,
-        currentCar: w.currentCar || carFromOrder,
+        currentCar: isFreeStatus || activeOrders.length === 0 ? '' : (carFromOrder || w.currentCar || ''),
       };
     });
 
@@ -58,27 +59,27 @@ export const useStaffLogic = () => {
 
     if (worker.status === 'Вільний') {
       setAssigningWorkerId(id);
-    } else {
-      const currentOrder = orders?.find(o => o.masterId === id && (o.status === 'IN_WORK' || o.status === 'PENDING'));
-
-      if (currentOrder) {
-        await updateOrderStatus(currentOrder.id, { status: 'READY' });
-      } else {
-        await updateWorkerStatus(id, { status: 'Вільний', currentCar: "" });
-      }
-
-      setTimeout(async () => {
-        await fetchWorkers();
-        if (fetchOrders) await fetchOrders();
-      }, 300);
+      return;
     }
+
+    const currentOrder = (orders || []).find(
+      o => o.masterId === id && (o.status === 'IN_WORK' || o.status === 'PENDING')
+    );
+
+    if (currentOrder) {
+      await updateOrderStatus(currentOrder.id, { status: 'READY' });
+    } else {
+      await updateWorkerStatus(id, { status: 'Вільний', currentCar: '' });
+    }
+
+    await fetchWorkers();
+    if (fetchOrders) await fetchOrders();
   };
 
-  const confirmAssignCar = async (carInfo) => {
-    if (!assigningWorkerId) return;
-    await updateWorkerStatus(assigningWorkerId, { status: 'Зайнятий', currentCar: carInfo });
+  const confirmAssignCar = async () => {
     setAssigningWorkerId(null);
     await fetchWorkers();
+    if (fetchOrders) await fetchOrders();
   };
 
   const saveWorker = async (workerData) => {
@@ -100,7 +101,13 @@ export const useStaffLogic = () => {
     }
   };
 
-  const openModal = (worker = null) => {
+  const openModal = (maybeWorker) => {
+    const worker =
+      maybeWorker &&
+      typeof maybeWorker === 'object' &&
+      Number.isFinite(maybeWorker.id)
+        ? maybeWorker
+        : null;
     setEditingWorker(worker);
     setIsModalOpen(true);
   };

@@ -30,6 +30,38 @@ exports.createStaffCategory = async (req, res) => {
 };
 
 
+exports.updateStaffCategory = async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id < 1) {
+    return res.status(400).json({ error: "Некоректний ідентифікатор" });
+  }
+  const { name } = req.body;
+  if (name === undefined || name === null) {
+    return res.status(400).json({ error: "Назва обов'язкова" });
+  }
+  const trimmed = String(name).trim();
+  if (trimmed === '') {
+    return res.status(400).json({ error: "Назва не може бути порожньою" });
+  }
+  try {
+    const updated = await prisma.staffCategory.update({
+      where: { id },
+      data: { name: trimmed },
+    });
+    res.json(updated);
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: "Така спеціалізація вже існує" });
+    }
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: "Спеціалізацію не знайдено" });
+    }
+    console.error("UPDATE_STAFF_CATEGORY_ERROR:", error.message);
+    res.status(500).json({ error: "Не вдалося оновити спеціалізацію" });
+  }
+};
+
+
 exports.deleteStaffCategory = async (req, res) => {
   const id = Number(req.params.id);
   try {

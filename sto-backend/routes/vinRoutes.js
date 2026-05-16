@@ -5,10 +5,6 @@ const authMiddleware = require('../middlewares/authMiddleware');
 
 router.use(authMiddleware);
 
-/**
- * POST /api/vin/decode
- * Розшифрувати VIN код
- */
 router.post('/decode', async (req, res) => {
   try {
     const { vin } = req.body;
@@ -32,10 +28,6 @@ router.post('/decode', async (req, res) => {
   }
 });
 
-/**
- * POST /api/vin/validate
- * Перевірити валідність VIN
- */
 router.post('/validate', async (req, res) => {
   try {
     const { vin } = req.body;
@@ -58,10 +50,6 @@ router.post('/validate', async (req, res) => {
   }
 });
 
-/**
- * GET /api/vin/search/:vin
- * Пошук на autoRIA
- */
 router.get('/search/:vin', async (req, res) => {
   try {
     const { vin } = req.params;
@@ -85,10 +73,6 @@ router.get('/search/:vin', async (req, res) => {
   }
 });
 
-/**
- * POST /api/vin/check
- * Повна перевірка: валідація + розшифровка + пошук на autoRIA
- */
 router.post('/check', async (req, res) => {
   try {
     const { vin } = req.body;
@@ -101,10 +85,18 @@ router.post('/check', async (req, res) => {
     }
 
     console.log(`[VIN] Повна перевірка: ${vin}`);
-    // ✅ НЕ перевіряємо валідацію на check - просто розшифровуємо
     const cleanVin = vin.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 17);
-    const [decode, autoRIA] = await Promise.all([
+    if (!cleanVin || cleanVin.length < 9) {
+      return res.json({
+        success: false,
+        error: 'VIN повинен містити мінімум 9 символів (після очищення).',
+        vin: cleanVin || '',
+      });
+    }
+
+    const [decode, validation, autoRIA] = await Promise.all([
       vinService.decodeVIN(cleanVin),
+      vinService.validateVIN(cleanVin),
       vinService.searchAutoRIA(cleanVin)
     ]);
 
@@ -112,6 +104,7 @@ router.post('/check', async (req, res) => {
       success: true,
       vin: cleanVin,
       decode,
+      validation,
       autoRIA
     });
   } catch (error) {

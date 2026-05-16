@@ -53,9 +53,14 @@ const Login = ({ setAuth }) => {
       }
     } catch (err) {
       console.error('Login Error:', err);
+      const status = err.response?.status;
+      const data = err.response?.data;
       const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
+        data?.message ||
+        data?.error ||
+        (status === 401 && isLoginMode
+          ? 'Невірна електронна пошта або пароль.'
+          : '') ||
         'Помилка з’єднання з сервером';
       setServerError(errorMessage);
     } finally {

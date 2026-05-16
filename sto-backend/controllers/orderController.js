@@ -1,4 +1,30 @@
 const prisma = require('../lib/prisma');
+const { invalidateAnalyticsCache } = require('./analyticsController');
+
+function aggregatePartsByInventoryId(services) {
+  const requiredByItem = new Map();
+  if (!services) return requiredByItem;
+  for (const service of services) {
+    for (const sp of service.serviceParts || []) {
+      const qty = Number(sp.quantity) || 0;
+      if (qty <= 0) continue;
+      requiredByItem.set(sp.inventoryId, (requiredByItem.get(sp.inventoryId) || 0) + qty);
+    }
+  }
+  return requiredByItem;
+}
+
+function normUpper(s) {
+  return String(s || '').toUpperCase();
+}
+
+function isCompletedNorm(n) {
+  return n === 'COMPLETED' || n === 'ВИКОНАНО';
+}
+
+function statusesDiffer(prev, next) {
+  return String(prev) !== String(next);
+}
 
 const orderController = {
   getAllOrders: async (req, res) => {
@@ -87,6 +113,7 @@ const orderController = {
         });
       }
 
+      invalidateAnalyticsCache();
       res.status(201).json(newOrder);
     } catch (error) {
       res.status(400).json({ error: "Помилка при створенні замовлення", message: error.message });
@@ -127,6 +154,7 @@ const orderController = {
         }
       });
 
+      invalidateAnalyticsCache();
       res.json(updatedOrder);
     } catch (error) {
       res.status(400).json({ error: "Помилка при оновленні замовлення", message: error.message });
@@ -135,137 +163,191 @@ const orderController = {
 
   updateStatus: async (req, res) => {
     try {
-      const { id } = req.params;
+      const orderId = parseInt(req.params.id, 10);
       const { status, masterId } = req.body;
 
       const currentOrder = await prisma.order.findUnique({
-        where: { id: parseInt(id) },
+        where: { id: orderId },
         include: { master: true, services: { include: { serviceParts: true } } }
       });
 
       if (!currentOrder) return res.status(404).json({ error: "Замовлення не знайдено" });
 
       const updateData = {};
-      if (status) updateData.status = status;
-
-      if (masterId !== undefined) {
-        const newMasterId = masterId ? parseInt(masterId) : null;
-        updateData.masterId = newMasterId;
-
-        if (newMasterId !== currentOrder.masterId) {
-          if (currentOrder.masterId) {
-            await prisma.staff.update({
-              where: { id: currentOrder.masterId },
-              data: { status: "Вільний", currentCar: "" }
-            });
-          }
-          if (newMasterId) {
-            await prisma.staff.update({
-              where: { id: newMasterId },
-              data: {
-                status: "Зайнятий",
-                currentCar: currentOrder.carDetails.split('(')[0].trim()
-              }
-            });
-            if (!status && currentOrder.status === 'PENDING') {
-              updateData.status = 'IN_WORK';
-            }
-          }
+      if (status) {
+        updateData.status = status;
+        const normalized = normUpper(status);
+        if (isCompletedNorm(normalized)) {
+          updateData.completedAt = new Date();
+        } else if (currentOrder.completedAt) {
+          updateData.completedAt = null;
         }
       }
 
-      const normStatus = status ? status.toUpperCase() : "";
-      const isReadyOrDone = ['READY', 'ГОТОВО', 'COMPLETED', 'ВИКОНАНО'].includes(normStatus);
+      if (masterId !== undefined) {
+        const newMasterId = masterId ? parseInt(masterId, 10) : null;
+        updateData.masterId = newMasterId;
 
-      if (isReadyOrDone && currentOrder.status !== status) {
-        if (['COMPLETED', 'ВИКОНАНО'].includes(normStatus)) {
+        if (newMasterId !== currentOrder.masterId && newMasterId && !status && currentOrder.status === 'PENDING') {
+          updateData.status = 'IN_WORK';
+        }
+      }
 
-          const requiredByItem = new Map();
-          for (const service of currentOrder.services) {
-            for (const sPart of service.serviceParts) {
-              const prev = requiredByItem.get(sPart.inventoryId) || 0;
-              requiredByItem.set(sPart.inventoryId, prev + sPart.quantity);
-            }
-          }
+      const normStatus = status ? normUpper(status) : '';
+      const prevNorm = normUpper(currentOrder.status);
+      const requiredByItem = aggregatePartsByInventoryId(currentOrder.services);
 
+      const enteringCompleted =
+        status &&
+        isCompletedNorm(normStatus) &&
+        !isCompletedNorm(prevNorm) &&
+        statusesDiffer(currentOrder.status, status);
 
-          if (requiredByItem.size > 0) {
-            const inventoryRecords = await prisma.inventory.findMany({
-              where: { id: { in: [...requiredByItem.keys()] } },
-              select: { id: true, name: true, current: true }
+      const leavingCompleted =
+        status &&
+        isCompletedNorm(prevNorm) &&
+        !isCompletedNorm(normStatus);
+
+      if (enteringCompleted && !currentOrder.inventoryConsumedAt && requiredByItem.size > 0) {
+        const inventoryRecords = await prisma.inventory.findMany({
+          where: { id: { in: [...requiredByItem.keys()] } },
+          select: { id: true, name: true, current: true }
+        });
+        const inventoryMap = new Map(inventoryRecords.map((i) => [i.id, i]));
+        const shortages = [];
+        for (const [invId, needed] of requiredByItem.entries()) {
+          const item = inventoryMap.get(invId);
+          const available = item?.current ?? 0;
+          if (available < needed) {
+            shortages.push({
+              id: invId,
+              name: item?.name || `#${invId}`,
+              available,
+              needed
             });
-            const inventoryMap = new Map(inventoryRecords.map(i => [i.id, i]));
-
-            const shortages = [];
-            for (const [invId, needed] of requiredByItem.entries()) {
-              const item = inventoryMap.get(invId);
-              const available = item?.current ?? 0;
-              if (available < needed) {
-                shortages.push({
-                  id: invId,
-                  name: item?.name || `#${invId}`,
-                  available,
-                  needed
-                });
-              }
-            }
-
-            if (shortages.length > 0) {
-              const msg = shortages
-                .map(s => `${s.name}: потрібно ${s.needed}, на складі ${s.available}`)
-                .join('; ');
-              return res.status(400).json({
-                error: "Недостатньо запчастин на складі",
-                message: `Не вдалося завершити замовлення. ${msg}`,
-                shortages
-              });
-            }
           }
-
-
-          await prisma.$transaction(
-            [...requiredByItem.entries()].map(([invId, qty]) =>
-              prisma.inventory.update({
-                where: { id: invId },
-                data: { current: { decrement: qty } }
-              })
-            )
-          );
         }
 
-        const activeMasterId = masterId !== undefined ? (masterId ? parseInt(masterId) : null) : currentOrder.masterId;
-
-        if (activeMasterId) {
-          const masterRecord = await prisma.staff.findUnique({ where: { id: activeMasterId } });
-          const commissionRate = (masterRecord?.commissionPercent ?? 10) / 100;
-          await prisma.staff.update({
-            where: { id: activeMasterId },
-            data: {
-              ...(['COMPLETED', 'ВИКОНАНО'].includes(normStatus) ? { earnings: { increment: currentOrder.totalPrice * commissionRate } } : {}),
-              status: "Вільний",
-              currentCar: ""
-            }
+        if (shortages.length > 0) {
+          const msg = shortages
+            .map((s) => `${s.name}: потрібно ${s.needed}, на складі ${s.available}`)
+            .join('; ');
+          return res.status(400).json({
+            error: "Недостатньо запчастин на складі",
+            message: `Не вдалося завершити замовлення. ${msg}`,
+            shortages
           });
         }
       }
 
-      if (['CANCELLED', 'СКАСОВАНО'].includes(normStatus) && currentOrder.masterId) {
-        await prisma.staff.update({
-          where: { id: currentOrder.masterId },
-          data: { status: "Вільний", currentCar: "" }
-        });
-      }
+      const isReadyOrDone = ['READY', 'ГОТОВО', 'COMPLETED', 'ВИКОНАНО'].includes(normStatus);
 
-      const updatedOrder = await prisma.order.update({
-        where: { id: parseInt(id) },
-        data: updateData,
-        include: {
-          customer: true,
-          master: { include: { staffCategory: true } },
-          services: true
+      const updatedOrder = await prisma.$transaction(async (tx) => {
+        if (masterId !== undefined) {
+          const newMasterId = masterId ? parseInt(masterId, 10) : null;
+          if (newMasterId !== currentOrder.masterId) {
+            if (currentOrder.masterId) {
+              await tx.staff.update({
+                where: { id: currentOrder.masterId },
+                data: { status: "Вільний", currentCar: "" }
+              });
+            }
+            if (newMasterId) {
+              await tx.staff.update({
+                where: { id: newMasterId },
+                data: {
+                  status: "Зайнятий",
+                  currentCar: currentOrder.carDetails.split('(')[0].trim()
+                }
+              });
+            }
+          }
         }
+
+        if (leavingCompleted) {
+          if (requiredByItem.size > 0 && currentOrder.inventoryConsumedAt) {
+            for (const [invId, qty] of requiredByItem.entries()) {
+              await tx.inventory.update({
+                where: { id: invId },
+                data: { current: { increment: qty } }
+              });
+              await tx.inventoryLog.create({
+                data: {
+                  itemId: invId,
+                  amount: qty,
+                  note: `Повернення на склад через зміну статусу замовлення №${orderId}`,
+                  orderId,
+                  date: new Date()
+                }
+              });
+            }
+          }
+          if (currentOrder.inventoryConsumedAt) {
+            updateData.inventoryConsumedAt = null;
+          }
+        }
+
+        if (enteringCompleted && !currentOrder.inventoryConsumedAt) {
+          const consumedAt = new Date();
+          if (requiredByItem.size > 0) {
+            for (const [invId, qty] of requiredByItem.entries()) {
+              await tx.inventory.update({
+                where: { id: invId },
+                data: { current: { decrement: qty } }
+              });
+              await tx.inventoryLog.create({
+                data: {
+                  itemId: invId,
+                  amount: -qty,
+                  note: `Списання по замовленню №${orderId}`,
+                  orderId,
+                  date: consumedAt
+                }
+              });
+            }
+            updateData.inventoryConsumedAt = consumedAt;
+          }
+        }
+
+        const readyOrDoneEdge = Boolean(isReadyOrDone && statusesDiffer(currentOrder.status, status));
+        if (readyOrDoneEdge) {
+          const activeMasterId = masterId !== undefined ? (masterId ? parseInt(masterId, 10) : null) : currentOrder.masterId;
+
+          if (activeMasterId) {
+            const masterRecord = await tx.staff.findUnique({ where: { id: activeMasterId } });
+            const commissionRate = (masterRecord?.commissionPercent ?? 10) / 100;
+            await tx.staff.update({
+              where: { id: activeMasterId },
+              data: {
+                ...(isCompletedNorm(normStatus) && !isCompletedNorm(prevNorm)
+                  ? { earnings: { increment: currentOrder.totalPrice * commissionRate } }
+                  : {}),
+                status: "Вільний",
+                currentCar: ""
+              }
+            });
+          }
+        }
+
+        if (['CANCELLED', 'СКАСОВАНО'].includes(normStatus) && currentOrder.masterId) {
+          await tx.staff.update({
+            where: { id: currentOrder.masterId },
+            data: { status: "Вільний", currentCar: "" }
+          });
+        }
+
+        return tx.order.update({
+          where: { id: orderId },
+          data: updateData,
+          include: {
+            customer: true,
+            master: { include: { staffCategory: true } },
+            services: true
+          }
+        });
       });
 
+      invalidateAnalyticsCache();
       res.json(updatedOrder);
     } catch (error) {
       res.status(500).json({ error: "Помилка оновлення статусу", message: error.message });
@@ -275,6 +357,7 @@ const orderController = {
   deleteOrder: async (req, res) => {
     try {
       await prisma.order.delete({ where: { id: parseInt(req.params.id) } });
+      invalidateAnalyticsCache();
       res.json({ message: "Видалено" });
     } catch (error) {
       res.status(400).json({ error: "Помилка видалення" });

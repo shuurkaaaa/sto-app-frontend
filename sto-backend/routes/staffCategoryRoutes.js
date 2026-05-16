@@ -10,6 +10,7 @@ router.get('/', staffCategoryController.getAllStaffCategories);
 
 router.post('/', staffCategoryController.createStaffCategory);
 
+router.patch('/:id', staffCategoryController.updateStaffCategory);
 
 router.delete('/:id', staffCategoryController.deleteStaffCategory);
 

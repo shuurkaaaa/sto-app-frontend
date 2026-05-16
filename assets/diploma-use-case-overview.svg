@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="920" viewBox="0 0 1100 920">
+  <defs>
+    <marker id="mArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L0,8 L8,4 z" fill="#334155"/></marker>
+    <marker id="mDash" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L0,8 L8,4 z" fill="#64748b"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="550" y="26" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" text-anchor="middle">
+    Use case diagram (STO web app)</text>
+  <text x="550" y="44" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="middle">
+    Scenario codes CL / IN / PR / EM / JD / AN per thesis tables 4.2-4.7</text>
+
+  <circle cx="72" cy="118" r="20" fill="none" stroke="#0f172a" stroke-width="1.6"/>
+  <line x1="72" y1="138" x2="72" y2="182" stroke="#0f172a" stroke-width="1.6"/>
+  <line x1="42" y1="162" x2="102" y2="162" stroke="#0f172a" stroke-width="1.6"/>
+  <line x1="72" y1="182" x2="50" y2="222" stroke="#0f172a" stroke-width="1.6"/>
+  <line x1="72" y1="182" x2="94" y2="222" stroke="#0f172a" stroke-width="1.6"/>
+  <text x="72" y="248" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold" text-anchor="middle">Authorized</text>
+  <text x="72" y="262" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold" text-anchor="middle">user</text>
+
+  <rect x="128" y="56" width="940" height="808" rx="12" fill="none" stroke="#0f172a" stroke-width="2"/>
+  <text x="146" y="82" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="bold">System boundary: STO CRM SPA + REST API</text>
+
+  <style type="text/css"><![CDATA[
+    .box { fill: #f8fafc; stroke: #334155; stroke-width: 1.2; }
+    .t { fill: #0f172a; font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold; }
+    .s { fill: #334155; font-family: Arial, Helvetica, sans-serif; font-size: 8.5px; }
+  ]]></style>
+
+  <g>
+    <rect x="152" y="102" width="200" height="68" rx="6" class="box"/>
+    <text x="252" y="122" class="t" text-anchor="middle">Auth</text>
+    <text x="162" y="140" class="s">login, JWT session</text>
+    <text x="162" y="154" class="s">protected routes</text>
+    <line x1="94" y1="162" x2="152" y2="132" stroke="#334155" marker-end="url(#mArrow)"/>
+  </g>
+
+  <g>
+    <rect x="376" y="102" width="248" height="96" rx="6" class="box"/>
+    <text x="500" y="122" class="t" text-anchor="middle">Customers</text>
+    <text x="388" y="140" class="s">CL-A register</text>
+    <text x="388" y="154" class="s">CL-B vehicle / VIN</text>
+    <text x="388" y="168" class="s">CL-C search, card</text>
+    <text x="388" y="182" class="s">CL-D notes</text>
+    <line x1="94" y1="162" x2="376" y2="142" stroke="#334155" marker-end="url(#mArrow)"/>
+  </g>
+
+  <g>
+    <rect x="932" y="92" width="118" height="52" rx="6" fill="#fffbeb" stroke="#ca8a04" stroke-width="1.2"/>
+    <text x="991" y="114" fill="#854d0e" font-family="Arial, Helvetica, sans-serif" font-size="9" font-weight="bold" text-anchor="middle">External</text>
+    <text x="991" y="130" fill="#854d0e" font-family="Arial, Helvetica, sans-serif" font-size="8.5" text-anchor="middle">VIN / AUTO.RIA API</text>
+    <path d="M 624 146 L 880 114 L 932 114" stroke="#ca8a04" stroke-width="1" stroke-dasharray="5,4" fill="none" marker-end="url(#mDash)"/>
+  </g>
+
+  <g>
+    <rect x="152" y="212" width="276" height="102" rx="6" class="box"/>
+    <text x="290" y="232" class="t" text-anchor="middle">Inventory</text>
+    <text x="162" y="250" class="s">IN-1 warehouse categories</text>
+    <text x="162" y="264" class="s">IN-2 part intake / SKU</text>
+    <text x="162" y="278" class="s">IN-3 stock / movement history</text>
+    <text x="162" y="292" class="s">IN-4 deficit / PO flow</text>
+    <line x1="94" y1="185" x2="258" y2="238" stroke="#334155" marker-end="url(#mArrow)"/>
+  </g>
+
+  <g>
+    <rect x="452" y="218" width="276" height="102" rx="6" class="box"/>
+    <text x="590" y="238" class="t" text-anchor="middle">Price list</text>
+    <text x="462" y="256" class="s">PR-1 service + price + time</text>
+    <text x="462" y="270" class="s">PR-2 BOM parts qty</text>
+    <text x="462" y="284" class="s">PR-3 price categories</text>
+    <text x="462" y="298" class="s">PR-4 edit / archive</text>
+    <line x1="94" y1="162" x2="510" y2="238" stroke="#334155" marker-end="url(#mArrow)"/>
+  </g>
+
+  <g>
+    <rect x="752" y="218" width="296" height="88" rx="6" class="box"/>
+    <text x="900" y="238" class="t" text-anchor="middle">Staff</text>
+    <text x="764" y="256" class="s">EM-1 specialization categories</text>
+    <text x="764" y="270" class="s">EM-2 employee cards</text>
+    <text x="764" y="284" class="s">EM-3 edit / archive</text>
+    <line x1="94" y1="162" x2="840" y2="238" stroke="#334155" marker-end="url(#mArrow)"/>
+  </g>
+
+  <g>
+    <rect x="152" y="334" width="896" height="158" rx="6" class="box"/>
+    <text x="600" y="356" class="t" text-anchor="middle">Order journal</text>
+    <text x="164" y="376" class="s">JD-A create JD-B edit JD-C status JD-D parts usage modal</text>
+    <text x="164" y="392" class="s">JD-E COMPLETED stock check write-off JD-F rollback JD-G archive JD-H workload strip</text>
+    <text x="164" y="418" class="s">Uses services from Price list; masters from Staff; backend inventory rules.</text>
+    <line x1="94" y1="162" x2="420" y2="334" stroke="#334155" marker-end="url(#mArrow)"/>
+  </g>
+
+  <g>
+    <rect x="152" y="508" width="432" height="84" rx="6" class="box"/>
+    <text x="368" y="530" class="t" text-anchor="middle">Analytics</text>
+    <text x="164" y="550" class="s">AN-A period AN-B KPI + revenue chart AN-C top services + masters</text>
+    <line x1="94" y1="162" x2="310" y2="508" stroke="#334155" marker-end="url(#mArrow)"/>
+  </g>
+
+  <g>
+    <rect x="608" y="508" width="440" height="72" rx="6" class="box"/>
+    <text x="828" y="530" class="t" text-anchor="middle">Notifications</text>
+    <text x="620" y="552" class="s">menu section (maintenance reminders etc.)</text>
+    <line x1="94" y1="162" x2="740" y2="518" stroke="#334155" marker-end="url(#mArrow)"/>
+  </g>
+
+  <text x="550" y="888" fill="#64748b" font-family="Arial, Helvetica, sans-serif" font-size="9" font-style="italic" text-anchor="middle">
+    Caption in Ukrainian in thesis; editable source: diploma-use-case-diagram.mmd (Mermaid)</text>
+</svg>

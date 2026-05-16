@@ -8,7 +8,24 @@ exports.getAllCustomers = async (req, res) => {
         cars: true,
         communicationHistory: { orderBy: { date: 'desc' } },
         Note: { orderBy: { date: 'desc' } },
-        orders: { select: { totalPrice: true } }
+        orders: {
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            createdAt: true,
+            completedAt: true,
+            status: true,
+            carDetails: true,
+            vinCode: true,
+            totalPrice: true,
+            paymentMethod: true,
+            isUrgent: true,
+            notes: true,
+            masterId: true,
+            master: { select: { id: true, name: true } },
+            services: { select: { id: true, name: true, price: true } },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' }
     });

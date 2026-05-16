@@ -1,163 +1,142 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { apiClient } from '../services/apiClient';
 
 const ClientsContext = createContext();
 
-const API_BASE = 'http://localhost:5000/api/customers'; // Змінено на localhost
+const API_BASE = '/customers';
 
 export const ClientsProvider = ({ children }) => {
   const [clients, setClients] = useState([]);
 
-  const getHeaders = useCallback(() => {
-    const token = localStorage.getItem('token');
-    const headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    };
-    if (token && token !== "null" && token.trim() !== "") {
-      headers['Authorization'] = `Bearer ${token}`;
+  const fetchClients = useCallback(async () => {
+    try {
+      const res = await apiClient.get(API_BASE);
+      setClients(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error('Error fetching customers:', err);
     }
-    return headers;
   }, []);
 
-
-  const fetchOptions = useCallback((method = 'GET', body = null) => {
-    const options = {
-      method,
-      headers: getHeaders(),
-      credentials: 'include'
-    };
-    if (body) options.body = JSON.stringify(body);
-    return options;
-  }, [getHeaders]);
-
   useEffect(() => {
-    fetch(API_BASE, fetchOptions())
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => setClients(Array.isArray(data) ? data : []))
-      .catch((err) => console.error("Error fetching customers:", err));
-  }, [fetchOptions]);
+    fetchClients();
+  }, [fetchClients]);
 
   const addCustomer = async (newData) => {
     try {
-      const res = await fetch(API_BASE, fetchOptions('POST', newData));
-      if (res.ok) {
-        const client = await res.json();
-        setClients((prev) => [...prev, client]);
-      }
+      const res = await apiClient.post(API_BASE, newData);
+      setClients((prev) => [...prev, res.data]);
+      return res.data;
     } catch (err) {
-      console.error("Error adding customer:", err);
+      console.error('Error adding customer:', err);
     }
   };
 
   const deleteCustomer = async (id) => {
     try {
-      const res = await fetch(`${API_BASE}/${id}`, fetchOptions('DELETE'));
-      if (res.ok) {
-        setClients((prev) => prev.filter((c) => c.id !== id));
-      }
+      await apiClient.delete(`${API_BASE}/${id}`);
+      setClients((prev) => prev.filter((c) => c.id !== id));
     } catch (err) {
-      console.error("Error deleting customer:", err);
+      console.error('Error deleting customer:', err);
     }
   };
 
   const toggleArchive = async (id, isArchived) => {
     try {
-      const res = await fetch(`${API_BASE}/${id}/archive`, fetchOptions('PATCH', { isArchived }));
-      if (res.ok) {
-        const updated = await res.json();
-        setClients((prev) => prev.map((c) => c.id === id ? updated : c));
-      } else {
-        console.error('Toggle archive failed:', res.status);
-      }
+      const res = await apiClient.patch(`${API_BASE}/${id}/archive`, { isArchived });
+      setClients((prev) => prev.map((c) => (c.id === id ? res.data : c)));
     } catch (err) {
-      console.error("Error toggling archive:", err);
+      console.error('Error toggling archive:', err);
     }
   };
 
   const updateNotes = async (id, newNotes) => {
     try {
-      const res = await fetch(`${API_BASE}/${id}`, fetchOptions('PATCH', { notes: newNotes }));
-      if (res.ok) {
-        const updated = await res.json();
-        setClients((prev) => prev.map((c) => c.id === id ? updated : c));
-      }
+      const res = await apiClient.patch(`${API_BASE}/${id}`, { notes: newNotes });
+      setClients((prev) => prev.map((c) => (c.id === id ? res.data : c)));
     } catch (err) {
-      console.error("Error updating notes:", err);
+      console.error('Error updating notes:', err);
     }
   };
 
   const addCarToCustomer = async (customerId, car) => {
     try {
-      const res = await fetch(`${API_BASE}/${customerId}/car`, fetchOptions('POST', car));
-      if (res.status === 409) {
-        alert("Авто з таким номером вже додано!");
+      const res = await apiClient.post(`${API_BASE}/${customerId}/car`, car);
+      const newCar = res.data;
+      setClients((prev) =>
+        prev.map((c) => (c.id === customerId ? { ...c, cars: [...(c.cars || []), newCar] } : c))
+      );
+    } catch (err) {
+      if (err?.response?.status === 409) {
+        alert('Авто з таким номером вже додано!');
         return;
       }
-      if (res.ok) {
-        const newCar = await res.json();
-        setClients((prev) => prev.map((c) =>
-          c.id === customerId ? { ...c, cars: [...(c.cars || []), newCar] } : c
-        ));
-      }
-    } catch (err) {
-      console.error("Error adding car:", err);
+      console.error('Error adding car:', err);
     }
   };
 
   const deleteCarFromCustomer = async (customerId, carId) => {
     try {
-      const res = await fetch(`${API_BASE}/${customerId}/car/${carId}`, fetchOptions('DELETE'));
-      if (res.ok) {
-        setClients((prev) => prev.map((c) =>
+      await apiClient.delete(`${API_BASE}/${customerId}/car/${carId}`);
+      setClients((prev) =>
+        prev.map((c) =>
           c.id === customerId ? { ...c, cars: (c.cars || []).filter((car) => car.id !== carId) } : c
-        ));
-      }
+        )
+      );
     } catch (err) {
-      console.error("Error deleting car:", err);
+      console.error('Error deleting car:', err);
     }
   };
 
   const addCommunicationNote = async (customerId, text) => {
     try {
-      const res = await fetch(`${API_BASE}/${customerId}/note`, fetchOptions('POST', { text }));
-      if (res.ok) {
-        const newNote = await res.json();
-        setClients((prev) => prev.map((c) =>
-          c.id === customerId ? {
-            ...c,
-            communicationHistory: [newNote, ...(c.communicationHistory || [])]
-          } : c
-        ));
-      }
+      const res = await apiClient.post(`${API_BASE}/${customerId}/note`, { text });
+      const newNote = res.data;
+      setClients((prev) =>
+        prev.map((c) =>
+          c.id === customerId
+            ? { ...c, communicationHistory: [newNote, ...(c.communicationHistory || [])] }
+            : c
+        )
+      );
     } catch (err) {
-      console.error("Error adding note:", err);
+      console.error('Error adding note:', err);
     }
   };
 
   const deleteCommunicationNote = async (customerId, noteId) => {
     try {
-      const res = await fetch(`${API_BASE}/${customerId}/note/${noteId}`, fetchOptions('DELETE'));
-      if (res.ok) {
-        setClients((prev) => prev.map((c) =>
-          c.id === customerId ? {
-            ...c,
-            communicationHistory: (c.communicationHistory || []).filter((n) => n.id !== noteId)
-          } : c
-        ));
-      }
+      await apiClient.delete(`${API_BASE}/${customerId}/note/${noteId}`);
+      setClients((prev) =>
+        prev.map((c) =>
+          c.id === customerId
+            ? {
+                ...c,
+                communicationHistory: (c.communicationHistory || []).filter((n) => n.id !== noteId),
+              }
+            : c
+        )
+      );
     } catch (err) {
-      console.error("Error deleting note:", err);
+      console.error('Error deleting note:', err);
     }
   };
 
   return (
-    <ClientsContext.Provider value={{
-      clients, addCustomer, deleteCustomer, toggleArchive, updateNotes,
-      addCarToCustomer, deleteCarFromCustomer, addCommunicationNote, deleteCommunicationNote
-    }}>
+    <ClientsContext.Provider
+      value={{
+        clients,
+        fetchClients,
+        refreshClients: fetchClients,
+        addCustomer,
+        deleteCustomer,
+        toggleArchive,
+        updateNotes,
+        addCarToCustomer,
+        deleteCarFromCustomer,
+        addCommunicationNote,
+        deleteCommunicationNote,
+      }}
+    >
       {children}
     </ClientsContext.Provider>
   );

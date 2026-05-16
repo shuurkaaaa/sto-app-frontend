@@ -93,14 +93,18 @@ export const ServiceHistoryModal = ({ isOpen, onClose, customer }) => {
           </div>
         ) : (
           <div className="d-flex flex-column gap-3">
-            {sortedOrders.map((order) => {
+            {sortedOrders.map((order, orderIdx) => {
               const serviceDate = order.completedAt || order.createdAt;
               const daysSince = calculateDaysSince(serviceDate);
               const services = order.services || [];
+              const orderKey =
+                order.id != null && String(order.id) !== ''
+                  ? `order-${order.id}`
+                  : `order-${customer.id ?? 'c'}-${orderIdx}-${String(serviceDate || '')}`;
 
               return (
                 <div
-                  key={order.id}
+                  key={orderKey}
                   className="p-3 rounded-3"
                   style={{
                     background: 'var(--sto-bg)',
@@ -128,15 +132,14 @@ export const ServiceHistoryModal = ({ isOpen, onClose, customer }) => {
                       <div className="fw-bold text-light" style={{ fontSize: '16px' }}>
                         {order.totalPrice ? `${order.totalPrice} грн` : '0 грн'}
                       </div>
-                      {order.masterId && (
+                      {(order.master?.name || order.masterId) && (
                         <small className="sto-text-muted d-block">
-                          Майстер ID: {order.masterId}
+                          Майстер: {order.master?.name || `ID ${order.masterId}`}
                         </small>
                       )}
                     </div>
                   </div>
 
-                  {/* Автомобіль */}
                   {order.carDetails && (
                     <div className="mb-2 p-2 rounded-2" style={{ background: 'rgba(255,255,255,0.05)' }}>
                       <small className="sto-text-muted d-block mb-1">Автомобіль:</small>
@@ -144,14 +147,17 @@ export const ServiceHistoryModal = ({ isOpen, onClose, customer }) => {
                     </div>
                   )}
 
-                  {/* Послуги */}
                   {services.length > 0 && (
                     <div className="mb-2">
                       <small className="sto-text-muted d-block mb-2">Послуги:</small>
                       <div className="d-flex flex-column gap-1">
                         {services.map((service, idx) => (
                           <div
-                            key={`${order.id}-service-${idx}`}
+                            key={
+                              service.id != null
+                                ? `svc-${orderKey}-${service.id}`
+                                : `svc-${orderKey}-${idx}-${service.name || ''}`
+                            }
                             className="d-flex justify-content-between align-items-center p-2 rounded-2"
                             style={{ background: 'rgba(255,255,255,0.05)' }}
                           >
@@ -165,7 +171,6 @@ export const ServiceHistoryModal = ({ isOpen, onClose, customer }) => {
                     </div>
                   )}
 
-                  {/* Примітки */}
                   {order.notes && (
                     <div className="mt-2 p-2 rounded-2" style={{ background: 'rgba(255,255,255,0.05)' }}>
                       <small className="sto-text-muted d-block mb-1">Примітки:</small>
@@ -173,7 +178,6 @@ export const ServiceHistoryModal = ({ isOpen, onClose, customer }) => {
                     </div>
                   )}
 
-                  {/* Спосіб оплати */}
                   {order.paymentMethod && (
                     <div className="mt-2">
                       <small className="sto-text-muted d-block">
@@ -182,14 +186,13 @@ export const ServiceHistoryModal = ({ isOpen, onClose, customer }) => {
                     </div>
                   )}
 
-                  {/* Екстрене */}
                   {order.isUrgent && (
                     <div className="mt-2">
                       <span
                         className="px-2 py-1 rounded-2 text-white small fw-bold"
                         style={{ background: '#ef4444' }}
                       >
-                        ⚡ Екстрене
+                        Екстрене
                       </span>
                     </div>
                   )}

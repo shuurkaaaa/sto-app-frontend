@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="-58 -42 1188 1586"
+     width="1188" height="1586">
+  <title>UML Activity Diagram — STO CRM</title>
+  <desc>UML Activity: order intake and warehouse monitoring for STO CRM.</desc>
+
+  <rect x="-58" y="-42" width="1188" height="1586" fill="white" stroke="none"/>
+
+  <defs>
+    <marker id="arrowEnd" markerWidth="6" markerHeight="6" refX="5.25" refY="2.25" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L6,2.25 L0,4.5 Z" fill="black" stroke="none"/>
+    </marker>
+    <!-- Smaller arrow for dense parallel stubs (still orient="auto"). -->
+    <marker id="arrowEndSubtle" markerWidth="5" markerHeight="5" refX="4.5" refY="2" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L5,2 L0,4 Z" fill="black" stroke="none"/>
+    </marker>
+  </defs>
+
+  <style type="text/css">
+    text { font-family: Arial, Helvetica, sans-serif; fill: black; stroke: none; }
+    .t-title { font-size: 13px; font-weight: bold; }
+    .t-node { font-size: 11px; }
+    .t-diamond { font-size: 10px; }
+    .t-gate { font-size: 10px; }
+    .t-edge { font-size: 9px; }
+    /* Connectors ~1.0 */
+    .stroke { fill: none; stroke: black; stroke-width: 1; marker-end: url(#arrowEnd); }
+    .stroke-nomarker { fill: none; stroke: black; stroke-width: 1; }
+    /* Sync fork/join segments */
+    .thick { stroke-width: 1; marker-end: none; fill: none; stroke: #000; }
+    /* Leader stubs for Так/Ні labels */
+    .leader { fill: none; stroke: black; stroke-width: 0.95; marker-end: none; }
+  </style>
+
+  <!-- Title / initial -->
+  <text x="536" y="36" text-anchor="middle" class="t-title">Діаграма діяльності STO CRM</text>
+  <circle cx="536" cy="68" r="7" fill="black" stroke="black" stroke-width="1.4"/>
+
+  <!-- Diamond 1: workflow choice -->
+  <polygon points="536,100 646,166 536,232 426,166" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="536" y="164" text-anchor="middle" class="t-diamond">
+    <tspan x="536" dy="0">Обрання виду робочого</tspan>
+    <tspan x="536" dy="13">процесу</tspan>
+  </text>
+
+  <path d="M536,75 V100" class="stroke-nomarker" marker-end="url(#arrowEnd)"/>
+
+  <!-- Fork from diamond 1: orthogonal, padded -->
+  <path d="M426,166 H268 V268" class="stroke"/>
+  <path d="M646,166 H804 V268" class="stroke"/>
+
+  <!-- === Left column (warehouse) cx=251 === -->
+  <rect x="141" y="268" rx="12" ry="12" width="220" height="44" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="251" y="286" text-anchor="middle" class="t-node">
+    <tspan x="251" dy="0">Отримання залишків</tspan>
+    <tspan x="251" dy="13">складських позицій</tspan>
+  </text>
+  <path d="M251,312 V336" class="stroke"/>
+
+  <!-- Gap ≥24px from «Отримання» bottom (312) → compare top 336 -->
+  <rect x="128" y="336" rx="12" ry="12" width="246" height="48" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="251" y="357" text-anchor="middle" class="t-node">
+    <tspan x="251" dy="0">Порівняння змін з</tspan>
+    <tspan x="251" dy="13">мінімальним порогом</tspan>
+  </text>
+  <path d="M251,384 V410" class="stroke"/>
+
+  <!-- Threshold diamond: spaced below compare -->
+  <polygon points="251,410 336,466 251,522 166,466" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="251" y="459" text-anchor="middle" class="t-diamond">
+    <tspan x="251" dy="0">Зафіксовано</tspan>
+    <tspan x="251" dy="12">порушення порогу?</tspan>
+  </text>
+
+  <!-- Так: label beside vertical exit -->
+  <line x1="251" y1="522" x2="251" y2="536" class="leader"/>
+  <text x="268" y="548" text-anchor="start" class="t-edge">Так</text>
+  <path d="M251,522 V566" class="stroke"/>
+
+  <rect x="131" y="566" rx="12" ry="12" width="240" height="44" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="251" y="589" text-anchor="middle" class="t-node">Формування службового сповіщення</text>
+  <path d="M251,610 V622" class="stroke"/>
+
+  <rect x="98" y="622" rx="12" ry="12" width="306" height="48" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="251" y="645" text-anchor="middle" class="t-node">
+    <tspan x="251" dy="0">Збереження запису сповіщення</tspan>
+    <tspan x="251" dy="13">в базі даних</tspan>
+  </text>
+
+  <!-- Ні: orthogonal to wait box — enter top-centre (x=34); vertical legs use x=4 (cx−30) above box -->
+  <line x1="166" y1="466" x2="4" y2="466" class="leader"/>
+  <text x="-10" y="470" text-anchor="end" class="t-edge">Ні</text>
+  <path d="M166,466 H4 V508 H34 V538" class="stroke"/>
+
+  <!-- Wait: right edge 120 stays left of Так-branch rect (starts x=131); loop exits bottom then east (x≥132) before north -->
+  <rect x="-52" y="538" rx="12" ry="12" width="172" height="48" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="34" y="557" text-anchor="middle" class="t-node" font-size="9.5">
+    <tspan x="34" dy="0">Очікування наступної перевірки /</tspan>
+    <tspan x="34" dy="11">події</tspan>
+  </text>
+  <!-- Loop back: east past box, north at x=132, then into «Отримання залишків» (avoids wait-rect interior) -->
+  <path d="M34,586 H132 V256 H251 V268" class="stroke"/>
+
+  <!-- Merge fork left branch with join bar -->
+  <path d="M251,670 H536 V694" class="stroke"/>
+
+  <!-- === Right column (order) cx=821 === -->
+  <rect x="681" y="268" rx="12" ry="12" width="280" height="48" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="821" y="290" text-anchor="middle" class="t-node">
+    <tspan x="821" dy="0">Введення даних клієнта та</tspan>
+    <tspan x="821" dy="13">автомобіля</tspan>
+  </text>
+  <path d="M821,316 V332" class="stroke"/>
+
+  <rect x="646" y="332" rx="12" ry="12" width="350" height="52" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="821" y="356" text-anchor="middle" class="t-node" font-size="10">
+    <tspan x="821" dy="0">За потреби: запит довідкових даних за VIN</tspan>
+    <tspan x="821" dy="12">через зовнішній сервіс</tspan>
+  </text>
+  <path d="M821,384 V402" class="stroke"/>
+
+  <polygon points="821,402 909,462 821,522 733,462" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="821" y="457" text-anchor="middle" class="t-diamond">
+    <tspan x="821" dy="0">Обовʼязкові дані</tspan>
+    <tspan x="821" dy="12">коректні?</tspan>
+  </text>
+
+  <line x1="821" y1="522" x2="821" y2="536" class="leader"/>
+  <text x="838" y="548" text-anchor="start" class="t-edge">Так</text>
+  <path d="M821,522 V564" class="stroke"/>
+
+  <rect x="709" y="564" rx="12" ry="12" width="224" height="52" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="821" y="585" text-anchor="middle" class="t-node" font-size="10">
+    <tspan x="821" dy="0">Добір послуг з прайс-листа</tspan>
+    <tspan x="821" dy="12">та узгодження вартості</tspan>
+  </text>
+  <path d="M821,616 V632" class="stroke"/>
+
+  <rect x="706" y="632" rx="12" ry="12" width="230" height="48" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="821" y="656" text-anchor="middle" class="t-node">
+    <tspan x="821" dy="0">Збереження наряду</tspan>
+    <tspan x="821" dy="13">в базі даних</tspan>
+  </text>
+
+  <!-- Ні: corridor between columns -->
+  <line x1="733" y1="462" x2="698" y2="462" class="leader"/>
+  <text x="668" y="448" text-anchor="middle" class="t-edge">Ні</text>
+  <path d="M733,462 H598 V518 H536" class="stroke"/>
+
+  <rect x="450" y="518" rx="12" ry="12" width="172" height="44" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="536" y="543" text-anchor="middle" class="t-node" font-size="10">Показ повідомлення про помилку</text>
+
+  <path d="M536,562 V694" class="stroke"/>
+  <path d="M821,680 H536 V694" class="stroke"/>
+
+  <rect x="354" y="694" rx="14" ry="14" width="364" height="48" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="536" y="724" text-anchor="middle" class="t-node">Оновлення облікових даних завершено</text>
+
+  <path d="M536,742 V752" class="stroke-nomarker"/>
+  <line x1="276" y1="752" x2="622" y2="752" class="thick"/>
+  <path d="M276,752 V774" class="stroke-nomarker" marker-end="url(#arrowEndSubtle)"/>
+  <path d="M622,752 V774" class="stroke-nomarker" marker-end="url(#arrowEndSubtle)"/>
+
+  <rect x="126" y="776" rx="12" ry="12" width="300" height="56" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="276" y="804" text-anchor="middle" class="t-node">
+    <tspan x="276" dy="0">Оновлення зведень для аналітики /</tspan>
+    <tspan x="276" dy="13">журналів</tspan>
+  </text>
+
+  <rect x="472" y="776" rx="12" ry="12" width="300" height="56" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="622" y="804" text-anchor="middle" class="t-node">
+    <tspan x="622" dy="0">Формування відповіді для веб-клієнта</tspan>
+    <tspan x="622" dy="13">(REST)</tspan>
+  </text>
+
+  <path d="M276,832 V854" class="stroke-nomarker" marker-end="url(#arrowEndSubtle)"/>
+  <path d="M622,832 V854" class="stroke-nomarker" marker-end="url(#arrowEndSubtle)"/>
+  <line x1="276" y1="854" x2="622" y2="854" class="thick"/>
+  <path d="M536,854 V876" class="stroke-nomarker" marker-end="url(#arrowEndSubtle)"/>
+
+  <rect x="174" y="878" rx="12" ry="12" width="724" height="56" fill="white" stroke="black" stroke-width="1.4"/>
+  <text x="536" y="901" text-anchor="middle" class="t-node" font-size="10.5">
+    <tspan x="536" dy="0">Відображення результату або актуального стану</tspan>
+    <tspan x="536" dy="13">в інтерфейсі користувача</tspan>
+  </text>
+
+  <path d="M536,934 V968" class="stroke"/>
+
+  <circle cx="536" cy="992" r="22" fill="white" stroke="black" stroke-width="1.4"/>
+  <circle cx="536" cy="992" r="11" fill="black" stroke="black"/>
+
+</svg>

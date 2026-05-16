@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="620" viewBox="0 0 920 620">
+  <rect width="100%" height="100%" fill="#fff"/>
+  <text x="460" y="28" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" text-anchor="middle">
+    Fig. 4.11 (schematic). Analytics module overview</text>
+
+  <text x="32" y="58" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold">Service analytics</text>
+  <text x="32" y="78" fill="#666" font-family="Arial, Helvetica, sans-serif" font-size="10">Subtitle: live workshop reporting</text>
+
+  <rect x="620" y="44" width="268" height="40" rx="10" fill="#eee" stroke="#000"/>
+  <text x="754" y="68" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold" text-anchor="middle">Day | Week | Month</text>
+
+  <rect x="32" y="100" width="200" height="88" rx="6" fill="none" stroke="#000"/><text x="52" y="128" fill="#666" font-size="9">Profit (period)</text><text x="52" y="158" fill="#080" font-size="14" font-weight="bold">1 254 300</text>
+  <rect x="248" y="100" width="200" height="88" rx="6" fill="none" stroke="#000"/><text x="268" y="128" fill="#666" font-size="9">Completed orders</text><text x="268" y="158" fill="#008" font-size="14" font-weight="bold">142</text>
+  <rect x="464" y="100" width="200" height="88" rx="6" fill="none" stroke="#000"/><text x="484" y="128" fill="#666" font-size="9">New clients</text><text x="484" y="158" fill="#c60" font-size="14" font-weight="bold">18</text>
+  <rect x="680" y="100" width="208" height="88" rx="6" fill="none" stroke="#000"/><text x="700" y="128" fill="#666" font-size="9">Average ticket</text><text x="700" y="158" fill="#0a8" font-size="14" font-weight="bold">8 850</text>
+
+  <text x="32" y="216" fill="#666" font-size="9">KPIs from GET /analytics/summary?period=... (completed orders window)</text>
+
+  <rect x="32" y="232" width="420" height="180" rx="6" fill="none" stroke="#000"/>
+  <rect x="468" y="232" width="420" height="180" rx="6" fill="none" stroke="#000"/>
+  <text x="242" y="262" fill="#000" font-size="11" font-weight="bold" text-anchor="middle">Master rating TOP-5</text>
+  <text x="678" y="262" fill="#000" font-size="11" font-weight="bold" text-anchor="middle">Popular services</text>
+
+  <rect x="32" y="428" width="856" height="160" rx="6" fill="none" stroke="#000" stroke-width="1.2"/>
+  <text x="460" y="458" fill="#000" font-weight="bold" font-size="11" text-anchor="middle">Revenue dynamics (full width chart row)</text>
+  <path d="M 60 548 L 150 520 L 240 540 L 330 480 L 420 500 L 520 470 L 610 455 L 700 465 L 820 440" stroke="#38f" stroke-width="2" fill="none"/>
+
+  <text x="460" y="602" fill="#000" font-size="9" font-style="italic" text-anchor="middle">screenshot recommended for appendix / Fig. replaces placeholder</text>
+</svg>

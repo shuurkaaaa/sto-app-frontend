@@ -29,7 +29,7 @@ export const FullPricePicker = ({ isOpen, onClose, onSelect, selectedServices })
           className="d-flex justify-content-between align-items-center"
           style={{ padding: '20px 25px', borderBottom: '1px solid var(--sto-border)', background: 'var(--sto-bg-2)' }}
         >
-          <h3 className="m-0" style={{ color: '#F8FAFC' }}>📚 Каталог послуг СТО</h3>
+          <h3 className="m-0" style={{ color: '#F8FAFC' }}>Каталог послуг СТО</h3>
           <button
             onClick={onClose}
             className="sto-text-muted px-3"
@@ -79,7 +79,7 @@ export const FullPricePicker = ({ isOpen, onClose, onSelect, selectedServices })
                   <span className="text-light fw-semibold d-block mb-1">{s.name}</span>
                   <span className="sto-text-success fw-bold small">{s.price} грн</span>
                 </div>
-                <div style={{ fontSize: '20px' }}>{isSelected(s.id) ? '✅' : '➕'}</div>
+                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{isSelected(s.id) ? '−' : '+'}</div>
               </div>
             ))}
           </div>

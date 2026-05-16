@@ -9,7 +9,7 @@ export const StaffToolbar = ({ onAdd, sortBy, onSortChange }) => {
 
   return (
     <div className="d-flex justify-content-between align-items-center mb-4">
-      <button onClick={onAdd} className="sto-btn sto-btn-primary">
+      <button type="button" onClick={() => onAdd?.()} className="sto-btn sto-btn-primary">
         Додати майстра
       </button>
 

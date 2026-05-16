@@ -181,7 +181,8 @@ exports.handleStockChange = async (req, res) => {
           itemId: itemId,
           amount: change,
           note: note || (change > 0 ? "Прихід" : "Списання"),
-          date: new Date()
+          date: new Date(),
+          orderId: null
         }
       });
       return updatedItem;

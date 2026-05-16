@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
 import { AddCategoryModal } from './AddCategoryModal';
+import { RenameCategoryModal } from './RenameCategoryModal';
 
-export const StaffHeader = ({ categories = [], currentFilter, onFilterChange, onAddCategory, onDeleteCategory }) => {
+export const StaffHeader = ({
+  categories = [],
+  currentFilter,
+  onFilterChange,
+  onAddCategory,
+  onDeleteCategory,
+  onRenameCategory,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [renameTarget, setRenameTarget] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
 
   const handleModalAdd = async (categoryName) => {
@@ -43,16 +52,29 @@ export const StaffHeader = ({ categories = [], currentFilter, onFilterChange, on
             >
               {cat.name}
               {isEditMode && (
-                <span
-                  className="ms-2 fw-bold"
-                  style={{ color: '#ef4444', cursor: 'pointer' }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (window.confirm(`Видалити спеціалізацію "${cat.name}"?`)) onDeleteCategory(cat.id);
-                  }}
-                >
-                  ×
-                </span>
+                <>
+                  <span
+                    className="ms-1 small"
+                    style={{ cursor: 'pointer', opacity: 0.85 }}
+                    title="Перейменувати"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setRenameTarget({ id: cat.id, name: cat.name });
+                    }}
+                  >
+                    ✎
+                  </span>
+                  <span
+                    className="ms-1 fw-bold"
+                    style={{ color: '#ef4444', cursor: 'pointer' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm(`Видалити спеціалізацію "${cat.name}"?`)) onDeleteCategory(cat.id);
+                    }}
+                  >
+                    ×
+                  </span>
+                </>
               )}
             </button>
           ))}
@@ -79,6 +101,13 @@ export const StaffHeader = ({ categories = [], currentFilter, onFilterChange, on
           onAdd={handleModalAdd}
         />
       )}
+
+      <RenameCategoryModal
+        isOpen={!!renameTarget}
+        category={renameTarget}
+        onClose={() => setRenameTarget(null)}
+        onSave={onRenameCategory}
+      />
     </>
   );
 };

@@ -17,11 +17,21 @@ export const Leaderboard = () => {
             <span className="fw-bold sto-text-muted">#{index + 1}</span>
             <div>
               <div className="fw-semibold text-light small">{worker.name}</div>
-              <div className="sto-text-muted" style={{ fontSize: '12px' }}>{worker.role}</div>
+              <div className="sto-text-muted" style={{ fontSize: '12px' }}>
+                {worker.role}
+                {worker.commissionPercent ? ` • ${worker.commissionPercent}%` : ''}
+              </div>
             </div>
           </div>
-          <div className="fw-bold sto-text-success">
-            {worker.totalEarned?.toLocaleString() || 0} грн
+          <div className="text-end">
+            <div className="fw-bold sto-text-success">
+              {(worker.earnings ?? worker.totalEarned ?? 0).toLocaleString('uk-UA')} грн
+            </div>
+            {worker.totalServiced !== undefined && (
+              <div className="sto-text-muted" style={{ fontSize: '11px' }}>
+                з {worker.totalServiced.toLocaleString('uk-UA')} грн
+              </div>
+            )}
           </div>
         </div>
       ))}

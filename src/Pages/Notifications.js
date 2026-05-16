@@ -3,7 +3,7 @@ import { useNotifications } from '../Context/NotificationsContext';
 import { toast } from 'react-hot-toast';
 
 const Notifications = () => {
-  const { notifications, loading, refresh, addNote, removeNote, clearAllManual } = useNotifications();
+  const { notifications, loading, addNote, removeNote, clearAllManual } = useNotifications();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState({ title: '', message: '', priority: 'medium', scheduledAt: '' });
 
@@ -69,7 +69,7 @@ const Notifications = () => {
               className="sto-btn fw-bold"
               style={{ background: 'transparent', color: '#EF4444', border: '1px solid #EF4444' }}
             >
-              🗑 Очистити сторінку
+              Очистити сторінку
             </button>
           )}
 
@@ -79,9 +79,6 @@ const Notifications = () => {
             style={{ background: isFormOpen ? '#EF4444' : '#3B82F6' }}
           >
             {isFormOpen ? 'Закрити форму' : '+ Створити замітку'}
-          </button>
-          <button onClick={() => refresh()} className="sto-btn sto-btn-secondary">
-            Оновити
           </button>
         </div>
       </div>
@@ -192,7 +189,7 @@ const Notifications = () => {
                     className="border-0 p-0 fw-bold sto-text-danger small"
                     style={{ background: 'none', cursor: 'pointer' }}
                   >
-                    🗑 Видалити
+                    Видалити
                   </button>
                 )}
               </div>

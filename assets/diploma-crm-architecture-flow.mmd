@@ -1,0 +1,44 @@
+flowchart TB
+  CL["Client<br/>React SPA"]
+
+  subgraph PRES["Presentation layer"]
+    direction TB
+    MW["Express middleware<br/>CORS • body-parser • logging"]
+    RT["Routes<br/>/api/auth • /api/orders • /api/vin • …"]
+    CTRL["Controllers<br/>REST endpoints"]
+    MW --> RT --> CTRL
+  end
+
+  CL <-->|"HTTP / JSON<br/>Authorization: Bearer JWT"| MW
+
+  subgraph SVC["Service layer<br/>business logic & integrations"]
+    direction TB
+    S1["Services<br/>autoRiaService • vinServiceNew • emailService • cacheService"]
+    S2["Auth / tokens<br/>bcrypt • JWT"]
+    CTRL --> S1
+    CTRL --> S2
+    S1 --- S2
+  end
+
+  subgraph PER["Persistence & integration layer"]
+    direction TB
+    PR["ORM: Prisma Client"]
+    PG[("PostgreSQL")]
+    AX["HTTP client Axios<br/>external HTTPS calls"]
+    subgraph EXT["External web APIs"]
+      AR["AUTO.RIA API<br/>developers.ria.com"]
+      VPIC["NHTSA vPIC"]
+      CQ["CarQuery API"]
+      RS["Resend API<br/>transactional email"]
+    end
+    FS["File system<br/>uploads / static"]
+    PR --> PG
+    AX --> AR
+    AX --> VPIC
+    AX --> CQ
+    AX --> RS
+    S1 --> PR
+    S1 --> AX
+    S2 --> PR
+    CTRL --> FS
+  end

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="420" viewBox="0 0 1040 420">
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" overflow="visible">
+      <path d="M0,0 L0,10 L10,5 z" fill="#000"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="520" y="36" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle">
+    Рис. Послідовність підготовки довідників і приймання товару (модуль «Склад запчастин»)</text>
+
+  <!-- Step boxes -->
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect x="40" y="88" width="200" height="100" rx="6" fill="none" stroke="#000" stroke-width="1.5"/>
+    <text x="140" y="122" fill="#000" font-size="12" font-weight="bold" text-anchor="middle">Крок 1</text>
+    <text x="140" y="148" fill="#000" font-size="11" text-anchor="middle">Категорії</text>
+    <text x="140" y="166" fill="#000" font-size="11" text-anchor="middle">складу</text>
+
+    <line x1="240" y1="138" x2="288" y2="138" stroke="#000" stroke-width="1.4" marker-end="url(#arr)"/>
+
+    <rect x="288" y="88" width="200" height="100" rx="6" fill="none" stroke="#000" stroke-width="1.5"/>
+    <text x="388" y="122" fill="#000" font-size="12" font-weight="bold" text-anchor="middle">Крок 2</text>
+    <text x="388" y="148" fill="#000" font-size="11" text-anchor="middle">База авто</text>
+    <text x="388" y="166" fill="#000" font-size="11" text-anchor="middle">(марки / моделі)</text>
+
+    <line x1="488" y1="138" x2="536" y2="138" stroke="#000" stroke-width="1.4" marker-end="url(#arr)"/>
+
+    <rect x="536" y="88" width="220" height="100" rx="6" fill="none" stroke="#000" stroke-width="1.5"/>
+    <text x="646" y="118" fill="#000" font-size="12" font-weight="bold" text-anchor="middle">Крок 3</text>
+    <text x="646" y="142" fill="#000" font-size="11" text-anchor="middle">Форма приймання</text>
+    <text x="646" y="160" fill="#000" font-size="11" text-anchor="middle">товару / нова запчастина</text>
+
+    <line x1="756" y1="138" x2="804" y2="138" stroke="#000" stroke-width="1.4" marker-end="url(#arr)"/>
+
+    <rect x="804" y="88" width="196" height="100" rx="6" fill="none" stroke="#000" stroke-width="1.5"/>
+    <text x="902" y="118" fill="#000" font-size="12" font-weight="bold" text-anchor="middle">Крок 4</text>
+    <text x="902" y="142" fill="#000" font-size="11" text-anchor="middle">Облік позиції</text>
+    <text x="902" y="160" fill="#000" font-size="11" text-anchor="middle">історія рухів товару</text>
+  </g>
+
+  <!-- Notes -->
+  <g font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#000">
+    <text x="140" y="230" text-anchor="middle">Створення та</text>
+    <text x="140" y="246" text-anchor="middle">редагування категорій</text>
+
+    <text x="388" y="230" text-anchor="middle">Сумісність запчастин</text>
+    <text x="388" y="246" text-anchor="middle">при виборі з довідника</text>
+
+    <text x="646" y="230" text-anchor="middle">Категорія, SKU, залишок,</text>
+    <text x="646" y="246" text-anchor="middle">характеристики, фото,</text>
+    <text x="646" y="262" text-anchor="middle">прив’язка до авто</text>
+
+    <text x="902" y="230" text-anchor="middle">Таблиця складу;</text>
+    <text x="902" y="246" text-anchor="middle">перегляд історії</text>
+    <text x="902" y="262" text-anchor="middle">обраної позиції</text>
+  </g>
+
+  <!-- Feedback dashed: history back to audit (optional conceptual) -->
+  <path d="M 902 210 L 902 298 L 140 298 L 140 206" stroke="#000" stroke-width="1" fill="none" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+  <text x="520" y="318" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" text-anchor="middle">
+    пунктир — подальший супровід залишків і аудит операцій через журнал історії</text>
+
+  <rect x="60" y="340" width="920" height="56" rx="4" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="520" y="364" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="bold" text-anchor="middle">Узагальнено</text>
+  <text x="520" y="384" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="middle">
+    спершу наповнюються довідники (категорії та автомобілі), далі дані використовує форма надходження; після збереження позиція ведеться разом із історією рухів</text>
+</svg>

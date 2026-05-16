@@ -1,7 +1,6 @@
 const prisma = require('../lib/prisma');
-const { startOfDay, startOfWeek, startOfMonth } = require('date-fns');
+const { startOfDay, startOfWeek, startOfMonth, format, parse } = require('date-fns');
 
-// 🚀 IN-MEMORY CACHE
 const analyticsCache = new Map();
 const CACHE_TTL = 5 * 60 * 1000;
 
@@ -10,10 +9,8 @@ exports.getAnalyticsSummary = async (req, res) => {
   const now = new Date();
   const cacheKey = `analytics_${period}`;
 
-  // Check cache
   const cached = analyticsCache.get(cacheKey);
   if (cached && (Date.now() - cached.timestamp < CACHE_TTL)) {
-    console.log(`📊 Cache hit for ${period}`);
     return res.json(cached.data);
   }
 
@@ -27,9 +24,6 @@ exports.getAnalyticsSummary = async (req, res) => {
   }
 
   try {
-    console.log(`⚡ Loading analytics for period: ${period}`);
-
-
     const [stats, carsInWork, customersCount, topWorkersRaw, serviceStatsRaw, chartDataRaw] = await Promise.all([
 
       prisma.order.aggregate({
@@ -63,6 +57,7 @@ exports.getAnalyticsSummary = async (req, res) => {
           id: true,
           name: true,
           role: true,
+          commissionPercent: true,
           orders: {
             where: {
               status: 'COMPLETED',
@@ -106,18 +101,25 @@ exports.getAnalyticsSummary = async (req, res) => {
         },
         orderBy: {
           completedAt: 'asc'
-        },
-        take: 20
+        }
       })
     ]);
 
 
-    const topWorkers = topWorkersRaw.map(w => ({
-      id: w.id,
-      name: w.name,
-      role: w.role,
-      earnings: w.orders.reduce((sum, o) => sum + (Number(o.totalPrice) || 0), 0)
-    }))
+    const topWorkers = topWorkersRaw.map(w => {
+      const commissionRate = (Number(w.commissionPercent) || 0) / 100;
+      const totalServiced = w.orders.reduce((sum, o) => sum + (Number(o.totalPrice) || 0), 0);
+      const earnings = +(totalServiced * commissionRate).toFixed(2);
+      return {
+        id: w.id,
+        name: w.name,
+        role: w.role,
+        commissionPercent: Number(w.commissionPercent) || 0,
+        ordersCount: w.orders.length,
+        totalServiced,
+        earnings,
+      };
+    })
     .sort((a, b) => b.earnings - a.earnings)
     .slice(0, 5);
 
@@ -130,13 +132,21 @@ exports.getAnalyticsSummary = async (req, res) => {
       }));
 
 
-    const chartData = chartDataRaw.map(o => ({
-      name: new Date(o.completedAt).toLocaleDateString('uk-UA', {
-        day: '2-digit',
-        month: '2-digit'
-      }),
-      revenue: Number(o.totalPrice) || 0
-    }));
+    const revenueByDay = new Map();
+    for (const o of chartDataRaw) {
+      if (!o.completedAt) continue;
+      const dayKey = format(o.completedAt, 'yyyy-MM-dd');
+      const prev = revenueByDay.get(dayKey) || 0;
+      revenueByDay.set(dayKey, prev + (Number(o.totalPrice) || 0));
+    }
+    const sortedDayKeys = [...revenueByDay.keys()].sort();
+    const chartData = sortedDayKeys.map((sortKey) => {
+      const dayRef = parse(sortKey, 'yyyy-MM-dd', new Date());
+      return {
+        name: format(dayRef, 'dd.MM'),
+        revenue: revenueByDay.get(sortKey)
+      };
+    });
 
     const responseData = {
       totalRevenue: Number(stats._sum.totalPrice) || 0,
@@ -151,14 +161,12 @@ exports.getAnalyticsSummary = async (req, res) => {
       cached: false
     };
 
-    // Store in cache
     analyticsCache.set(cacheKey, { data: responseData, timestamp: Date.now() });
-    console.log(`✅ Analytics cached for ${period}`);
 
     res.json(responseData);
 
   } catch (error) {
-    console.error("❌ Analytics error:", error);
+    console.error("Analytics error:", error);
     res.status(500).json({
       error: "Server error when generating analytics",
       details: error.message
@@ -169,9 +177,12 @@ exports.getAnalyticsSummary = async (req, res) => {
 exports.clearAnalyticsCache = (req, res) => {
   try {
     analyticsCache.clear();
-    console.log(`🗑️ Analytics cache cleared`);
     res.json({ success: true, message: 'Analytics cache cleared successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+exports.invalidateAnalyticsCache = () => {
+  analyticsCache.clear();
 };

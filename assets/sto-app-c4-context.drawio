@@ -1,0 +1,66 @@
+<mxfile host="app.diagrams.net" modified="2026-05-12T12:00:00.000Z" agent="C4 generator" version="24.0.0" type="device">
+  <diagram id="c4-system-context" name="C4 System Context">
+    <mxGraphModel dx="1100" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;Рівень 1. Діаграма контексту системи (C4)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;Інформаційна система обліку робіт автосервісу&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacing=4;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="320" y="20" width="520" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="legend" value="&lt;font style=&quot;font-size:10px;color=#333333&quot;&gt;Кольори наближені до моделі C4: персони, програмна система, зовнішні системи&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontSize=10;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="720" width="700" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="person-staff" value="&lt;b&gt;Співробітник СТО&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;[Person]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Приймає замовлення, веде клієнтів, склад, прайс, персонал, переглядає звіти через вебінтерфейс.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427B;fontColor=#ffffff;strokeColor=#073763;align=center;verticalAlign=middle;spacing=8;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="160" width="220" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="person-guest" value="&lt;b&gt;Незареєстрований відвідувач&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;[Person]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Бажає зареєструватися, увійти або відновити пароль перед початком роботи в системі.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427B;fontColor=#ffffff;strokeColor=#073763;align=center;verticalAlign=middle;spacing=8;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="360" width="220" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="system-sto" value="&lt;b&gt;Інформаційна система&lt;br&gt;обліку робіт автосервісу&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;[Software System]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Забезпечує операційну діяльність СТО: клієнти, склад, замовлення, прайс, персонал, аналітика, сповіщення, авторизація. Складається з веб-клієнта (React) та сервера програмних інтерфейсів (Node.js).&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Зберігання операційних даних: файлова база даних локально на сервері застосунку (SQLite через Prisma).&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168BD;fontColor=#ffffff;strokeColor=#0B4884;align=center;verticalAlign=middle;spacing=10;arcSize=6;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="400" y="200" width="320" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-resend" value="&lt;b&gt;Resend&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;[External — Software System]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Хмарний сервіс транзакційної електронної пошти (REST API). Застосунок доручає йому доставлення листів для відновлення пароля.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;fontColor=#ffffff;strokeColor=#6B6B6B;align=center;verticalAlign=middle;spacing=8;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="840" y="80" width="260" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-autoria" value="&lt;b&gt;AUTO.RIA Developers API&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;[External — Software System]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Комерційний програмний інтерфейс платформи оголошень. Використовується сервером для довідкових операцій із даними транспортного засобу та ринку за ідентифікатором (VIN) за умовами наявності конфігураційного ключа.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;fontColor=#ffffff;strokeColor=#6B6B6B;align=center;verticalAlign=middle;spacing=8;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="840" y="235" width="260" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-vin" value="&lt;b&gt;Публічні служби декодування VIN&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;[External — Software System]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;На рівні контексту об’єднано програмні доступи до баз відкритих відомостей транспортного засобу: зокрема &lt;b&gt;NHTSA vPIC&lt;/b&gt; (служби Сполучених Штатів), &lt;b&gt;CarQueryAPI&lt;/b&gt;, а також узгодження результатів із внутрішніми евристиками номера кузова.&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Ці зовнішні системи викликаються лише серверним застосунком над HTTP; браузер клієнта до них напряму не звертається.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;fontColor=#ffffff;strokeColor=#6B6B6B;align=center;verticalAlign=middle;spacing=8;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="800" y="410" width="320" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="e-staff-sys" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.35;exitX=1;exitY=0.5;strokeColor=#666666;fontSize=10;startArrow=none;startFill=0;endArrow=block;endFill=0;jumpStyle=arc;" edge="1" parent="1" source="person-staff" target="system-sto">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-staff-sys-meta" connectable="0" value="Здійснює повсякденну роботу в системі" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontBackgroundColor=#ffffff;fontColor=#333333;" vertex="1" parent="e-staff-sys">
+          <mxGeometry x="-0.05" relative="1" as="geometry"><mxPoint y="-8" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e-guest-sys" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.72;strokeColor=#666666;fontSize=10;endArrow=block;endFill=0;jumpStyle=arc;exitX=1;exitY=0.5;" edge="1" parent="1" source="person-guest" target="system-sto">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-guest-sys-meta" connectable="0" value="Використовує клієнтський браузер [HTTPS]&lt;br&gt;для реєстрації, входу або ланцюгу відновлення пароля" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontBackgroundColor=#ffffff;fontColor=#333333;" vertex="1" parent="e-guest-sys">
+          <mxGeometry x="-0.02" relative="1" as="geometry"><mxPoint y="-2" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e-sys-resend" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#666666;fontSize=10;endArrow=block;endFill=0;dashed=1;jumpStyle=arc;exitX=1;exitY=0.18;entryX=0;entryY=0.55;" edge="1" parent="1" source="system-sto" target="ext-resend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-sys-resend-meta" connectable="0" value="Надсилає листи через REST API&amp;nbsp;[HTTPS] при налаштуванні ключа" style="edgeLabel;html=1;align=center;fontSize=10;fontBackgroundColor=#ffffff;fontColor=#333333;" vertex="1" parent="e-sys-resend">
+          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint x="32" y="-6" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e-sys-autoria" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#666666;fontSize=10;endArrow=block;endFill=0;dashed=1;jumpStyle=arc;exitX=1;exitY=0.42;entryX=0;entryY=0.45;" edge="1" parent="1" source="system-sto" target="ext-autoria">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-sys-autoria-meta" connectable="0" value="Запитує довідкові дані AUTO.RIA [HTTPS],&lt;br&gt;за наявності API-ключа та ідентифікатора викликача" style="edgeLabel;html=1;align=center;fontSize=10;fontBackgroundColor=#ffffff;fontColor=#333333;" vertex="1" parent="e-sys-autoria">
+          <mxGeometry x="-0.05" relative="1" as="geometry"><mxPoint x="38" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e-sys-vin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#666666;fontSize=10;endArrow=block;endFill=0;dashed=1;jumpStyle=arc;exitX=0.94;exitY=1;entryX=0;entryY=0.35;" edge="1" parent="1" source="system-sto" target="ext-vin">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="710" y="520" /><mxPoint x="790" y="520" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-sys-vin-meta" connectable="0" value="Використовує зовнішні служби декодування VIN [HTTPS],&lt;br&gt;послідовно узгоджуючи результат для картки клієнта та складських довідників" style="edgeLabel;html=1;align=center;fontSize=10;fontBackgroundColor=#ffffff;fontColor=#333333;" vertex="1" parent="e-sys-vin">
+          <mxGeometry x="-0.15" relative="1" as="geometry"><mxPoint x="72" y="10" as="offset" /></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

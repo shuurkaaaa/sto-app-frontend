@@ -7,9 +7,6 @@ const { sendPasswordResetEmail } = require('./emailService');
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_for_sto_project_2026';
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
 
-/**
- * Допоміжна функція для стандартних відповідей сервера
- */
 const sendResponse = (res, status, message, data = null, error = null) => {
     return res.status(status).json({
         success: status < 400,
@@ -20,17 +17,11 @@ const sendResponse = (res, status, message, data = null, error = null) => {
     });
 };
 
-/**
- * Валідація Email
- */
 const isValidEmail = (email) => {
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
 };
 
-/**
- * РЕЄСТРАЦІЯ
- */
 exports.register = async (req, res) => {
     const { email, password, firstName, lastName } = req.body;
 
@@ -98,9 +89,6 @@ exports.register = async (req, res) => {
     }
 };
 
-/**
- * ВХІД (LOGIN)
- */
 exports.login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -154,9 +142,6 @@ exports.login = async (req, res) => {
     }
 };
 
-/**
- * ПЕРЕВІРКА СЕСТІЇ (ME)
- */
 exports.checkStatus = async (req, res) => {
     try {
 
@@ -182,9 +167,6 @@ exports.checkStatus = async (req, res) => {
     }
 };
 
-/**
- * ЗМІНА ПАРОЛЯ
- */
 exports.updatePassword = async (req, res) => {
     const { oldPassword, newPassword } = req.body;
     const userId = req.userId;
@@ -216,9 +198,6 @@ exports.updatePassword = async (req, res) => {
     }
 };
 
-/**
- * ЗАПИТ НА СКИДАННЯ ПАРОЛЯ (генерація токену + лист)
- */
 exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
 
@@ -255,27 +234,30 @@ exports.forgotPassword = async (req, res) => {
         try {
             const result = await sendPasswordResetEmail(user.email, rawToken);
 
-            if (result?.devMode) {
-                return sendResponse(res, 200, genericMsg, { devResetUrl: result.resetUrl });
+            if (result?.deliveryMode === 'disabled') {
+                return sendResponse(res, 200, genericMsg, {
+                    deliveryMode: 'disabled',
+                    devResetUrl: result.resetUrl,
+                    emailConfig: result.config
+                });
             }
         } catch (emailErr) {
             console.error('[AUTH][RESET] Email error:', emailErr.message);
-            // Не блокуємо флоу скидання пароля навіть якщо email-сервіс тимчасово не працює.
-            // У dev-режимі фронт покаже посилання, у prod — просто отримає genericMsg.
             const resetUrl = `${process.env.APP_URL || 'http://localhost:3000'}/reset-password/${rawToken}`;
-            return sendResponse(res, 200, genericMsg, { devResetUrl: resetUrl, emailError: true });
+            return sendResponse(res, 200, genericMsg, {
+                deliveryMode: 'fallback',
+                devResetUrl: resetUrl,
+                emailError: true
+            });
         }
 
-        return sendResponse(res, 200, genericMsg);
+        return sendResponse(res, 200, genericMsg, { deliveryMode: 'email' });
     } catch (error) {
         console.error(`[AUTH][RESET] Помилка forgotPassword:`, error);
         return sendResponse(res, 500, "Помилка сервера");
     }
 };
 
-/**
- * СКИДАННЯ ПАРОЛЯ ЗА ТОКЕНОМ
- */
 exports.resetPassword = async (req, res) => {
     const { token, newPassword } = req.body;
 
@@ -317,9 +299,6 @@ exports.resetPassword = async (req, res) => {
     }
 };
 
-/**
- * ВАЛІДАЦІЯ ТОКЕНУ (для frontend перевірки перед формою)
- */
 exports.verifyResetToken = async (req, res) => {
     const { token } = req.params;
     try {

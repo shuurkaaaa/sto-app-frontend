@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Server-side architecture — Auto service CRM</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #ffffff;
+      color: #000000;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.35;
+      max-width: 880px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h1 { font-size: 18px; text-align: center; margin-bottom: 4px; font-weight: bold; color: #000000; }
+    .subtitle { text-align: center; font-size: 12px; color: #000000; margin-bottom: 20px; }
+    .box {
+      border: 2px solid #000000;
+      border-radius: 0;
+      padding: 12px 16px;
+      background: #ffffff;
+      margin-bottom: 10px;
+      color: #000000;
+    }
+    .inner {
+      border: 1px solid #000000;
+      border-radius: 0;
+      padding: 10px;
+      background: #ffffff;
+      flex: 1;
+      min-width: 140px;
+      font-size: 12px;
+      color: #000000;
+    }
+    .detail { font-size: 11px; color: #000000; margin-top: 4px; font-weight: normal; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: stretch; justify-content: space-between; }
+    .pill {
+      border: 1px solid #000000;
+      border-radius: 0;
+      padding: 8px 12px;
+      background: #ffffff;
+      font-size: 11px;
+      margin-top: 10px;
+      color: #000000;
+    }
+    .lbl { font-weight: bold; font-size: 13px; margin-bottom: 8px; display: block; color: #000000; }
+    .hint { margin-top: 16px; font-size: 11px; color: #000000; border-top: 1px solid #000000; padding-top: 10px; }
+    .arrow-dn { text-align: center; color: #000000; font-size: 18px; line-height: 1; padding: 2px 0; }
+    code { font-size: 11px; color: #000000; }
+    kbd { font-family: inherit; border: 1px solid #000000; padding: 0 4px; }
+  </style>
+</head>
+<body>
+  <h1>Server-side architecture of the auto service CRM web application</h1>
+  <p class="subtitle">Node.js · Express · Prisma · PostgreSQL · JWT · VIN validation · AUTO.RIA API · transactional email</p>
+
+  <div class="box">
+    <strong>Client tier (React SPA)</strong>
+    <p class="detail">HTTP requests, JSON payloads, header <code>Authorization: Bearer &lt;JWT&gt;</code></p>
+  </div>
+  <div class="arrow-dn">&darr;</div>
+
+  <div class="box">
+    <span class="lbl">Presentation layer</span>
+    <div class="row">
+      <div class="inner"><strong>Express middleware</strong><div class="detail">Request parsing (JSON), CORS, logging</div></div>
+      <div class="inner"><strong>Routes</strong><div class="detail"><code>/api/auth</code>, <code>/api/orders</code>, <code>/api/vin</code>, inventory, staff, analytics</div></div>
+      <div class="inner"><strong>REST controllers</strong><div class="detail">Map HTTP verbs to application operations, return JSON</div></div>
+    </div>
+    <div class="pill"><strong>JWT middleware</strong> on protected routes before controller logic (&ldquo;front controller&rdquo; pattern).</div>
+  </div>
+  <div class="arrow-dn">&darr;</div>
+
+  <div class="box">
+    <span class="lbl">Service &amp; integration layer</span>
+    <div class="row">
+      <div class="inner" style="flex:2;"><strong>Application services</strong><div class="detail"><code>autoRiaService</code>, <code>vinServiceNew</code>, <code>emailService</code>, <code>cacheService</code> outbound HTTPS, caching.</div></div>
+      <div class="inner" style="flex:1;"><strong>Authentication module</strong><div class="detail">password hashing (<code>bcrypt</code>), issue and validate JWT tokens</div></div>
+    </div>
+    <div class="pill">Complex workflows reside in services; simple CRUD may call Prisma directly from controllers.</div>
+  </div>
+  <div class="arrow-dn">&darr;</div>
+
+  <div class="box">
+    <span class="lbl">Persistence &amp; external interfaces</span>
+    <div class="row">
+      <div class="inner"><strong>Prisma ORM</strong><div class="detail">&rarr; PostgreSQL relational store for customers, vehicles, orders, inventory, purchases, analytics aggregates.</div></div>
+      <div class="inner"><strong>HTTP client (Axios)</strong><div class="detail">AUTO.RIA Developers API; NHTSA vPIC / CarQuery (VIN decode); Resend (email).</div></div>
+    </div>
+    <div class="pill"><strong>Static files:</strong> <code>express.static</code> for uploaded media under <code>uploads/</code> (inventory photos, etc.)</div>
+  </div>
+
+  <p class="hint">
+    <strong>Export as PNG/PDF:</strong> open this file in a browser &rarr; print &rarr; save as PDF, or capture a full-page screenshot. Source HTML is black-on-white only.
+  </p>
+</body>
+</html>

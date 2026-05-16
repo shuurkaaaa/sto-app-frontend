@@ -117,7 +117,7 @@ export const EditItemModal = ({ inventoryItem, onClose, onSave }) => {
               {previewUrl ? (
                 <img src={previewUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
-                <div className="sto-text-muted small p-2">📸 Фото</div>
+                <div className="sto-text-muted small p-2">Фото</div>
               )}
             </div>
             <input id="editImageUpload" type="file" className="d-none" onChange={handlePhotoChange} accept="image/*" />

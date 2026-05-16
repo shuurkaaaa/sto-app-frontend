@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { InventoryImage } from './InventoryImage';
 import { SmartCompatibility } from './SmartCompatibility';
 import { InventoryActions } from './InventoryActions';
+import { InventoryTechnicalSpecs } from './InventoryTechnicalSpecs';
 
 export const InventoryTable = ({ items, onUpdateStock, onDelete, onEdit, onShowHistory, onTagClick }) => {
   const [actionData, setActionData] = useState(null);
@@ -25,6 +26,7 @@ export const InventoryTable = ({ items, onUpdateStock, onDelete, onEdit, onShowH
             <th>Товар / Артикул</th>
             <th>Наявність</th>
             <th>Ціна</th>
+            <th>Технічні характеристики</th>
             <th>Сумісність</th>
             <th>Дії</th>
           </tr>
@@ -55,6 +57,9 @@ export const InventoryTable = ({ items, onUpdateStock, onDelete, onEdit, onShowH
               </td>
               <td>
                 <div className="text-light fw-bold">{item.price || 0} грн</div>
+              </td>
+              <td>
+                <InventoryTechnicalSpecs technicalData={item.technicalData} />
               </td>
               <td>
                 <SmartCompatibility compatibility={item.compatibility} onTagClick={onTagClick} />

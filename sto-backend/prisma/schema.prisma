@@ -31,6 +31,7 @@ model User {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt @default(now())
   passwordResetTokens PasswordResetToken[]
+  staff                 Staff?
 }
 
 model PasswordResetToken {
@@ -101,6 +102,8 @@ model Staff {
   exp             Int            @default(0)
   staffCategoryId Int?
   staffCategory   StaffCategory? @relation(fields: [staffCategoryId], references: [id], onDelete: SetNull)
+  userId          Int?           @unique
+  user            User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   status          String         @default("Вільний")
   earnings        Float          @default(0.0)
   commissionPercent Float        @default(10)
@@ -124,6 +127,8 @@ model Order {
   id            Int         @id @default(autoincrement())
   createdAt     DateTime    @default(now())
   completedAt   DateTime?
+  /// Якщо зафіксоване — склад уже списано за це виконання (захист від повторного списання при повторній зміні статусу)
+  inventoryConsumedAt DateTime?
   status        OrderStatus @default(PENDING)
   carDetails    String
   vinCode       String?
@@ -137,6 +142,7 @@ model Order {
   masterId      Int?
   master        Staff?      @relation(fields: [masterId], references: [id])
   services      Service[]   @relation("OrderToService")
+  inventoryLogs InventoryLog[]
 }
 
 model PriceCategory {
@@ -208,6 +214,10 @@ model InventoryLog {
   amount  Int
   note    String?
   date    DateTime  @default(now())
+  orderId Int?
+  order   Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
 }
 
 

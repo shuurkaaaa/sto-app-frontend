@@ -21,7 +21,7 @@ const HistoryModal = ({ item, onClose }) => {
     <div className="sto-modal-overlay">
       <div className="sto-modal" style={{ width: '550px', maxHeight: '85vh', overflowY: 'auto' }}>
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <h2 className="m-0 text-light">Історія: {item.name}</h2>
+          <h2 className="m-0 text-light">Історія</h2>
           <button
             onClick={onClose}
             className="sto-text-muted"
@@ -58,6 +58,11 @@ const HistoryModal = ({ item, onClose }) => {
                     {Number(log.amount) > 0 ? `+${log.amount}` : log.amount} шт.
                   </span>
                 </div>
+                {(log.orderId != null || log.order?.id != null) ? (
+                  <p className="m-0 mb-1 small sto-text-accent">
+                    Прив&apos;язка до замовлення: <strong>№{log.orderId ?? log.order?.id}</strong>
+                  </p>
+                ) : null}
                 <p className="m-0 text-light">{log.note}</p>
               </li>
             ))}

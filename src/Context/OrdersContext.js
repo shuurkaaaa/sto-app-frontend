@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import { useWorkers } from './WorkersContext';
 import { useInventoryContext } from './InventoryContext';
+import { useClients } from './ClientsContext';
+import { useAnalytics } from './AnalyticsContext';
 import { apiClient } from '../services/apiClient';
 
 const OrdersContext = createContext({});
@@ -13,6 +15,15 @@ export const OrdersProvider = ({ children }) => {
   const [orders, setOrders] = useState([]);
   const { fetchWorkers } = useWorkers();
   const { fetchInventory } = useInventoryContext() || {};
+  const { refreshClients } = useClients() || {};
+  const { refreshAnalytics } = useAnalytics() || {};
+
+  const propagateOrderMutation = useCallback(async () => {
+    const tasks = [];
+    if (refreshClients) tasks.push(refreshClients());
+    if (refreshAnalytics) tasks.push(refreshAnalytics());
+    if (tasks.length) await Promise.allSettled(tasks);
+  }, [refreshClients, refreshAnalytics]);
 
   const fetchOrders = useCallback(async function() {
     try {
@@ -34,6 +45,7 @@ export const OrdersProvider = ({ children }) => {
         return [response.data, ...prevOrders];
       });
       if (fetchWorkers) await fetchWorkers();
+      await propagateOrderMutation();
       return response.data;
     } catch (error) {
       console.error("Помилка створення замовлення:", error);
@@ -51,6 +63,7 @@ export const OrdersProvider = ({ children }) => {
         });
       });
       if (fetchWorkers) await fetchWorkers();
+      await propagateOrderMutation();
       return response.data;
     } catch (error) {
       console.error("Помилка оновлення замовлення:", error);
@@ -75,10 +88,11 @@ export const OrdersProvider = ({ children }) => {
       }
 
 
-      const newStatus = String(payload?.status || '').toUpperCase();
-      if ((newStatus === 'COMPLETED' || newStatus === 'ВИКОНАНО') && fetchInventory) {
+      if (payload?.status !== undefined && fetchInventory) {
         await fetchInventory();
       }
+
+      await propagateOrderMutation();
 
       return response.data;
     } catch (error) {
@@ -102,6 +116,7 @@ export const OrdersProvider = ({ children }) => {
         });
       });
       if (fetchWorkers) await fetchWorkers();
+      await propagateOrderMutation();
     } catch (error) {
       console.error("Помилка видалення замовлення:", error);
     }

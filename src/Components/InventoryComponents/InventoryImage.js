@@ -8,7 +8,7 @@ export const InventoryImage = ({ source, src, itemName, name }) => {
   const label = itemName || name;
 
   const getImageUrl = (p) => {
-    if (!p) return 'https://placehold.co/45x45/1e293b/94a3b8?text=📦';
+    if (!p) return 'https://placehold.co/45x45/1e293b/94a3b8?text=NO+IMG';
     if (p.startsWith('data:image')) return p;
     const formattedPath = p.startsWith('/') ? p : `/${p}`;
     return `${SERVER_URL}${formattedPath}`;

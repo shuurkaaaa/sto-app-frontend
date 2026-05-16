@@ -1,0 +1,36 @@
+{
+  "theme": "base",
+  "themeVariables": {
+    "background": "#ffffff",
+    "mainBkg": "#ffffff",
+    "secondaryBkg": "#ffffff",
+    "tertiaryBkg": "#ffffff",
+    "primaryTextColor": "#000000",
+    "secondaryTextColor": "#000000",
+    "tertiaryTextColor": "#000000",
+    "primaryBorderColor": "#000000",
+    "secondaryBorderColor": "#000000",
+    "tertiaryBorderColor": "#000000",
+    "lineColor": "#000000",
+    "clusterBkg": "#ffffff",
+    "clusterBorder": "#000000",
+    "titleColor": "#000000",
+    "edgeLabelBackground": "#ffffff",
+    "actorBkg": "#ffffff",
+    "actorBorder": "#000000",
+    "actorTextColor": "#000000",
+    "labelBoxBkgColor": "#ffffff",
+    "labelBoxBorderColor": "#000000",
+    "labelTextColor": "#000000",
+    "defaultLinkColor": "#000000"
+  },
+  "flowchart": {
+    "htmlLabels": true,
+    "curve": "linear",
+    "padding": 36,
+    "useMaxWidth": true,
+    "nodeSpacing": 64,
+    "rankSpacing": 72
+  },
+  "themeCSS": "html, body { margin: 0 !important; padding: 0 !important; background: #ffffff !important; width: 100% !important; min-height: 100vh !important; }\nbody { display: flex !important; flex-direction: column !important; align-items: center !important; }\n#container,\n#mindmap,\ndiv.mermaid {\n  display: flex !important;\n  justify-content: center !important;\n  align-items: flex-start !important;\n  width: 100% !important;\n  max-width: 100vw !important;\n  flex: 1 0 auto !important;\n  box-sizing: border-box !important;\n  padding: 48px 64px 96px !important;\n}\n.mermaid svg {\n  margin: 0 auto !important;\n  display: block !important;\n  max-width: 100% !important;\n  height: auto !important;\n}\n.arrowheadPath,\n.marker {\n  fill: #000000 !important;\n}"
+}

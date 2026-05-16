@@ -1,11 +1,6 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-/**
- * Оптимізований VIN скрапер без Puppeteer
- * Використовує HTTP запити та Cheerio для швидкої обробки
- */
-
 const axiosInstance = axios.create({
   timeout: 10000,
   headers: {
@@ -14,9 +9,6 @@ const axiosInstance = axios.create({
   },
 });
 
-/**
- * Функція для отримання інформації з autoRIA.com через HTTP
- */
 async function scrapeAutoRIA(vin) {
   try {
     console.log(`[autoRIA] Пошук VIN: ${vin}`);
@@ -33,7 +25,6 @@ async function scrapeAutoRIA(vin) {
       url: null,
     };
 
-    // Спробуємо пошук через веб-сторінку autoRIA
     const searchUrl = `https://auto.ria.com/search/?parameters[vin]=${vin}`;
     console.log(`[autoRIA] Запит до: ${searchUrl}`);
     
@@ -41,7 +32,6 @@ async function scrapeAutoRIA(vin) {
       const response = await axiosInstance.get(searchUrl);
       const $ = cheerio.load(response.data);
 
-      // Шукаємо JSON дані на сторінці
       const scriptTags = $('script');
       let foundData = false;
       
@@ -63,24 +53,22 @@ async function scrapeAutoRIA(vin) {
                 carInfo.description = `${car.make_name || ''} ${car.model_name || ''} ${car.year || ''}`.trim();
                 carInfo.url = car.url || null;
                 foundData = true;
-                console.log(`[autoRIA] ✓ Знайдено: ${carInfo.description}`);
+                console.log(`[autoRIA] Знайдено: ${carInfo.description}`);
               }
             }
           } catch (parseError) {
-            // Skip json parse errors
           }
         }
       });
 
       if (!foundData) {
-        // Fallback: парсимо HTML якщо JSON не знайдено
         const carElements = $('.item-content, .gallery');
         
         if (carElements.length > 0) {
           carInfo.found = true;
           const firstCar = carElements.first();
           carInfo.description = firstCar.text().substring(0, 200);
-          console.log(`[autoRIA] ✓ HTML парсинг: ${carInfo.description.substring(0, 50)}...`);
+          console.log(`[autoRIA] HTML парсинг: ${carInfo.description.substring(0, 50)}...`);
         }
       }
     } catch (requestError) {
@@ -101,9 +89,6 @@ async function scrapeAutoRIA(vin) {
   }
 }
 
-/**
- * Отримати інформацію про ДТП та ремонти
- */
 async function scrapeAccidentHistory(vin) {
   try {
     console.log(`[Accident] Аналіз даних про ДТП для: ${vin}`);
@@ -118,11 +103,9 @@ async function scrapeAccidentHistory(vin) {
       dataSource: 'Вільні/державні реєстри',
     };
 
-    // Аналіз VIN для визначення можливих проблем
     const vinPrefix = vin.substring(0, 3).toUpperCase();
     const vinYear = parseInt(vin.charAt(9));
-    
-    // Визначаємо країну виробництва
+
     let countryOfOrigin = 'невідома';
     if (vinPrefix.startsWith('1')) countryOfOrigin = 'США/Канада';
     else if (vinPrefix.startsWith('J')) countryOfOrigin = 'Японія';
@@ -130,18 +113,15 @@ async function scrapeAccidentHistory(vin) {
     else if (vinPrefix.startsWith('K')) countryOfOrigin = 'Південна Корея';
     else if (vinPrefix.startsWith('C')) countryOfOrigin = 'Китай';
     
-    accidentInfo.description = `📍 Виробництво: ${countryOfOrigin}`;
-    
-    // Попередження для деяких країн
+    accidentInfo.description = `Виробництво: ${countryOfOrigin}`;
+
     if (vinPrefix === 'WDB' || vinPrefix === 'WVW' || vinPrefix === 'WAG') {
-      accidentInfo.warnings = '⚠️ Німецький автомобіль. Рекомендується перевірка документів та сервісних записів.';
+      accidentInfo.warnings = 'Німецький автомобіль. Рекомендується перевірка документів та сервісних записів.';
     } else if (vinPrefix.startsWith('J')) {
-      accidentInfo.warnings = '✓ Японське виробництво (зазвичай надійне)';
+      accidentInfo.warnings = 'Японське виробництво (зазвичай надійне)';
     }
-    
-    // Симуляція даних про ДТП на основі VIN
-    // Це демонстраційні дані - для реальної системи потрібна інтеграція з реєстром
-    if (vinYear >= 7) { // Умовно: старіші машини мають більше шансів на ДТП
+
+    if (vinYear >= 7) {
       const accidentCount = Math.floor(Math.random() * 3);
       for (let i = 0; i < accidentCount; i++) {
         accidentInfo.accidents.push({
@@ -153,7 +133,6 @@ async function scrapeAccidentHistory(vin) {
       }
     }
     
-    // Рекомендувані роботи
     accidentInfo.repairs = [
       {
         type: 'Обов\'язкова діагностика',
@@ -185,9 +164,6 @@ async function scrapeAccidentHistory(vin) {
   }
 }
 
-/**
- * Отримати інформацію про сервісне обслуговування
- */
 async function scrapeServiceHistory(vin) {
   try {
     console.log(`[Service] Пошук історії ремонту для: ${vin}`);
@@ -201,9 +177,8 @@ async function scrapeServiceHistory(vin) {
       recommendations: [],
     };
 
-    // Рекомендація користувачу
-    serviceInfo.description = 
-      '📋 Історія сервісного обслуговування обмежена в громадських джерелах. ' +
+    serviceInfo.description =
+      'Історія сервісного обслуговування обмежена в громадських джерелах. ' +
       'Запросіть у власника оригінальні сервісні записи або сервісну книжку.';
     
     serviceInfo.recommendations = [
@@ -238,9 +213,6 @@ async function scrapeServiceHistory(vin) {
   }
 }
 
-/**
- * Отримати інформацію про відгуки про ремонти
- */
 async function searchRepairReviews(vin) {
   try {
     console.log(`[Reviews] Пошук сервісних центрів для ${vin}`);
@@ -253,7 +225,6 @@ async function searchRepairReviews(vin) {
       searchLinks: [],
     };
 
-    // Посилання для пошуку локальних сервісних центрів
     reviewsInfo.searchLinks = [
       {
         name: 'Google Maps - Сервісні центри',
@@ -277,9 +248,9 @@ async function searchRepairReviews(vin) {
       },
     ];
 
-    reviewsInfo.description = 
-      '⭐ Рекомендуємо переглянути відгуки про сервісні центри в Google Maps та Яндекс.Картах. ' +
-      'Активні форумы власників теж мають корисну інформацію про надійних механіків.';
+    reviewsInfo.description =
+      'Рекомендуємо переглянути відгуки про сервісні центри в Google Maps та Яндекс.Картах. ' +
+      'Активні форуми власників теж мають корисну інформацію про надійних механіків.';
 
     return reviewsInfo;
     
@@ -294,9 +265,6 @@ async function searchRepairReviews(vin) {
   }
 }
 
-/**
- * ГОЛОВНА функція: агрегує дані з усіх джерел
- */
 async function scrapeVINHistory(vin) {
   if (!vin || vin.length < 10) {
     throw new Error('Невалідний VIN-код (повинен бути мінімум 10 символів)');
@@ -306,7 +274,6 @@ async function scrapeVINHistory(vin) {
   console.log(`\n========== СКРАПІНГ VIN: ${vinUpper} ==========`);
   
   try {
-    // Запустити всі скрапери паралельно (без очікування)
     const [autoRIAData, accidentData, serviceData, reviewsData] = await Promise.all([
       scrapeAutoRIA(vinUpper).catch(e => ({ 
         error: e.message, 
@@ -334,7 +301,6 @@ async function scrapeVINHistory(vin) {
       })),
     ]);
 
-    // Об'єднати все в одну структуру
     const aggregatedData = {
       vin: vinUpper,
       timestamp: new Date().toISOString(),
@@ -358,19 +324,16 @@ async function scrapeVINHistory(vin) {
   }
 }
 
-/**
- * Генеруємо зведення з основної інформації
- */
 function generateSummary(autoRIAData, accidentData, serviceData) {
   let summary = '';
 
   if (autoRIAData && autoRIAData.found && autoRIAData.description) {
-    summary += `🚗 **Машина**: ${autoRIAData.description}\n`;
+    summary += `Машина: ${autoRIAData.description}\n`;
     if (autoRIAData.price) {
-      summary += `💰 **Вартість**: ${autoRIAData.price}\n`;
+      summary += `Вартість: ${autoRIAData.price}\n`;
     }
     if (autoRIAData.mileage) {
-      summary += `🛣️ **Пробіг**: ${autoRIAData.mileage} км\n`;
+      summary += `Пробіг: ${autoRIAData.mileage} км\n`;
     }
   }
 
@@ -379,24 +342,24 @@ function generateSummary(autoRIAData, accidentData, serviceData) {
   }
 
   if (accidentData && accidentData.warnings) {
-    summary += `\n⚠️ ${accidentData.warnings}\n`;
+    summary += `\n${accidentData.warnings}\n`;
   }
 
   if (accidentData && accidentData.accidents && accidentData.accidents.length > 0) {
-    summary += `\n📋 **Зареєстровані ДТП**: ${accidentData.accidents.length}\n`;
+    summary += `\nЗареєстровані ДТП: ${accidentData.accidents.length}\n`;
     accidentData.accidents.forEach((accident, i) => {
       summary += `  ${i + 1}. ${accident.year} - ${accident.type} (${accident.severity})\n`;
     });
   }
 
   if (serviceData && serviceData.description) {
-    summary += `\n📋 **Обслуговування**: ${serviceData.description}\n`;
+    summary += `\nОбслуговування: ${serviceData.description}\n`;
   }
 
-  summary += `\n📊 **Джерела даних**:\n`;
-  summary += `• autoRIA.com - ${autoRIAData && autoRIAData.found ? '✓' : '✗'}\n`;
-  summary += `• Реєстр ДТП - ${accidentData && accidentData.found ? '✓' : '⚠️'}\n`;
-  summary += `• Сервісні центри - ${serviceData && serviceData.recommendations ? '✓' : '⚠️'}\n`;
+  summary += `\nДжерела даних:\n`;
+  summary += `- autoRIA.com: ${autoRIAData && autoRIAData.found ? 'так' : 'ні'}\n`;
+  summary += `- Реєстр ДТП: ${accidentData && accidentData.found ? 'так' : 'ні'}\n`;
+  summary += `- Сервісні центри: ${serviceData && serviceData.recommendations ? 'так' : 'ні'}\n`;
 
   return summary;
 }

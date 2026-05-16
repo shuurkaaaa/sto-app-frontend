@@ -12,7 +12,7 @@ export const StaffCard = ({ worker, onToggleStatus, onEdit, onDelete, onRestore,
           <div className="sto-text-accent fw-bold mb-1" style={{ fontSize: '12px' }}>
             {worker.staffCategory?.name || 'Без категорії'}
           </div>
-          <p className="sto-text-muted m-0 small">{worker.role} • {worker.exp} р. досвіду</p>
+          <p className="sto-text-muted m-0 small">{worker.role}, {worker.exp} р. досвіду</p>
 
           {!isArchived && !isFree && worker.currentCar && (
             <p className="sto-text-danger mt-1" style={{ fontSize: '11px' }}>

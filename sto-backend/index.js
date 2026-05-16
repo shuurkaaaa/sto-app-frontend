@@ -9,27 +9,70 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 const { jsonParser, urlEncodedParser } = require('./middlewares/uploadConfig');
 const prisma = require('./lib/prisma');
+const { getEmailServiceStatus } = require('./auth/emailService');
+const { getConfigStatus: getAutoRiaConfigStatus } = require('./services/autoRiaService');
 
 const app = express();
 
+const CORS_METHODS = ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'];
+const CORS_ALLOWED_HEADERS = [
+  'Origin',
+  'X-Requested-With',
+  'Content-Type',
+  'Accept',
+  'Authorization',
+];
 
-app.use(cors({
-  origin: true,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
-}));
+function parseEnvOriginList() {
+  const raw = [process.env.FRONTEND_URL, process.env.APP_URL].filter(Boolean).join(',');
+  const list = raw
+    .split(',')
+    .map((s) => s.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+  return [...new Set(list)];
+}
 
-
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
+function isDevLoopbackOrigin(origin) {
+  if (!origin) return false;
+  let url;
+  try {
+    url = new URL(origin);
+  } catch {
+    return false;
   }
-  next();
-});
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
+  const host = url.hostname;
+  return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+}
 
+function corsOriginCallback() {
+  const envOrigins = parseEnvOriginList();
+  const isProd = process.env.NODE_ENV === 'production';
+
+  return (origin, callback) => {
+    if (!origin) {
+      return callback(null, true);
+    }
+    if (envOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    if (!isProd && isDevLoopbackOrigin(origin)) {
+      return callback(null, true);
+    }
+    callback(null, false);
+  };
+}
+
+// Не комбінуйте `Access-Control-Allow-Origin: *` з `credentials: true` — браузери відхиляють запит.
+// У dev дозволяємо будь-який порт на localhost / 127.0.0.1 / ::1; у production — лише FRONTEND_URL / APP_URL.
+app.use(
+  cors({
+    origin: corsOriginCallback(),
+    credentials: true,
+    methods: CORS_METHODS,
+    allowedHeaders: CORS_ALLOWED_HEADERS,
+  })
+);
 
 app.use(jsonParser);
 app.use(urlEncodedParser);
@@ -96,6 +139,16 @@ const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
+
+  const emailStatus = getEmailServiceStatus();
+  if (!emailStatus.configured) {
+    console.warn(`[CONFIG] Email disabled. Missing: ${emailStatus.missing.join(', ')}`);
+  }
+
+  const autoRiaStatus = getAutoRiaConfigStatus();
+  if (!autoRiaStatus.configured) {
+    console.warn(`[CONFIG] AUTO.RIA VIN lookup limited. Missing: ${autoRiaStatus.missing.join(', ')}`);
+  }
 });
 
 

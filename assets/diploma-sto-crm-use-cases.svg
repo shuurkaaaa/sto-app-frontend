@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1880"
+     height="1680"
+     viewBox="0 0 1880 1680">
+  <title>UML Use Case — CRM СТО</title>
+  <desc>Діаграма прецедентів для веб-застосунку STO CRM.</desc>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+
+  <defs>
+    <marker id="umOpenArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse" overflow="visible">
+      <path d="M0,0 L7,4 L0,8" fill="none" stroke="#000000" stroke-width="1"/>
+    </marker>
+    <marker id="umClosedArrow" markerWidth="7" markerHeight="7" refX="6" refY="3.25" orient="auto" markerUnits="userSpaceOnUse" overflow="visible">
+      <path d="M0,0 L7,3.25 L0,6.5 Z" fill="#000000" stroke="none"/>
+    </marker>
+    <marker id="umAssocArrow" markerWidth="6" markerHeight="6" refX="5.2" refY="2.5" orient="auto" markerUnits="userSpaceOnUse" overflow="visible">
+      <path d="M0,0 L6,2.5 L0,5 Z" fill="#000000" stroke="none"/>
+    </marker>
+  </defs>
+
+  <style type="text/css">
+    text { font-family: Arial, Helvetica, sans-serif; fill: #000000; stroke: none; }
+    .t-title { font-size: 15px; font-weight: bold; }
+    .t-actor { font-size: 11px; }
+    .t-uc { font-size: 10.5px; }
+    .t-st { font-size: 9px; font-style: italic; }
+    .stroke-solid { fill: none; stroke: #000000; stroke-width: 1; stroke-dasharray: none; }
+    .stroke-dash { fill: none; stroke: #000000; stroke-width: 1; stroke-dasharray: 5 4; }
+    .ellipse-uc { fill: #ffffff; stroke: #000000; stroke-width: 1; }
+  </style>
+
+  <rect x="170" y="32" width="1540" height="1608" fill="none" stroke="#000000" stroke-width="1"/>
+  <text x="940" y="64" text-anchor="middle" class="t-title">«CRM СТО — веб-додаток»</text>
+
+  <!-- Lane labels (xm) -->
+  <text x="698" y="98" text-anchor="middle" class="t-st">620</text>
+  <text x="734" y="98" text-anchor="middle" class="t-st">740</text>
+  <text x="892" y="98" text-anchor="middle" class="t-st">820</text>
+  <text x="1008" y="98" text-anchor="middle" class="t-st">910 · 1000</text>
+
+  <!-- Actors -->
+  <g transform="translate(52,720)">
+    <circle cx="18" cy="10" r="9" fill="none" stroke="#000000" stroke-width="1"/>
+    <path d="M18,19 V40 M8,52 L18,40 L28,52 M10,68 L18,40 L26,68" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round"/>
+  </g>
+  <text x="70" y="822" text-anchor="middle" class="t-actor">
+    <tspan x="70" dy="0">Авторизований користувач</tspan>
+    <tspan x="70" dy="14">(прийом / майстер / адміністратор)</tspan>
+  </text>
+
+  <g transform="translate(1698,126)">
+    <circle cx="18" cy="10" r="9" fill="none" stroke="#000000" stroke-width="1"/>
+    <path d="M18,19 V38 M10,49 L18,38 L26,49 M11,62 L18,38 L25,62" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round"/>
+  </g>
+  <text x="1716" y="226" text-anchor="middle" class="t-actor">Гість</text>
+  <text x="1716" y="242" text-anchor="middle" class="t-actor">(не авторизований)</text>
+
+  <!-- Hubs: pitch Δcy = 155 -->
+  <ellipse id="uc-analytics" class="ellipse-uc" cx="268" cy="130" rx="128" ry="30"/>
+  <text x="268" y="134" text-anchor="middle" class="t-uc">Переглянути аналітику</text>
+  <ellipse id="uc-orders" class="ellipse-uc" cx="268" cy="285" rx="132" ry="30"/>
+  <text x="268" y="289" text-anchor="middle" class="t-uc">Керувати замовленнями</text>
+  <ellipse id="uc-clients" class="ellipse-uc" cx="268" cy="440" rx="140" ry="30"/>
+  <text x="268" y="444" text-anchor="middle" class="t-uc">Керувати клієнтською базою</text>
+  <ellipse id="uc-warehouse" class="ellipse-uc" cx="268" cy="595" rx="108" ry="30"/>
+  <text x="268" y="599" text-anchor="middle" class="t-uc">Керувати складом</text>
+  <ellipse id="uc-price" class="ellipse-uc" cx="268" cy="750" rx="102" ry="30"/>
+  <text x="268" y="754" text-anchor="middle" class="t-uc">Керувати прайсом</text>
+  <ellipse id="uc-staff" class="ellipse-uc" cx="268" cy="905" rx="112" ry="30"/>
+  <text x="268" y="909" text-anchor="middle" class="t-uc">Керувати персоналом</text>
+  <ellipse id="uc-notif" class="ellipse-uc" cx="268" cy="1060" rx="118" ry="30"/>
+  <text x="268" y="1064" text-anchor="middle" class="t-uc">Переглянути сповіщення</text>
+  <ellipse id="uc-logout" class="ellipse-uc" cx="268" cy="1215" rx="100" ry="30"/>
+  <text x="268" y="1219" text-anchor="middle" class="t-uc">Вийти з системи</text>
+
+  <!-- Аналітика: refinements xm≈698, Δcy≥82 -->
+  <ellipse id="uc-an-per" class="ellipse-uc" cx="698" cy="112" rx="116" ry="26"/>
+  <text x="698" y="116" text-anchor="middle" class="t-uc">Обрати період / діапазон дат</text>
+  <ellipse id="uc-an-kpi" class="ellipse-uc" cx="698" cy="206" rx="118" ry="26"/>
+  <text x="698" y="210" text-anchor="middle" class="t-uc">Переглянути ключові показники</text>
+
+  <!-- Замовлення: xm≈734 -->
+  <ellipse id="uc-status" class="ellipse-uc" cx="734" cy="294" rx="110" ry="26"/>
+  <text x="734" y="298" text-anchor="middle" class="t-uc">Змінити статус наряду</text>
+  <ellipse id="uc-assign" class="ellipse-uc" cx="734" cy="384" rx="102" ry="26"/>
+  <text x="734" y="388" text-anchor="middle" class="t-uc">Призначити майстра</text>
+  <ellipse id="uc-detail" class="ellipse-uc" cx="734" cy="472" rx="118" ry="26"/>
+  <text x="734" y="476" text-anchor="middle" class="t-uc">Переглянути деталі наряду</text>
+  <ellipse id="uc-submit-order" class="ellipse-uc" cx="734" cy="562" rx="118" ry="26"/>
+  <text x="734" y="566" text-anchor="middle" class="t-uc">Оформити / зберегти наряд</text>
+
+  <!-- include: лише з оформлення наряду -->
+  <ellipse id="uc-pick-services" class="ellipse-uc" cx="1108" cy="562" rx="116" ry="26"/>
+  <text x="1108" y="566" text-anchor="middle" class="t-uc">Обрати послуги з прайсу</text>
+
+  <!-- Клієнти: xm≈892 (нижче нарядів — повітря до «Обрати послуги») -->
+  <ellipse id="uc-card" class="ellipse-uc" cx="892" cy="652" rx="114" ry="26"/>
+  <text x="892" y="656" text-anchor="middle" class="t-uc">Відкрити картку клієнта</text>
+  <ellipse id="uc-cars" class="ellipse-uc" cx="892" cy="734" rx="126" ry="26"/>
+  <text x="892" y="738" text-anchor="middle" class="t-uc">Керувати автомобілями клієнта</text>
+  <ellipse id="uc-notes" class="ellipse-uc" cx="892" cy="816" rx="106" ry="26"/>
+  <text x="892" y="820" text-anchor="middle" class="t-uc">Нотатки та комунікація</text>
+  <ellipse id="uc-vin" class="ellipse-uc" cx="892" cy="898" rx="128" ry="26"/>
+  <text x="892" y="902" text-anchor="middle" class="t-uc">Отримати довідкові дані за VIN</text>
+
+  <ellipse id="uc-vin-int" class="ellipse-uc" cx="1312" cy="898" rx="104" ry="24"/>
+  <text x="1312" y="902" text-anchor="middle" class="t-uc">Інтеграція зовнішньої довідки</text>
+
+  <!-- Склад xm≈1008 -->
+  <ellipse id="uc-stock" class="ellipse-uc" cx="1008" cy="986" ry="26" rx="94"/>
+  <text x="1008" y="990" text-anchor="middle" class="t-uc">Оновити залишки</text>
+  <ellipse id="uc-purchase" class="ellipse-uc" cx="1008" cy="1072" ry="26" rx="154"/>
+  <text x="1008" y="1076" text-anchor="middle" class="t-uc">Сформувати замовлення на постачання</text>
+  <ellipse id="uc-export" class="ellipse-uc" cx="1008" cy="1154" ry="26" rx="114"/>
+  <text x="1008" y="1158" text-anchor="middle" class="t-uc">Експорт облікових даних</text>
+
+  <!-- Прайс xm≈1008, нижче складу -->
+  <ellipse id="uc-cats" class="ellipse-uc" cx="1008" cy="1244" ry="26" rx="92"/>
+  <text x="1008" y="1248" text-anchor="middle" class="t-uc">Категорії послуг</text>
+  <ellipse id="uc-norms" class="ellipse-uc" cx="1008" cy="1324" ry="26" rx="164"/>
+  <text x="1008" y="1328" text-anchor="middle" class="t-uc">Узгодження зі складом (норми витрат)</text>
+
+  <!-- Персонал: xm≈596 (розведено від хаба по X) -->
+  <ellipse id="uc-st-view" class="ellipse-uc" cx="596" cy="834" rx="118" ry="26"/>
+  <text x="596" y="838" text-anchor="middle" class="t-uc">Переглянути запис працівника</text>
+  <ellipse id="uc-st-cat" class="ellipse-uc" cx="596" cy="922" rx="126" ry="26"/>
+  <text x="596" y="926" text-anchor="middle" class="t-uc">Призначити категорію персоналу</text>
+  <ellipse id="uc-st-log" class="ellipse-uc" cx="596" cy="1018" rx="128" ry="26"/>
+  <text x="596" y="1022" text-anchor="middle" class="t-uc">Переглянути журнал дій майстра</text>
+
+  <!-- Сповіщення: xm=628, понад блоком прайсу -->
+  <ellipse id="uc-nf-filter" class="ellipse-uc" cx="628" cy="1246" rx="114" ry="26"/>
+  <text x="628" y="1250" text-anchor="middle" class="t-uc">Відфільтрувати сповіщення</text>
+  <ellipse id="uc-nf-read" class="ellipse-uc" cx="628" cy="1330" rx="112" ry="26"/>
+  <text x="628" y="1334" text-anchor="middle" class="t-uc">Позначити як прочитане</text>
+
+  <!-- Вихід -->
+  <ellipse id="uc-lo-confirm" class="ellipse-uc" cx="672" cy="1438" rx="106" ry="26"/>
+  <text x="672" y="1442" text-anchor="middle" class="t-uc">Підтвердити вихід</text>
+  <ellipse id="uc-lo-session" class="ellipse-uc" cx="672" cy="1540" ry="26" rx="116"/>
+  <text x="672" y="1544" text-anchor="middle" class="t-uc">Завершити сесію доступу</text>
+
+  <!-- Гість -->
+  <ellipse id="uc-login" class="ellipse-uc" cx="1556" cy="140" ry="24" rx="98"/>
+  <text x="1556" y="144" text-anchor="middle" class="t-uc">Увійти в систему</text>
+  <ellipse id="uc-reset" class="ellipse-uc" cx="1556" cy="220" ry="24" rx="100"/>
+  <text x="1556" y="224" text-anchor="middle" class="t-uc">Відновити пароль</text>
+
+  <!-- Асоціації -->
+  <path d="M88,764 L394,130" class="stroke-solid" marker-end="url(#umAssocArrow)"/>
+  <path d="M88,764 L394,285" class="stroke-solid" marker-end="url(#umAssocArrow)"/>
+  <path d="M88,764 L394,440" class="stroke-solid" marker-end="url(#umAssocArrow)"/>
+  <path d="M88,764 L394,595" class="stroke-solid" marker-end="url(#umAssocArrow)"/>
+  <path d="M88,764 L394,750" class="stroke-solid" marker-end="url(#umAssocArrow)"/>
+  <path d="M88,764 L394,905" class="stroke-solid" marker-end="url(#umAssocArrow)"/>
+  <path d="M88,764 L394,1060" class="stroke-solid" marker-end="url(#umAssocArrow)"/>
+  <path d="M88,764 L394,1215" class="stroke-solid" marker-end="url(#umAssocArrow)"/>
+
+  <path d="M1702,140 L1648,140" class="stroke-solid" marker-end="url(#umAssocArrow)"/>
+  <path d="M1702,220 L1648,220" class="stroke-solid" marker-end="url(#umAssocArrow)"/>
+
+  <path d="M1462,220 H1396 V140 H1460" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="1422" y="184" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+
+  <!-- Extend: аналітика -->
+  <path d="M582,112 H388 V130 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="478" y="98" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+  <path d="M580,206 H388 V130 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="476" y="192" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+
+  <!-- Замовлення -->
+  <path d="M624,294 H456 V285 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="526" y="280" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+  <path d="M632,384 H456 V285 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="532" y="352" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+  <path d="M616,472 H456 V285 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="520" y="432" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+  <path d="M616,562 H456 V285 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="520" y="504" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+
+  <!-- Клієнти -->
+  <path d="M778,652 H596 V440 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="658" y="640" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+  <path d="M766,734 H596 V440 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="648" y="708" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+  <path d="M786,816 H596 V440 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="664" y="776" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+  <path d="M764,898 H596 V440 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="648" y="844" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+
+  <!-- Склад -->
+  <path d="M914,986 H620 V595 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="742" y="974" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+  <path d="M854,1072 H620 V595 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="692" y="1060" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+  <path d="M894,1154 H620 V595 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="716" y="1142" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+
+  <!-- Прайс -->
+  <path d="M914,1244 H620 V750 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="742" y="1232" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+  <path d="M844,1324 H620 V750 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="688" y="1312" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+
+  <!-- Персонал xm≈596 -->
+  <path d="M478,834 H392 V905 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="424" y="820" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+  <path d="M470,922 H388 V905 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="416" y="908" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+  <path d="M468,1018 H386 V905 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="412" y="1004" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+
+  <!-- Сповіщення -->
+  <path d="M514,1246 H408 V1060 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="448" y="1234" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+  <path d="M516,1330 H408 V1060 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="450" y="1318" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+
+  <!-- Вихід -->
+  <path d="M566,1438 H412 V1215 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="478" y="1424" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+  <path d="M556,1540 H392 V1215 H396" class="stroke-dash" marker-end="url(#umOpenArrow)"/>
+  <text x="462" y="1524" text-anchor="middle" class="t-st">&#171;extend&#187;</text>
+
+  <!-- include: база → включений -->
+  <path d="M852,562 H988" class="stroke-dash" marker-end="url(#umClosedArrow)"/>
+  <text x="926" y="548" text-anchor="middle" class="t-st">&#171;include&#187;</text>
+
+  <!-- VIN include -->
+  <path d="M1020,898 H1204" class="stroke-dash" marker-end="url(#umClosedArrow)"/>
+  <text x="1108" y="884" text-anchor="middle" class="t-st">&#171;include&#187;</text>
+</svg>

@@ -1,10 +1,7 @@
 const axios = require('axios');
+const autoRiaService = require('./autoRiaService');
 
-// Кращі API для розшифровки VIN
 const vinServiceNew = {
-  /**
-   * 🚗 ОСНОВНИЙ МЕТОД: декодувати VIN з кількох джерел
-   */
   decodeVIN: async (vin) => {
     try {
       if (!vin || vin.length < 9) {
@@ -16,14 +13,29 @@ const vinServiceNew = {
 
       const cleanVin = vin.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 17);
 
-      // 1️⃣ Спробуємо carqueryapi.com (найкращий для старих машин та імпортних)
       let result = await vinServiceNew.decodeFromCarQuery(cleanVin);
-      if (result.success) {
-        console.log(`✅ CarQuery: ${result.make} ${result.model} ${result.year}`);
-        return result;
+      if (result.success) return result;
+
+      result = await vinServiceNew.decodeFromNHTSA(cleanVin);
+      if (result && result.make) {
+        const pos = vinServiceNew.decodeFromVINPosition(cleanVin);
+        const hasModel = result.model && String(result.model).trim() !== '';
+        const hasYear = result.year && String(result.year).trim() !== '' && result.year !== 'Unknown';
+        if (hasModel && hasYear) return result;
+        return {
+          success: true,
+          source: hasModel && hasYear ? 'NHTSA' : 'NHTSA+VIN_POSITION',
+          vin: cleanVin,
+          make: result.make,
+          model: hasModel ? result.model : pos.model,
+          year: hasYear ? String(result.year) : String(pos.year),
+          body: result.body,
+          engine: result.engine,
+          fuel: result.fuel,
+          info: !hasModel || !hasYear ? pos.info : undefined,
+        };
       }
 
-      // 2️⃣ Якщо не спрацював, витягуємо з позиції VIN (найбільш надійно)
       return vinServiceNew.decodeFromVINPosition(cleanVin);
     } catch (error) {
       console.error('VIN decode error:', error.message);
@@ -34,16 +46,25 @@ const vinServiceNew = {
     }
   },
 
-  /**
-   * 💎 carqueryapi.com - найточніший для європейських авто
-   */
   decodeFromCarQuery: async (vin) => {
     try {
       const response = await axios.get(`https://www.carqueryapi.com/api/0.3/?cmd=decodeVin&vin=${vin}`, {
+        responseType: 'text',
         timeout: 5000
       });
 
-      const data = response.data;
+      let data = response.data;
+      if (typeof data === 'string') {
+        const parsedText = data.trim();
+        try {
+          data = JSON.parse(parsedText);
+        } catch (jsonError) {
+          const jsonMatch = parsedText.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            data = JSON.parse(jsonMatch[0]);
+          }
+        }
+      }
 
       if (data.status === 'ok' && data.model_year) {
         return {
@@ -66,9 +87,6 @@ const vinServiceNew = {
     }
   },
 
-  /**
-   * 🏛️ NHTSA - офіційний API США (працює краще для американських авто)
-   */
   decodeFromNHTSA: async (vin) => {
     try {
       const response = await axios.get(
@@ -84,96 +102,129 @@ const vinServiceNew = {
       const make = results.find(r => r.Variable === 'Make')?.Value;
       const model = results.find(r => r.Variable === 'Model')?.Value;
       const year = results.find(r => r.Variable === 'Model Year')?.Value;
+      const series = results.find(r => r.Variable === 'Series')?.Value;
+      const series2 = results.find(r => r.Variable === 'Series2')?.Value;
 
-      if (make && year) {
+      if (make) {
         return {
           success: true,
           source: 'NHTSA',
           vin,
           make,
-          model: model || 'Unknown',
-          year: String(year)
+          model: model || series || series2 || null,
+          year: year || null,
         };
       }
 
-      return { success: false, error: 'NHTSA: неповні дані' };
+      return { success: false, error: 'NHTSA: немає марки' };
     } catch (error) {
       console.warn('NHTSA API error:', error.message);
       return { success: false, error: error.message };
     }
   },
 
-  /**
-   * 📍 Як останній варіант: розшифруємо з позиції VIN
-   * Позиція 9 = рік, позиції 0-2 = виробник
-   */
-  decodeFromVINPosition: (vin) => {
-    // ✅ Рік у позиції 9 (0-indexed: index 9)
-    const yearPosition = vin.charAt(9);
-    const yearMap = {
-      'A': 2010, 'B': 2011, 'C': 2012, 'D': 2013, 'E': 2014, 'F': 2015,
-      'G': 2016, 'H': 2017, 'J': 2018, 'K': 2019, 'L': 2020, 'M': 2021,
-      'N': 2022, 'P': 2023, 'R': 2024, 'S': 2025, 'T': 2026, 'V': 2027,
-      'W': 2028, 'X': 2029, 'Y': 2030, 'Z': 2031
+  /** 10-й символ VIN (індекс 9): рік моделі (30-річний цикл + цифри). */
+  decodeModelYearChar: (c, vin) => {
+    if (!c) return null;
+    const now = new Date().getFullYear();
+    const pick = (years) => {
+      const arr = years.filter((y) => typeof y === 'number' && y >= 1980 && y <= now + 1);
+      return arr.length ? Math.max(...arr) : years[0];
     };
 
-    // ✅ Виробник у позиціях 0-3 (WMI - World Manufacturer Identifier)
+    if (/^[1-9]$/.test(c)) {
+      const d = Number(c);
+      return pick([2000 + d, 2030 + d]);
+    }
+    if (c === '0') {
+      // «0» у 10-й позиції формально рідко; для євро-BMW інколи сплутують з «O» / зсув колонки
+      if (vin && /^WBA/.test(vin) && vin.charAt(10) === 'L') return 2020;
+      return pick([2010, 2040]);
+    }
+
+    const letterCycle = {
+      A: [1980, 2010], B: [1981, 2011], C: [1982, 2012], D: [1983, 2013], E: [1984, 2014],
+      F: [1985, 2015], G: [1986, 2016], H: [1987, 2017], J: [1988, 2018], K: [1989, 2019],
+      L: [1990, 2020], M: [1991, 2021], N: [1992, 2022], P: [1993, 2023], R: [1994, 2024],
+      S: [1995, 2025], T: [1996, 2026], V: [1997, 2027], W: [1998, 2028], X: [1999, 2029], Y: [2000, 2030],
+    };
+    const pair = letterCycle[c];
+    if (pair) return pick(pair);
+    return null;
+  },
+
+  guessModelFromVinHeuristic: (vin, make) => {
+    const v = String(vin || '').toUpperCase();
+    if (!v || v.length < 8) return 'За каталогом марки (VIN)';
+
+    if (make === 'BMW' && /^WBA|^WBX|^WBS/.test(v)) {
+      const code = v.charAt(4);
+      if ('FGH'.includes(code)) return '3 / 4 Series (за VIN-серією, орієнтовно)';
+      if ('UV'.includes(code)) return '5 / 6 Series (за VIN-серією, орієнтовно)';
+      if ('ST'.includes(code)) return '7 / 8 Series (за VIN-серією, орієнтовно)';
+      if ('XY'.includes(code)) return 'X-модель (за VIN-серією, орієнтовно)';
+      return 'BMW (Європа, за серією кузова в VIN)';
+    }
+    if (make === 'Audi' && /^WA/.test(v)) return 'Audi (імпорт, за WMI)';
+    if (make === 'Volkswagen' && /^WV|^WVG/.test(v)) return 'Volkswagen (Європа, за WMI)';
+    if (make === 'Mercedes-Benz' && /^WDD|^WDB|^WDC/.test(v)) return 'Mercedes-Benz (Європа, за WMI)';
+    if (make === 'Tesla' && /^5YJ/.test(v)) return 'Model 3 / Y (за WMI, орієнтовно)';
+    if (make === 'Toyota' && /^5T|^JT/.test(v)) return 'Toyota SUV / легковик (за WMI)';
+    if (make === 'Škoda' || make === 'Skoda') return 'Škoda (Європа, за WMI)';
+    if (make === 'Nissan' && /^JN/.test(v)) return 'Nissan (імпорт, за WMI)';
+
+    return 'Уточніть модель за повним каталогом';
+  },
+
+  decodeFromVINPosition: (vin) => {
     const wmi = vin.substring(0, 3);
     const wmiMap = {
-      // Audi
       'WAU': 'Audi', 'WA1': 'Audi',
-      // BMW
-      'BMW': 'BMW', 'WBA': 'BMW', 'WBX': 'BMW',
-      // Volkswagen
-      'VWV': 'Volkswagen', 'WVW': 'Volkswagen', 'WV1': 'Volkswagen', 'WV2': 'Volkswagen',
-      // Mercedes
-      'WDB': 'Mercedes-Benz', 'WDC': 'Mercedes-Benz',
-      // Porsche
+      'BMW': 'BMW', 'WBA': 'BMW', 'WBX': 'BMW', 'WBS': 'BMW',
+      'VWV': 'Volkswagen', 'WVW': 'Volkswagen', 'WV1': 'Volkswagen', 'WV2': 'Volkswagen', 'WVG': 'Volkswagen',
+      'WDB': 'Mercedes-Benz', 'WDC': 'Mercedes-Benz', 'WDD': 'Mercedes-Benz',
       'WP0': 'Porsche', 'WP1': 'Porsche',
-      // Ferrari / Lamborghini
       'ZFF': 'Ferrari', 'ZHW': 'Lamborghini',
-      // Volvo / Renault
       'VSS': 'Volvo', 'YV1': 'Volvo', 'VF1': 'Renault', 'VF3': 'Renault', 'VF7': 'Peugeot',
-      // Toyota
-      'JT2': 'Toyota', 'JT3': 'Toyota', '4T1': 'Toyota', '4T4': 'Toyota',
-      // Honda
+      'JT2': 'Toyota', 'JT3': 'Toyota', 'JTD': 'Toyota', '4T1': 'Toyota', '4T4': 'Toyota', '5TD': 'Toyota',
       'JH2': 'Honda', 'JH3': 'Honda', '1HG': 'Honda',
-      // Nissan
       'JN1': 'Nissan',
-      // Hyundai / Kia
       'KMH': 'Hyundai', 'KNE': 'Hyundai', 'KNA': 'Kia', 'KNB': 'Kia',
-      // Mazda / Subaru / Mitsubishi
       'JM1': 'Mazda', 'JM2': 'Mazda', 'JF1': 'Subaru', 'JF2': 'Subaru', 'MMC': 'Mitsubishi',
-      // Opel / Skoda / Fiat / Citroen
-      'WOL': 'Opel', 'TMB': 'Skoda',
-      // Ford / Chevrolet / GMC / Cadillac
+      'WOL': 'Opel', 'TMB': 'Škoda',
       '1FA': 'Ford', '1FM': 'Ford', '1FT': 'Ford', '1FC': 'Ford', 'WF0': 'Ford',
       '1G1': 'Chevrolet', '1G2': 'Chevrolet', '1GC': 'Chevrolet',
       '1GT': 'Chevrolet', '1G6': 'Cadillac',
-      // Dodge / Chrysler / Jeep
       '1B3': 'Dodge', '1B7': 'Dodge', '2B3': 'Chrysler', '2C3': 'Chrysler',
       '1J4': 'Jeep', '1J8': 'Jeep',
-      // Luxury
-      'SCA': 'Rolls-Royce', 'SCB': 'Bentley'
+      'SCA': 'Rolls-Royce', 'SCB': 'Bentley',
+      '5YJ': 'Tesla',
     };
 
-    const make = wmiMap[wmi] || 'Unknown';
-    const year = yearMap[yearPosition] || 'Unknown';
+    let make = wmiMap[wmi] || 'Unknown';
+    if (make === 'Unknown') {
+      const wmi4 = vin.substring(0, 4);
+      if (wmi4 === 'JN1T' || wmi4 === 'JN1B') make = 'Nissan';
+    }
+
+    const y10 = vinServiceNew.decodeModelYearChar(vin.charAt(9), vin);
+    const year = y10 != null ? y10 : 'Unknown';
+
+    const model = make === 'Unknown'
+      ? 'За каталогом (невідомий WMI)'
+      : vinServiceNew.guessModelFromVinHeuristic(vin, make);
 
     return {
       success: true,
       source: 'VIN_POSITION',
       vin,
       make,
-      model: 'Unknown (decoded from VIN position)',
+      model,
       year: String(year),
-      info: '✅ Дані розшифровані з позиції VIN - точність 95%'
+      info: 'Рік і модель — евристика з 10-го символу VIN та WMI (для євро-авто NHTSA часто без моделі).',
     };
   },
 
-  /**
-   * ✅ Валідація VIN за чек-сумою
-   */
   validateVIN: (vin) => {
     if (!vin) return { valid: false, message: 'VIN-код не вказаний' };
 
@@ -187,15 +238,27 @@ const vinServiceNew = {
       return { valid: false, message: 'VIN-код містить недопустимі символи (I, O, Q)' };
     }
 
-    const checkDigit = cleanVin.charAt(8);
+    const transliterate = (char) => {
+      if (/\d/.test(char)) return Number(char);
+      const map = {
+        A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8,
+        J: 1, K: 2, L: 3, M: 4, N: 5,
+        P: 7, R: 9,
+        S: 2, T: 3, U: 4, V: 5, W: 6, X: 7, Y: 8, Z: 9,
+      };
+      return map[char];
+    };
+
     const weights = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2];
-    const transliterationTable = '0123456789.ABCDEFGH..J.K..L..M.N.P.R..S.T.UV.WVXYZ';
+    const checkDigit = cleanVin.charAt(8);
 
     let sum = 0;
     for (let i = 0; i < 17; i++) {
       const char = cleanVin.charAt(i);
-      const value = transliterationTable.indexOf(char);
-      if (value === -1) return { valid: false, message: `Недопустимий символ у VIN: ${char}` };
+      const value = transliterate(char);
+      if (value === undefined) {
+        return { valid: false, message: `Недопустимий символ у VIN: ${char}` };
+      }
       sum += value * weights[i];
     }
 
@@ -203,60 +266,21 @@ const vinServiceNew = {
     const expectedCheckDigit = calculatedCheckDigit === 10 ? 'X' : String(calculatedCheckDigit);
 
     if (checkDigit !== expectedCheckDigit) {
-      return { valid: false, message: 'Невірна контрольна цифра VIN' };
+      return {
+        valid: false,
+        message: 'Невірна контрольна цифра VIN',
+        expected: expectedCheckDigit,
+        actual: checkDigit,
+      };
     }
 
     return { valid: true, message: 'VIN-код валідний' };
   },
 
-  /**
-   * 🔍 Пошук історії через autoRIA (тільки для України)
-   */
   searchAutoRIA: async (vin) => {
-    try {
-      console.log(`[autoRIA] Пошук ${vin}...`);
-
-      // Пошук через JSON API autoRIA
-      const searchResponse = await axios.get(`https://auto.ria.com/api/search/auto/`, {
-        params: {
-          'filter[vin]': vin,
-          include_search_parameters: 1
-        },
-        timeout: 8000,
-        headers: {
-          'User-Agent': 'Mozilla/5.0'
-        }
-      }).catch(() => null);
-
-      if (searchResponse?.data?.result?.total_count > 0) {
-        const car = searchResponse.data.result.search_result[0];
-        console.log(`✅ autoRIA знайшов: ${car.model_name}`);
-
-        return {
-          success: true,
-          source: 'autoRIA.com',
-          found: true,
-          brand: car.mark_name,
-          model: car.model_name,
-          year: car.year,
-          price: car.price,
-          mileage: car.mileage,
-          region: car.region_name,
-          description: `${car.mark_name} ${car.model_name} ${car.year}`,
-          url: `https://auto.ria.com/${car.auto_id}.html`
-        };
-      }
-
-      return { success: false, found: false, source: 'autoRIA.com' };
-    } catch (error) {
-      console.warn('[autoRIA] Помилка:', error.message);
-      return { success: false, found: false, source: 'autoRIA.com', error: error.message };
-    }
+    return autoRiaService.searchByVin(vin);
   },
 
-  /**
-   * 📊 Комбінований пошук: NHTSA + autoRIA
-   */
   getFullInfo: async (vin) => {
     const validation = vinServiceNew.validateVIN(vin);
     if (!validation.valid) {
@@ -265,7 +289,6 @@ const vinServiceNew = {
 
     const cleanVin = vin.toUpperCase().replace(/[^A-Z0-9]/g, '');
 
-    // Паралельні запити
     const [decodeResult, autoRIAResult] = await Promise.all([
       vinServiceNew.decodeVIN(cleanVin),
       vinServiceNew.searchAutoRIA(cleanVin)

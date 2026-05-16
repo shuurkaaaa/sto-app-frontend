@@ -67,6 +67,24 @@ export const WorkersProvider = ({ children }) => {
     }
   };
 
+  const updateCategory = async (id, name) => {
+    const trimmed = name != null ? String(name).trim() : '';
+    if (!trimmed) throw new Error('EMPTY_NAME');
+    try {
+      const res = await apiClient.patch(`${CAT_API_URL}/${id}`, { name: trimmed });
+      setCategories(prev =>
+        [...prev.map(cat => (cat.id === id ? res.data : cat))].sort((a, b) =>
+          a.name.localeCompare(b.name, 'uk')
+        )
+      );
+      await fetchWorkers();
+      return res.data;
+    } catch (err) {
+      console.error("Не вдалося оновити категорію:", err);
+      throw err;
+    }
+  };
+
   const addWorker = async (workerData) => {
     try {
 
@@ -152,7 +170,8 @@ export const WorkersProvider = ({ children }) => {
       updateWorkerStatus,
       categories,
       addCategory,
-      deleteCategory
+      deleteCategory,
+      updateCategory
     }}>
       {children}
     </WorkersContext.Provider>

@@ -12,10 +12,6 @@ export const useInventoryLogic = () => {
   const [showLowStock, setShowLowStock] = useState(false);
   const [currentView, setCurrentView] = useState('list');
 
-  /**
-   * Мемоізована фільтрація списку товарів.
-   * Виконується лише при зміні вхідних даних (items) або параметрів фільтрації.
-   */
   const filteredItems = useMemo(() => {
 
     const data = Array.isArray(items) ? items : [];
@@ -52,10 +48,6 @@ export const useInventoryLogic = () => {
     });
   }, [items, searchTerm, selectedCategory, showLowStock]);
 
-  /**
-   * Мемоізований розрахунок загальної статистики складу.
-   * Вираховує загальну вартість активів та кількість позицій, що потребують замовлення.
-   */
   const stats = useMemo(() => {
     const data = Array.isArray(items) ? items : [];
     return data.reduce((acc, item) => {
@@ -74,12 +66,6 @@ export const useInventoryLogic = () => {
     }, { totalValue: 0, deficitCount: 0 });
   }, [items]);
 
-  /**
-   * Функція швидкого оновлення залишків (прихід товару або списання).
-   * @param {string|number} id - Унікальний ідентифікатор товару.
-   * @param {number} delta - Кількість (позитивна для приходу, негативна для списання).
-   * @param {string} note - Коментар до операції (опціонально).
-   */
   const updateStock = async (id, delta, note = '') => {
 
     const item = items.find(i => String(i.id) === String(id));
@@ -110,10 +96,6 @@ export const useInventoryLogic = () => {
     }
   };
 
-  /**
-   * Функція видалення товару зі складу.
-   * @param {string|number} id - ID товару для видалення.
-   */
   const deleteItem = async (id) => {
 
     if (!window.confirm("Ви впевнені, що хочете видалити цей товар назавжди? Це видалить також історію рухів товару.")) {

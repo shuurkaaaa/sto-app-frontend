@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="280" viewBox="0 0 920 280">
+  <defs>
+    <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L0,8 L8,4 z" fill="#000"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#fff"/>
+  <text x="460" y="26" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" text-anchor="middle">
+    Fig. 4.10 (schematic). Order status flow + inventory link on Completed</text>
+
+  <rect x="40" y="56" width="110" height="44" rx="4" fill="none" stroke="#000"/>
+  <text x="95" y="84" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="middle" fill="#000">PENDING</text>
+  <line x1="150" y1="78" x2="188" y2="78" stroke="#000" marker-end="url(#ar)"/>
+
+  <rect x="188" y="56" width="110" height="44" rx="4" fill="none" stroke="#000"/>
+  <text x="243" y="84" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="middle" fill="#000">IN_WORK</text>
+  <line x1="298" y1="78" x2="336" y2="78" stroke="#000" marker-end="url(#ar)"/>
+
+  <rect x="336" y="56" width="110" height="44" rx="4" fill="none" stroke="#000"/>
+  <text x="391" y="84" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="middle" fill="#000">READY</text>
+  <line x1="446" y1="78" x2="484" y2="78" stroke="#000" marker-end="url(#ar)"/>
+
+  <rect x="484" y="56" width="120" height="44" rx="4" fill="none" stroke="#000" stroke-width="1.4"/>
+  <text x="544" y="84" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#000">COMPLETED</text>
+
+  <rect x="640" y="48" width="260" height="96" rx="6" fill="#f5f5f5" stroke="#000"/>
+  <text x="770" y="76" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#000">On first COMPLETED</text>
+  <text x="660" y="98" font-family="Arial, Helvetica, sans-serif" font-size="9" fill="#000">• Check stock vs service BOM</text>
+  <text x="660" y="116" font-family="Arial, Helvetica, sans-serif" font-size="9" fill="#000">• Decrement inventory, inventoryLog + order №</text>
+  <text x="660" y="134" font-family="Arial, Helvetica, sans-serif" font-size="9" fill="#000">• Master earning + free state</text>
+
+  <text x="460" y="188" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="middle">
+    Returning from Completed rolls stock back where consumption was recorded (server-side transaction).</text>
+  <text x="460" y="248" fill="#000" font-family="Arial, Helvetica, sans-serif" font-size="9" font-style="italic" text-anchor="middle">
+    Assign master from PENDING can auto-switch to IN_WORK (implementation detail)</text>
+</svg>

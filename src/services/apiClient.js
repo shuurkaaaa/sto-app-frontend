@@ -13,7 +13,9 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
-  if (token && token !== 'null' && token.trim() !== '') {
+  const hasToken = Boolean(token && token !== 'null' && token.trim() !== '');
+  config._hadAuthToken = hasToken;
+  if (hasToken) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -25,18 +27,17 @@ apiClient.interceptors.response.use(
   (error) => {
     const status = error?.response?.status;
     const url = String(error?.config?.url || '');
+    const hadAuthToken = Boolean(error?.config?._hadAuthToken);
 
-    // Не робимо авто-logout на помилках авторизації в auth-потоках
     const isAuthFlow =
       url.includes('/auth/login') ||
       url.includes('/auth/register') ||
       url.includes('/auth/forgot-password') ||
       url.includes('/auth/reset-password') ||
-      url.includes('/auth/reset-password/');
+      url.includes('/auth/me');
 
-    if ((status === 401 || status === 403) && !isAuthFlow) {
+    if ((status === 401 || status === 403) && hadAuthToken && !isAuthFlow) {
       localStorage.removeItem('token');
-      // Проста та надійна синхронізація з App.isAuth
       window.location.href = '/';
       return Promise.reject(error);
     }
